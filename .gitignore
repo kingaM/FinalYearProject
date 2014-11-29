@@ -4,8 +4,10 @@
 # Omnet++ specific
 *_m.h
 *_m.cc
-results/
-out/
+**/results/
+**/out/
+**/Makefile
+**/.tkenvrc
 
 # Eclipse specific
 .metadata
