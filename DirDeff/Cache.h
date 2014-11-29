@@ -13,6 +13,10 @@
 #include "Entry.h"
 #include <string>
 #include <vector>
+#include <array>
+#include <boost/circular_buffer.hpp>
+
+#define MAX_SIZE 10000
 
 using namespace std;
 
@@ -26,7 +30,7 @@ public:
     vector<int> getPaths(string type, long currTime);
     int getMinInterval(string type);
 private:
-    vector<Entry> entries;
+    boost::circular_buffer<Entry> entries;
 };
 
 #endif /* CACHE_H_ */

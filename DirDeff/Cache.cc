@@ -9,11 +9,12 @@
 #include <vector>
 #include <algorithm>
 #include <sstream>
+#include <boost/circular_buffer.hpp>
 
 using namespace std;
 
 Cache::Cache() {
-    // TODO Auto-generated constructor stub
+    entries.set_capacity(MAX_SIZE);
 
 }
 
@@ -24,7 +25,8 @@ Cache::~Cache() {
 void Cache::addEntry(string type, int timestamp, int dataRate, long expiresAt,
         int neighbour) {
     Entry e = Entry(type, timestamp, dataRate, expiresAt, neighbour);
-    vector<Entry>::iterator entry = find(entries.begin(), entries.end(), e);
+    boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
+            entries.end(), e);
     if (entry != entries.end()) {
         entry->addGradient(dataRate, expiresAt, neighbour);
     } else {
@@ -34,8 +36,8 @@ void Cache::addEntry(string type, int timestamp, int dataRate, long expiresAt,
 
 vector<int> Cache::getPaths(string type, long currTime) {
     Entry wrapper = Entry(type, -1, -1, -1, -1);
-    vector<Entry>::iterator entry = find(entries.begin(), entries.end(),
-            wrapper);
+    boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
+            entries.end(), wrapper);
     if (entry == entries.end()) {
         vector<int> empty;
         return empty;
@@ -45,8 +47,8 @@ vector<int> Cache::getPaths(string type, long currTime) {
 
 int Cache::getMinInterval(string type) {
     Entry wrapper = Entry(type, -1, -1, -1, -1);
-    vector<Entry>::iterator entry = find(entries.begin(), entries.end(),
-            wrapper);
+    boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
+            entries.end(), wrapper);
     if (entry == entries.end()) {
         return -1;
     }
@@ -56,8 +58,8 @@ int Cache::getMinInterval(string type) {
 string Cache::toString() {
     stringstream ss;
     ss << "Cache [entries: ";
-    for (vector<Entry>::iterator it = entries.begin(); it != entries.end();
-            ++it) {
+    for (boost::circular_buffer<Entry>::iterator it = entries.begin();
+            it != entries.end(); ++it) {
         ss << it->toString() << "\n";
     }
     ss << "]";
