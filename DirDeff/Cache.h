@@ -11,7 +11,6 @@
 #include <string>
 #include <set>
 #include "Entry.h"
-#include <string>
 #include <vector>
 #include <array>
 #include <boost/circular_buffer.hpp>

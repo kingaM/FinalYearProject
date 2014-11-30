@@ -7,7 +7,9 @@
 #include "packet_m.h"
 #include "Cache.h"
 #include "DataCache.h"
+#include "RandomNumberGenerator.h"
 #include <set>
+
 
 #define INTEREST 1
 #define DATA 2
@@ -31,10 +33,12 @@ private:
     DataCache dataCache;
     Packet* buffer;
     simtime_t lastSent;
+    int seed;
+    RandomNumberGenerator generator;
 
 protected:
-    virtual Packet *generateMessage(simtime_t expiresAt, int interval,
-            int type, simtime_t timestamp);
+    virtual Packet *generateMessage(simtime_t expiresAt, int interval, int type,
+            simtime_t timestamp);
     virtual void forwardMessage(Packet *msg);
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
@@ -45,15 +49,14 @@ Define_Module(Node);
 void Node::generateSensor() {
     EV << "GENERATE DATA" << endl;
     Packet* msg = generateMessage(0, 0, 0, simTime());
-    int r = rand() % 10 + 2;
+    int r = generator.getNumber(2, 10);
     scheduleAt(simTime() + r, msg);
 }
 
 void Node::initialize() {
     arrivalSignal = registerSignal("arrival");
     if (getIndex() == 0) {
-        Packet *msg = generateMessage(simTime() + 40, 20, INTERVAL,
-                simTime());
+        Packet *msg = generateMessage(simTime() + 40, 20, INTERVAL, simTime());
         scheduleAt(simTime() + 2, msg);
         msg = generateMessage(1000, 20, INTEREST, simTime());
         forwardInterestPacket(msg);
@@ -63,6 +66,7 @@ void Node::initialize() {
     }
     lastSent = simTime();
     buffer = NULL;
+    generator = RandomNumberGenerator("seeds.csv", 0);
 }
 
 void Node::addToCache(Packet* ttmsg) {
