@@ -6,5 +6,6 @@ message Packet
     int source;
     int type;
     long expiresAt;
+    string dataType;
 }
 

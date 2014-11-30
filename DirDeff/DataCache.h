@@ -19,9 +19,10 @@ public:
     DataCache();
     virtual ~DataCache();
     bool isInCache(long int id);
-    void add(long int id, int prevHop, int msgType);
+    void add(long int id, int prevHop, int msgType, string dataType);
     string toString();
-    set<int> findBestNeighbour();
+    set<int> findBestNeighbour(string dataType);
+    set<string> getAllTypes();
 private:
     vector<DataEntry> entries;
 };

@@ -10,6 +10,7 @@
 #include "RandomNumberGenerator.h"
 #include "MultiLevelFeedbackQueue.h"
 #include <set>
+#include <map>
 
 #define INTEREST 1
 #define DATA 2
@@ -27,18 +28,18 @@ private:
     void saveToDataCache(Packet* ttmsg);
     void forwardInterestPacket(Packet* ttmsg);
     void forwardDataPacket(Packet* ttmsg);
-    void generateNewInterval();
+    void generateNewInterval(string dataType);
 
     Cache cache;
     DataCache dataCache;
-    MultiLevelFeedbackQueue buffer;
+    map<string, MultiLevelFeedbackQueue> buffer;
     simtime_t lastSent;
-    int seed;
     RandomNumberGenerator generator;
 
 protected:
     virtual Packet *generateMessage(simtime_t expiresAt, int interval, int type,
-            simtime_t timestamp);
+            simtime_t timestamp, string dataType);
+    virtual Packet *generateMessage(int type, string dataType);
     virtual void forwardMessage(Packet *msg);
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
@@ -48,17 +49,18 @@ Define_Module(Node);
 
 void Node::generateSensor() {
     EV << "GENERATE DATA" << endl;
-    Packet* msg = generateMessage(0, 0, 0, simTime());
-    int r = generator.getNumber(2, 10);
+    Packet* msg = generateMessage(SENSOR, "");
+    int r = generator.getNumber(5, 25);
     scheduleAt(simTime() + r, msg);
 }
 
 void Node::initialize() {
     arrivalSignal = registerSignal("arrival");
     if (getIndex() == 0) {
-        Packet *msg = generateMessage(simTime() + 40, 20, INTERVAL, simTime());
+        Packet *msg = generateMessage(INTERVAL, "sensor");
         scheduleAt(simTime() + 2, msg);
-        msg = generateMessage(1000, 20, INTEREST, simTime());
+        msg = generateMessage(1000, 20, INTEREST, simTime(),
+                msg->getDataType());
         forwardInterestPacket(msg);
     }
     if (getIndex() == 4 || getIndex() == 2) {
@@ -69,20 +71,21 @@ void Node::initialize() {
 }
 
 void Node::addToCache(Packet* ttmsg) {
-    int prEVHop = -1;
+    int prevHop = -1;
     if (ttmsg->getArrivalGate()) {
-        prEVHop = ttmsg->getArrivalGate()->getIndex();
+        prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    cache.addEntry((string) "sensor", simTime().raw(), ttmsg->getInterval(),
-            ttmsg->getExpiresAt(), prEVHop);
+    cache.addEntry((string) ttmsg->getDataType(), simTime().raw(),
+            ttmsg->getInterval(), ttmsg->getExpiresAt(), prevHop);
 }
 
 void Node::saveToDataCache(Packet* ttmsg) {
-    int prEVHop = -1;
+    int prevHop = -1;
     if (ttmsg->getArrivalGate()) {
-        prEVHop = ttmsg->getArrivalGate()->getIndex();
+        prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    dataCache.add(ttmsg->getMsgId(), prEVHop, ttmsg->getType());
+    dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
+            ttmsg->getDataType());
 }
 
 void Node::forwardInterestPacket(Packet* ttmsg) {
@@ -95,10 +98,11 @@ void Node::forwardInterestPacket(Packet* ttmsg) {
 }
 
 void Node::forwardDataPacket(Packet* ttmsg) {
-    if (lastSent + cache.getMinInterval("sensor") < simTime()) {
+    if (lastSent + cache.getMinInterval(ttmsg->getDataType()) < simTime()) {
         EV << "data sent within interval id: " << ttmsg->getMsgId() << endl;
         lastSent = simTime();
-        vector<int> paths = cache.getPaths("sensor", simTime().raw());
+        vector<int> paths = cache.getPaths(ttmsg->getDataType(),
+                simTime().raw());
         for (vector<int>::iterator it = paths.begin(); it != paths.end();
                 ++it) {
             if (*it == -1) {
@@ -110,54 +114,61 @@ void Node::forwardDataPacket(Packet* ttmsg) {
                           << "]\n";
             }
         }
+        Packet* msg = generateMessage(DATA_RETRY, ttmsg->getDataType());
+        scheduleAt(lastSent + cache.getMinInterval(msg->getDataType()) + 1,
+                msg);
     } else {
-        EV << "scheduling msg at "
-                  << lastSent + cache.getMinInterval("sensor") + 1 << endl;
-        if (ttmsg->isSelfMessage()) {
-            buffer.insert(ttmsg, Priority::HIGH);
-        } else {
-            buffer.insert(ttmsg, Priority::LOW);
+        if (buffer.count(ttmsg->getDataType()) == 0) {
+            buffer[ttmsg->getDataType()];
         }
-        Packet* msg = generateMessage(0, 0, DATA_RETRY, simTime());
-        scheduleAt(lastSent + cache.getMinInterval("sensor") + 1, msg);
+        if (ttmsg->isSelfMessage()) {
+            buffer.at(ttmsg->getDataType()).insert(ttmsg->dup(),
+                    Priority::HIGH);
+        } else {
+            buffer.at(ttmsg->getDataType()).insert(ttmsg->dup(), Priority::LOW);
+        }
     }
 }
 
-void Node::generateNewInterval() {
+void Node::generateNewInterval(string dataType) {
     EV << "INTEREST PACKET RCVD" << endl;
-    if (dataCache.findBestNeighbour().size() > 0) {
+    if (dataCache.findBestNeighbour(dataType).size() > 0) {
         EV << "generating a new interest with a lower rate" << endl;
-        scheduleAt(simTime() + 20,
-                generateMessage(1000, 10, INTERVAL, simTime()));
+        scheduleAt(simTime() + 20, generateMessage(INTERVAL, ""));
         forwardInterestPacket(
-                generateMessage(simTime() + 40, 10, INTEREST, simTime()));
+                generateMessage(simTime() + 40, 10, INTEREST, simTime(),
+                        dataType));
     } else {
         EV << "no data yet... delaying" << simTime() << " " << simTime() + 2
                   << "\n";
-        scheduleAt(simTime() + 2,
-                generateMessage(1000, 10, INTERVAL, simTime()));
+        scheduleAt(simTime() + 2, generateMessage(INTERVAL, dataType));
     }
 }
 
 void Node::handleMessage(cMessage *msg) {
     Packet *ttmsg = check_and_cast<Packet *>(msg);
-    int prEVHop = -1;
+    int prevHop = -1;
     if (ttmsg->getArrivalGate()) {
-        prEVHop = ttmsg->getArrivalGate()->getIndex();
+        prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    EV << "MSG type " << ttmsg->getType() << " prEVHop " << prEVHop << " id "
+    EV << "MSG type " << ttmsg->getType() << " prevHop " << prevHop << " id "
               << ttmsg->getMsgId() << endl;
     if (ttmsg->getType() == SENSOR) {
         EV << "recvd sensor data" << endl;
         generateSensor();
-        Packet *msg = generateMessage(1000, 20, DATA, simTime());
+        Packet *msg = generateMessage(1000, 20, DATA, simTime(),
+                ttmsg->getDataType());
         EV << "sending data from " << getIndex() << "id " << msg->getMsgId()
                   << endl;
         scheduleAt(simTime(), msg);
-        return;
     }
     if (ttmsg->getType() == DATA_RETRY) {
-        forwardDataPacket(buffer.get());
+        if (buffer.count(ttmsg->getDataType()) > 0
+                && !buffer.at(ttmsg->getDataType()).empty()) {
+            Packet *dataMsg = buffer.at(ttmsg->getDataType()).get();
+            forwardDataPacket(dataMsg);
+            delete dataMsg;
+        }
     }
     if (dataCache.isInCache(ttmsg->getMsgId())) {
         EV << "Drop packet, already handled " << ttmsg->getType() << endl;
@@ -172,16 +183,15 @@ void Node::handleMessage(cMessage *msg) {
         forwardDataPacket(ttmsg);
     }
     if (ttmsg->getType() == INTERVAL) {
-        generateNewInterval();
+        generateNewInterval(ttmsg->getDataType());
     }
+    delete msg;
 }
 
 Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type,
-        simtime_t timestamp) {
-    // Produce source and destination addresses.
+        simtime_t timestamp, string dataType) {
     int src = getIndex();
 
-    // Create message object and set source and destination field.
     Packet *msg = new Packet();
     msg->setMsgId(msg->getId());
     msg->setSource(src);
@@ -189,13 +199,22 @@ Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type,
     msg->setInterval(interval);
     msg->setType(type);
     msg->setTimestamp(timestamp);
+    msg->setDataType(dataType.c_str());
+    return msg;
+}
+
+Packet *Node::generateMessage(int type, string dataType) {
+    Packet *msg = new Packet();
+    msg->setMsgId(msg->getId());
+    msg->setType(type);
+    msg->setDataType(dataType.c_str());
     return msg;
 }
 
 void Node::forwardMessage(Packet *msg) {
     EV << dataCache.toString() << endl;
-    if (cache.getPaths("sensor", simTime().raw()).size() > 0) {
-        set<int> neighbours = dataCache.findBestNeighbour();
+    if (cache.getPaths(msg->getDataType(), simTime().raw()).size() > 0) {
+        set<int> neighbours = dataCache.findBestNeighbour(msg->getDataType());
         for (set<int>::iterator it = neighbours.begin(); it != neighbours.end();
                 ++it) {
             int i = *it;
