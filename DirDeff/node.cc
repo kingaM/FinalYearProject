@@ -8,8 +8,8 @@
 #include "Cache.h"
 #include "DataCache.h"
 #include "RandomNumberGenerator.h"
+#include "MultiLevelFeedbackQueue.h"
 #include <set>
-
 
 #define INTEREST 1
 #define DATA 2
@@ -31,7 +31,7 @@ private:
 
     Cache cache;
     DataCache dataCache;
-    Packet* buffer;
+    MultiLevelFeedbackQueue buffer;
     simtime_t lastSent;
     int seed;
     RandomNumberGenerator generator;
@@ -65,25 +65,24 @@ void Node::initialize() {
         generateSensor();
     }
     lastSent = simTime();
-    buffer = NULL;
     generator = RandomNumberGenerator("seeds.csv", 0);
 }
 
 void Node::addToCache(Packet* ttmsg) {
-    int prevHop = -1;
+    int prEVHop = -1;
     if (ttmsg->getArrivalGate()) {
-        prevHop = ttmsg->getArrivalGate()->getIndex();
+        prEVHop = ttmsg->getArrivalGate()->getIndex();
     }
     cache.addEntry((string) "sensor", simTime().raw(), ttmsg->getInterval(),
-            ttmsg->getExpiresAt(), prevHop);
+            ttmsg->getExpiresAt(), prEVHop);
 }
 
 void Node::saveToDataCache(Packet* ttmsg) {
-    int prevHop = -1;
+    int prEVHop = -1;
     if (ttmsg->getArrivalGate()) {
-        prevHop = ttmsg->getArrivalGate()->getIndex();
+        prEVHop = ttmsg->getArrivalGate()->getIndex();
     }
-    dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType());
+    dataCache.add(ttmsg->getMsgId(), prEVHop, ttmsg->getType());
 }
 
 void Node::forwardInterestPacket(Packet* ttmsg) {
@@ -111,17 +110,16 @@ void Node::forwardDataPacket(Packet* ttmsg) {
                           << "]\n";
             }
         }
-        buffer = NULL;
     } else {
-        if (buffer == NULL) {
-            EV << "scheduling msg at "
-                      << lastSent + cache.getMinInterval("sensor") + 1 << endl;
-            buffer = ttmsg;
-            Packet* msg = generateMessage(0, 0, DATA_RETRY, simTime());
-            scheduleAt(lastSent + cache.getMinInterval("sensor") + 1, msg);
+        EV << "scheduling msg at "
+                  << lastSent + cache.getMinInterval("sensor") + 1 << endl;
+        if (ttmsg->isSelfMessage()) {
+            buffer.insert(ttmsg, Priority::HIGH);
         } else {
-            EV << "BUFFER FULL" << endl;
+            buffer.insert(ttmsg, Priority::LOW);
         }
+        Packet* msg = generateMessage(0, 0, DATA_RETRY, simTime());
+        scheduleAt(lastSent + cache.getMinInterval("sensor") + 1, msg);
     }
 }
 
@@ -143,11 +141,11 @@ void Node::generateNewInterval() {
 
 void Node::handleMessage(cMessage *msg) {
     Packet *ttmsg = check_and_cast<Packet *>(msg);
-    int prevHop = -1;
+    int prEVHop = -1;
     if (ttmsg->getArrivalGate()) {
-        prevHop = ttmsg->getArrivalGate()->getIndex();
+        prEVHop = ttmsg->getArrivalGate()->getIndex();
     }
-    EV << "MSG type " << ttmsg->getType() << " prevHop " << prevHop << " id "
+    EV << "MSG type " << ttmsg->getType() << " prEVHop " << prEVHop << " id "
               << ttmsg->getMsgId() << endl;
     if (ttmsg->getType() == SENSOR) {
         EV << "recvd sensor data" << endl;
@@ -159,7 +157,7 @@ void Node::handleMessage(cMessage *msg) {
         return;
     }
     if (ttmsg->getType() == DATA_RETRY) {
-        forwardDataPacket(buffer);
+        forwardDataPacket(buffer.get());
     }
     if (dataCache.isInCache(ttmsg->getMsgId())) {
         EV << "Drop packet, already handled " << ttmsg->getType() << endl;
