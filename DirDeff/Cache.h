@@ -14,6 +14,7 @@
 #include <vector>
 #include <array>
 #include <boost/circular_buffer.hpp>
+#include <utility>
 
 #define MAX_SIZE 10000
 
@@ -28,6 +29,7 @@ public:
     string toString();
     vector<int> getPaths(string type, long currTime);
     int getMinInterval(string type);
+    void setInactive(set<pair<string, int>> inactive, long currTime);
 private:
     boost::circular_buffer<Entry> entries;
 };

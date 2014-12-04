@@ -14,11 +14,12 @@
 #include <sstream>
 #include <iostream>
 
-DataEntry::DataEntry(long int id, int prevHop, int msgType, string dataType) {
+DataEntry::DataEntry(long int id, int prevHop, int msgType, string dataType, int time) {
     this->id = id;
     this->prevHop = prevHop;
     this->msgType = msgType;
     this->dataType = dataType;
+    this->time = time;
 }
 
 DataEntry::~DataEntry() {
@@ -50,6 +51,10 @@ int DataEntry::getMsgType() const {
     return msgType;
 }
 
-const string DataEntry::getDataType() const {
+const string& DataEntry::getDataType() const {
     return dataType;
+}
+
+int DataEntry::getTime() const {
+    return time;
 }

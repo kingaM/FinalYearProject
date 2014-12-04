@@ -10,12 +10,12 @@
 #include <algorithm>
 #include <sstream>
 #include <boost/circular_buffer.hpp>
+#include <utility>
 
 using namespace std;
 
 Cache::Cache() {
     entries.set_capacity(MAX_SIZE);
-
 }
 
 Cache::~Cache() {
@@ -64,5 +64,15 @@ string Cache::toString() {
     }
     ss << "]";
     return ss.str();
+}
+
+void Cache::setInactive(set<pair<string, int>> inactive, long currTime) {
+    for (Entry e : entries) {
+        for (pair<string, int> p : inactive) {
+            if (e.getType() == p.first) {
+                e.addGradient(20, currTime + 100 * 1000, p.second);
+            }
+        }
+    }
 }
 

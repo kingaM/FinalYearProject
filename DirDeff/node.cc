@@ -11,38 +11,41 @@
 #include "MultiLevelFeedbackQueue.h"
 #include <set>
 #include <map>
+#include <utility>
 
 #define INTEREST 1
 #define DATA 2
 #define SENSOR 0
 #define INTERVAL 3
 #define DATA_RETRY 4
+#define DATA_CACHE 5
 
 using namespace std;
 
-class Node: public cSimpleModule {
-private:
-    simsignal_t arrivalSignal;
-    void addToCache(Packet* ttmsg);
-    void generateSensor();
-    void saveToDataCache(Packet* ttmsg);
-    void forwardInterestPacket(Packet* ttmsg);
-    void forwardDataPacket(Packet* ttmsg);
-    void generateNewInterval(string dataType);
+class Node : public cSimpleModule {
+    private:
+        simsignal_t arrivalSignal;
+        void addToCache(Packet* ttmsg);
+        void generateSensor();
+        void saveToDataCache(Packet* ttmsg);
+        void forwardInterestPacket(Packet* ttmsg);
+        void forwardDataPacket(Packet* ttmsg);
+        void generateNewInterval(string dataType);
+        void deleteDataCacheEntries();
 
-    Cache cache;
-    DataCache dataCache;
-    map<string, MultiLevelFeedbackQueue> buffer;
-    simtime_t lastSent;
-    RandomNumberGenerator generator;
+        Cache cache;
+        DataCache dataCache;
+        map<string, MultiLevelFeedbackQueue> buffer;
+        simtime_t lastSent;
+        RandomNumberGenerator generator;
 
-protected:
-    virtual Packet *generateMessage(simtime_t expiresAt, int interval, int type,
-            simtime_t timestamp, string dataType);
-    virtual Packet *generateMessage(int type, string dataType);
-    virtual void forwardMessage(Packet *msg);
-    virtual void initialize();
-    virtual void handleMessage(cMessage *msg);
+    protected:
+        virtual Packet *generateMessage(simtime_t expiresAt, int interval, int type,
+                simtime_t timestamp, string dataType);
+        virtual Packet *generateMessage(int type, string dataType);
+        virtual void forwardMessage(Packet *msg);
+        virtual void initialize();
+        virtual void handleMessage(cMessage *msg);
 };
 
 Define_Module(Node);
@@ -59,8 +62,7 @@ void Node::initialize() {
     if (getIndex() == 0) {
         Packet *msg = generateMessage(INTERVAL, "sensor");
         scheduleAt(simTime() + 2, msg);
-        msg = generateMessage(1000, 20, INTEREST, simTime(),
-                msg->getDataType());
+        msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(), msg->getDataType());
         forwardInterestPacket(msg);
     }
     if (getIndex() == 4 || getIndex() == 2) {
@@ -68,6 +70,8 @@ void Node::initialize() {
     }
     lastSent = simTime();
     generator = RandomNumberGenerator("seeds.csv", 0);
+    Packet *tic = generateMessage(DATA_CACHE, "sensor");
+    scheduleAt(simTime() + 1, tic);
 }
 
 void Node::addToCache(Packet* ttmsg) {
@@ -75,8 +79,8 @@ void Node::addToCache(Packet* ttmsg) {
     if (ttmsg->getArrivalGate()) {
         prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    cache.addEntry((string) ttmsg->getDataType(), simTime().raw(),
-            ttmsg->getInterval(), ttmsg->getExpiresAt(), prevHop);
+    cache.addEntry(string(ttmsg->getDataType()), simTime().raw(), ttmsg->getInterval(),
+            ttmsg->getExpiresAt(), prevHop);
 }
 
 void Node::saveToDataCache(Packet* ttmsg) {
@@ -84,14 +88,13 @@ void Node::saveToDataCache(Packet* ttmsg) {
     if (ttmsg->getArrivalGate()) {
         prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
-            ttmsg->getDataType());
+    dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(), ttmsg->getDataType(),
+            simTime().raw());
 }
 
 void Node::forwardInterestPacket(Packet* ttmsg) {
     // We need to forward the message.
-    EV << "FORWARDING INTEREST PACKET with interval " << ttmsg->getInterval()
-              << endl;
+    EV << "FORWARDING INTEREST PACKET with interval " << ttmsg->getInterval() << endl;
     forwardMessage(ttmsg);
     addToCache(ttmsg);
     saveToDataCache(ttmsg);
@@ -101,30 +104,28 @@ void Node::forwardDataPacket(Packet* ttmsg) {
     if (lastSent + cache.getMinInterval(ttmsg->getDataType()) < simTime()) {
         EV << "data sent within interval id: " << ttmsg->getMsgId() << endl;
         lastSent = simTime();
-        vector<int> paths = cache.getPaths(ttmsg->getDataType(),
-                simTime().raw());
-        for (vector<int>::iterator it = paths.begin(); it != paths.end();
-                ++it) {
+        vector<int> paths = cache.getPaths(ttmsg->getDataType(), simTime().raw());
+        for (vector<int>::iterator it = paths.begin(); it != paths.end(); ++it) {
             if (*it == -1) {
                 EV << "at the sink... YAAY!!";
-            } else {
+            }
+            else {
                 Packet *dup = ttmsg->dup();
                 send(dup, "gate$o", *it);
-                EV << "Forwarding message " << ttmsg << " on gate[" << *it
-                          << "]\n";
+                EV << "Forwarding message " << ttmsg << " on gate[" << *it << "]\n";
             }
         }
         Packet* msg = generateMessage(DATA_RETRY, ttmsg->getDataType());
-        scheduleAt(lastSent + cache.getMinInterval(msg->getDataType()) + 1,
-                msg);
-    } else {
+        scheduleAt(lastSent + cache.getMinInterval(msg->getDataType()) + 1, msg);
+    }
+    else {
         if (buffer.count(ttmsg->getDataType()) == 0) {
             buffer[ttmsg->getDataType()];
         }
         if (ttmsg->isSelfMessage()) {
-            buffer.at(ttmsg->getDataType()).insert(ttmsg->dup(),
-                    Priority::HIGH);
-        } else {
+            buffer.at(ttmsg->getDataType()).insert(ttmsg->dup(), Priority::HIGH);
+        }
+        else {
             buffer.at(ttmsg->getDataType()).insert(ttmsg->dup(), Priority::LOW);
         }
     }
@@ -135,13 +136,20 @@ void Node::generateNewInterval(string dataType) {
     if (dataCache.findBestNeighbour(dataType).size() > 0) {
         EV << "generating a new interest with a lower rate" << endl;
         scheduleAt(simTime() + 20, generateMessage(INTERVAL, ""));
-        forwardInterestPacket(
-                generateMessage(simTime() + 40, 10, INTEREST, simTime(),
-                        dataType));
-    } else {
-        EV << "no data yet... delaying" << simTime() << " " << simTime() + 2
-                  << "\n";
+        forwardInterestPacket(generateMessage(simTime() + 40, 10, INTEREST, simTime(), dataType));
+    }
+    else {
+        EV << "no data yet... delaying" << simTime() << " " << simTime() + 2 << "\n";
         scheduleAt(simTime() + 2, generateMessage(INTERVAL, dataType));
+    }
+}
+
+void Node::deleteDataCacheEntries() {
+    set<pair<string, int>> inactive = dataCache.getInactive(simTime().raw());
+    cache.setInactive(inactive, simTime().raw());
+    for (pair<string, int> p : inactive) {
+        Packet *msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(), p.first);
+        send(msg, "gate$o", p.second);
     }
 }
 
@@ -151,24 +159,26 @@ void Node::handleMessage(cMessage *msg) {
     if (ttmsg->getArrivalGate()) {
         prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    EV << "MSG type " << ttmsg->getType() << " prevHop " << prevHop << " id "
-              << ttmsg->getMsgId() << endl;
+    EV << "MSG type " << ttmsg->getType() << " prevHop " << prevHop << " id " << ttmsg->getMsgId()
+            << endl;
     if (ttmsg->getType() == SENSOR) {
         EV << "recvd sensor data" << endl;
         generateSensor();
-        Packet *msg = generateMessage(1000, 20, DATA, simTime(),
-                ttmsg->getDataType());
-        EV << "sending data from " << getIndex() << "id " << msg->getMsgId()
-                  << endl;
+        Packet *msg = generateMessage(1000, 20, DATA, simTime(), ttmsg->getDataType());
+        EV << "sending data from " << getIndex() << "id " << msg->getMsgId() << endl;
         scheduleAt(simTime(), msg);
     }
     if (ttmsg->getType() == DATA_RETRY) {
-        if (buffer.count(ttmsg->getDataType()) > 0
-                && !buffer.at(ttmsg->getDataType()).empty()) {
+        if (buffer.count(ttmsg->getDataType()) > 0 && !buffer.at(ttmsg->getDataType()).empty()) {
             Packet *dataMsg = buffer.at(ttmsg->getDataType()).get();
             forwardDataPacket(dataMsg);
             delete dataMsg;
         }
+    }
+    if (ttmsg->getType() == DATA_CACHE) {
+        deleteDataCacheEntries();
+        scheduleAt(simTime() + 1, ttmsg);
+        return;
     }
     if (dataCache.isInCache(ttmsg->getMsgId())) {
         EV << "Drop packet, already handled " << ttmsg->getType() << endl;
@@ -188,8 +198,8 @@ void Node::handleMessage(cMessage *msg) {
     delete msg;
 }
 
-Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type,
-        simtime_t timestamp, string dataType) {
+Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type, simtime_t timestamp,
+        string dataType) {
     int src = getIndex();
 
     Packet *msg = new Packet();
@@ -215,11 +225,9 @@ void Node::forwardMessage(Packet *msg) {
     EV << dataCache.toString() << endl;
     if (cache.getPaths(msg->getDataType(), simTime().raw()).size() > 0) {
         set<int> neighbours = dataCache.findBestNeighbour(msg->getDataType());
-        for (set<int>::iterator it = neighbours.begin(); it != neighbours.end();
-                ++it) {
+        for (set<int>::iterator it = neighbours.begin(); it != neighbours.end(); ++it) {
             int i = *it;
-            EV << "Forwarding message to best " << msg << " on gate[" << i
-                      << "]\n";
+            EV << "Forwarding message to best " << msg << " on gate[" << i << "]\n";
             Packet *dup = msg->dup();
             dup->setSource(getIndex());
             if (i == -1) {
