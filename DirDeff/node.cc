@@ -171,8 +171,7 @@ void Node::handleMessage(cMessage *msg) {
     if (ttmsg->getType() == SENSOR) {
         EV << "recvd sensor data" << endl;
         generateSensor();
-        Packet *msg = generateMessage(1000, 20, DATA, simTime(),
-                ttmsg->getDataType());
+        Packet *msg = generateMessage(1000, 20, DATA, simTime(), "sensor");
         EV << "sending data from " << getIndex() << "id " << msg->getMsgId()
                 << endl;
         scheduleAt(simTime(), msg);
@@ -251,13 +250,9 @@ void Node::forwardMessage(Packet *msg) {
     }
     int n = gateSize("gate");
     for (int i = 0; i < n; i++) {
-//        if (msg->getArrivalGate() == NULL
-//                || i != msg->getArrivalGate()->getIndex()) {
         Packet *dup = msg->dup();
-        // dup->setMsgId(msg->getId());
         send(dup, "gate$o", i);
         EV << "Forwarding message " << msg << " on gate[" << i << "]\n";
-//        }
     }
 
 }
