@@ -101,7 +101,6 @@ int cmp(const Entry &a, const Entry &b) {
     }
 }
 
-bool operator==(const Entry& a, const Entry& b)
-{
-  return cmp(a, b) == 1;
+bool operator==(const Entry& a, const Entry& b) {
+    return cmp(a, b) == 1;
 }

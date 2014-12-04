@@ -21,17 +21,17 @@
 using namespace std;
 
 class Cache {
-public:
-    Cache();
-    virtual ~Cache();
-    void addEntry(string type, int timestamp, int dataRate, long duration,
-            int neighbour);
-    string toString();
-    vector<int> getPaths(string type, long currTime);
-    int getMinInterval(string type);
-    void setInactive(set<pair<string, int>> inactive, long currTime);
-private:
-    boost::circular_buffer<Entry> entries;
+    public:
+        Cache();
+        virtual ~Cache();
+        void addEntry(string type, int timestamp, int dataRate, long duration,
+                int neighbour);
+        string toString();
+        vector<int> getPaths(string type, long currTime);
+        int getMinInterval(string type);
+        void setInactive(set<pair<string, int>> inactive, long currTime);
+    private:
+        boost::circular_buffer<Entry> entries;
 };
 
 #endif /* CACHE_H_ */

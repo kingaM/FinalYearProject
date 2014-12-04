@@ -18,8 +18,8 @@ Gradient::~Gradient() {
 
 string Gradient::toString() const {
     stringstream ss;
-    ss << "Gradient [dataRate: " << dataRate << " timestamp: " << timestamp <<
-            " neighbour: " << neighbour << "]";
+    ss << "Gradient [dataRate: " << dataRate << " timestamp: " << timestamp
+            << " neighbour: " << neighbour << "]";
     return ss.str();
 }
 
@@ -57,13 +57,11 @@ int cmp(const Gradient &a, const Gradient &b) {
     }
 }
 
-bool operator==(const Gradient& a, const Gradient& b)
-{
-  return cmp(a, b) == 0;
+bool operator==(const Gradient& a, const Gradient& b) {
+    return cmp(a, b) == 0;
 }
 
-bool operator<(const Gradient& a, const Gradient& b)
-{
-  return cmp(a, b) == -1;
+bool operator<(const Gradient& a, const Gradient& b) {
+    return cmp(a, b) == -1;
 }
 

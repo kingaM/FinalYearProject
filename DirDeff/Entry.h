@@ -16,26 +16,26 @@ using namespace std;
 #define ENTRY_H_
 
 class Entry {
-public:
-    Entry(string type, int timestamp, int dataRate, long duration,
-            int neighbour);
-    virtual ~Entry();
-    const set<Gradient>& getGradients() const;
-    void setGradients(const set<Gradient>& gradients);
-    int getTimestamp() const;
-    void setTimestamp(int timestamp);
-    const string& getType() const;
-    void setType(const string& type);
-    void addGradient(int dataRate, long duration, int neighbour);
-    vector<int> getPaths(long currTime);
-    string toString();
-    friend bool operator==(const Entry& a, const Entry& b);
-    int getMinInterval();
-private:
-    string type;
-    int timestamp;
-    set<Gradient> gradients;
-    int cmp(const Entry& a, const Entry& b);
+    public:
+        Entry(string type, int timestamp, int dataRate, long duration,
+                int neighbour);
+        virtual ~Entry();
+        const set<Gradient>& getGradients() const;
+        void setGradients(const set<Gradient>& gradients);
+        int getTimestamp() const;
+        void setTimestamp(int timestamp);
+        const string& getType() const;
+        void setType(const string& type);
+        void addGradient(int dataRate, long duration, int neighbour);
+        vector<int> getPaths(long currTime);
+        string toString();
+        friend bool operator==(const Entry& a, const Entry& b);
+        int getMinInterval();
+    private:
+        string type;
+        int timestamp;
+        set<Gradient> gradients;
+        int cmp(const Entry& a, const Entry& b);
 };
 
 #endif /* ENTRY_H_ */

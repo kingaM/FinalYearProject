@@ -22,12 +22,12 @@ MultiLevelFeedbackQueue::~MultiLevelFeedbackQueue() {
 
 void MultiLevelFeedbackQueue::insert(Packet* packet, Priority priority) {
     switch (priority) {
-    case Priority::HIGH:
-        high.push(packet);
-        break;
-    case Priority::LOW:
-        low.push(packet);
-        break;
+        case Priority::HIGH:
+            high.push(packet);
+            break;
+        case Priority::LOW:
+            low.push(packet);
+            break;
     }
 }
 

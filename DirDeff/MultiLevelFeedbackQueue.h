@@ -13,21 +13,23 @@
 
 using namespace std;
 
-enum class Priority {HIGH, LOW};
+enum class Priority {
+    HIGH, LOW
+};
 
 class MultiLevelFeedbackQueue {
-public:
-    MultiLevelFeedbackQueue();
-    virtual ~MultiLevelFeedbackQueue();
+    public:
+        MultiLevelFeedbackQueue();
+        virtual ~MultiLevelFeedbackQueue();
 
-    void insert(Packet *packet, Priority priority);
-    Packet* get();
-    bool empty();
-private:
-    int lastSwitch = 0;
-    queue<Packet*> high;
-    queue<Packet*> low;
-    int const switchLength = 10;
+        void insert(Packet *packet, Priority priority);
+        Packet* get();
+        bool empty();
+    private:
+        int lastSwitch = 0;
+        queue<Packet*> high;
+        queue<Packet*> low;
+        int const switchLength = 10;
 
 };
 

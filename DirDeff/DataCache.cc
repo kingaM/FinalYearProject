@@ -28,7 +28,8 @@ bool DataCache::isInCache(long int id) {
     return find(entries.begin(), entries.end(), wrapper) != entries.end();
 }
 
-void DataCache::add(long int id, int prevHop, int msgType, string dataType, int time) {
+void DataCache::add(long int id, int prevHop, int msgType, string dataType,
+        int time) {
     DataEntry e = DataEntry(id, prevHop, msgType, dataType, time);
     entries.push_back(e);
 }
@@ -70,10 +71,12 @@ set<string> DataCache::getAllTypes() {
 
 set<pair<string, int>> DataCache::getInactive(int currTime) {
     set<pair<string, int>> inactive;
-    for (vector<DataEntry>::iterator it = entries.begin(); it != entries.end(); ) {
+    for (vector<DataEntry>::iterator it = entries.begin(); it != entries.end();
+            ) {
         if (currTime - it->getTime() > 30 * 1000 && it->getMsgType() == 2
                 && it->getPrevHop() != -1) {
-            inactive.insert(pair<string, int>(it->getDataType(), it->getPrevHop()));
+            inactive.insert(
+                    pair<string, int>(it->getDataType(), it->getPrevHop()));
             it = entries.erase(it);
         } else if (currTime - it->getTime() > 30 * 1000) {
             it = entries.erase(it);
