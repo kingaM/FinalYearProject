@@ -22,7 +22,7 @@ Cache::~Cache() {
     // TODO Auto-generated destructor stub
 }
 
-void Cache::addEntry(string type, int timestamp, int dataRate, long expiresAt,
+void Cache::addEntry(string type, long timestamp, int dataRate, long expiresAt,
         int neighbour) {
     Entry e = Entry(type, timestamp, dataRate, expiresAt, neighbour);
     boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),

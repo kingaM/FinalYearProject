@@ -24,7 +24,7 @@ class Cache {
     public:
         Cache();
         virtual ~Cache();
-        void addEntry(string type, int timestamp, int dataRate, long duration,
+        void addEntry(string type, long timestamp, int dataRate, long duration,
                 int neighbour);
         string toString();
         vector<int> getPaths(string type, long currTime);

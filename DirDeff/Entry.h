@@ -17,13 +17,13 @@ using namespace std;
 
 class Entry {
     public:
-        Entry(string type, int timestamp, int dataRate, long duration,
+        Entry(string type, long timestamp, int dataRate, long duration,
                 int neighbour);
         virtual ~Entry();
         const set<Gradient>& getGradients() const;
         void setGradients(const set<Gradient>& gradients);
-        int getTimestamp() const;
-        void setTimestamp(int timestamp);
+        long getTimestamp() const;
+        void setTimestamp(long timestamp);
         const string& getType() const;
         void setType(const string& type);
         void addGradient(int dataRate, long duration, int neighbour);
@@ -33,7 +33,7 @@ class Entry {
         int getMinInterval();
     private:
         string type;
-        int timestamp;
+        long timestamp;
         set<Gradient> gradients;
         int cmp(const Entry& a, const Entry& b);
 };

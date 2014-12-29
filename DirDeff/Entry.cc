@@ -15,7 +15,7 @@
 #include <string>
 #include <sstream>
 
-Entry::Entry(string type, int timestamp, int dataRate, long duration,
+Entry::Entry(string type, long timestamp, int dataRate, long duration,
         int neighbour) {
     this->type = type;
     this->timestamp = timestamp;
@@ -65,11 +65,11 @@ void Entry::setGradients(const set<Gradient>& gradients) {
     this->gradients = gradients;
 }
 
-int Entry::getTimestamp() const {
+long Entry::getTimestamp() const {
     return timestamp;
 }
 
-void Entry::setTimestamp(int timestamp) {
+void Entry::setTimestamp(long timestamp) {
     this->timestamp = timestamp;
 }
 

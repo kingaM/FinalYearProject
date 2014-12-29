@@ -73,12 +73,12 @@ set<pair<string, int>> DataCache::getInactive(int currTime) {
     set<pair<string, int>> inactive;
     for (vector<DataEntry>::iterator it = entries.begin(); it != entries.end();
             ) {
-        if (currTime - it->getTime() > 30 * 1000 && it->getMsgType() == 2
+        if (currTime - it->getTime() > 30 * 100000000000 && it->getMsgType() == 2
                 && it->getPrevHop() != -1) {
             inactive.insert(
                     pair<string, int>(it->getDataType(), it->getPrevHop()));
             it = entries.erase(it);
-        } else if (currTime - it->getTime() > 30 * 1000) {
+        } else if (currTime - it->getTime() > 30 * 100000000000) {
             it = entries.erase(it);
         } else {
             it++;

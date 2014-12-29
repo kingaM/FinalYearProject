@@ -46,5 +46,5 @@ Packet* MultiLevelFeedbackQueue::get() {
 }
 
 bool MultiLevelFeedbackQueue::empty() {
-    return high.empty() || low.empty();
+    return high.empty() && low.empty();
 }
