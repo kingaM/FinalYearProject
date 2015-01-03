@@ -13,7 +13,7 @@ using namespace std;
 
 Signal::Signal() {
     this->present = false;
-    this->concentration = -1;
+    this->concentration = 0;
 }
 
 Signal::Signal(double concentration) {

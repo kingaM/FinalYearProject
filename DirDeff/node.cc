@@ -51,6 +51,7 @@ class Node : public cSimpleModule {
         int numOfUpdates = 0;
         map<string, int> numRcvd;
         map<string, int> numExp;
+        DendricCells dcs;
 
     protected:
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
@@ -89,6 +90,7 @@ void Node::initialize() {
     generator = RandomNumberGenerator("seeds.csv", 0);
     acc = SumAcc(tag::rolling_window::window_size = 10);
     scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
+    dcs = DendricCells(matrix);
 }
 
 void Node::addToCache(Packet* ttmsg) {
@@ -122,6 +124,7 @@ void Node::forwardInterestPacket(Packet* ttmsg) {
             << endl;
     forwardMessage(ttmsg);
     addToCache(ttmsg);
+    dcs.addCell(ttmsg->getDataType());
     saveToDataCache(ttmsg);
 }
 
@@ -264,6 +267,7 @@ void Node::handleMessage(cMessage *msg) {
         numOfUpdates = 0;
         EV << "SUM OF EVENTS : " << rolling_sum(acc);
         matrix.getEntry().setSs3Ds1(rolling_sum(acc));
+        dcs.cycle();
     }
     delete msg;
 }

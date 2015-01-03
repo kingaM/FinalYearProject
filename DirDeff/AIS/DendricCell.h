@@ -14,12 +14,16 @@
 
 using namespace std;
 
+enum class Maturity {
+    SEMI, MAT
+};
+
 class DendricCell {
     public:
         DendricCell(SignalMatrix signalMatrix);
         virtual ~DendricCell();
         void cycle();
-        void mature();
+        Maturity mature();
 
     private:
         SignalMatrix signalMatrix;
