@@ -45,9 +45,13 @@ const Signal& MatrixEntry::getPs() const {
     return ps;
 }
 
-void MatrixEntry::setPs() {
-    // TODO: Add concentration
-    this->ps = Signal();
+void MatrixEntry::setPs(int nrcvd, int nexp) {
+    double conc = 1 - (double) nrcvd / (double) nexp;
+    this->ps = Signal(conc);
+}
+
+void MatrixEntry::setPs(double conc) {
+    this->ps = Signal(conc);
 }
 
 const Signal& MatrixEntry::getSs1() const {

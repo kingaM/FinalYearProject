@@ -49,10 +49,12 @@ class Node : public cSimpleModule {
         SignalMatrix matrix;
         SumAcc acc;
         int numOfUpdates = 0;
+        map<string, int> numRcvd;
+        map<string, int> numExp;
 
     protected:
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
-                int type, simtime_t timestamp, string dataType);
+                int type, simtime_t timestamp, string dataType, double psConc);
         virtual Packet *generateMessage(int type, string dataType);
         virtual void forwardMessage(Packet *msg);
         virtual void initialize();
@@ -77,7 +79,7 @@ void Node::initialize() {
         Packet *msg = generateMessage(INTERVAL, "sensor");
         scheduleAt(simTime() + 2, msg);
         msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
-                msg->getDataType());
+                msg->getDataType(), 0);
         forwardInterestPacket(msg);
     }
     if (getIndex() == 4 || getIndex() == 2) {
@@ -167,9 +169,16 @@ void Node::generateNewInterval(string dataType) {
     if (dataCache.findBestNeighbour(dataType).size() > 0) {
         EV << "generating a new interest with a lower rate" << endl;
         scheduleAt(simTime() + 20, generateMessage(INTERVAL, ""));
+        double psConc = 0;
+        if (numExp.count(dataType)) {
+            matrix.getEntry().setPs(numRcvd[dataType], numExp[dataType]);
+            psConc = matrix.getEntry().getPs().getConcentration();
+        }
         forwardInterestPacket(
                 generateMessage(simTime() + 40, 10, INTEREST, simTime(),
-                        dataType));
+                        dataType, psConc));
+        numExp[dataType] = 40/10;
+        numRcvd[dataType] = 0;
     } else {
         EV << "no data yet... delaying" << simTime() << " " << simTime() + 2
                 << "\n";
@@ -188,7 +197,7 @@ void Node::deleteDataCacheEntries() {
     for (pair<string, int> p : inactive) {
         EV << "Inactive first" << p.first << " " << p.second << endl;
         Packet *msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
-                p.first);
+                p.first, -1);
         send(msg, "gate$o", p.second);
     }
 }
@@ -204,7 +213,7 @@ void Node::handleMessage(cMessage *msg) {
     if (ttmsg->getType() == SENSOR) {
         EV << "recvd sensor data" << endl;
         generateSensor();
-        Packet *msg = generateMessage(1000, 20, DATA, simTime(), "sensor");
+        Packet *msg = generateMessage(1000, 20, DATA, simTime(), "sensor", -1);
         EV << "sending data from " << getIndex() << "id " << msg->getMsgId()
                 << endl;
         scheduleAt(simTime(), msg);
@@ -227,11 +236,15 @@ void Node::handleMessage(cMessage *msg) {
     }
     if (ttmsg->getType() == INTEREST) {
         forwardInterestPacket(ttmsg);
+        if (ttmsg->getPsConc() > 0) {
+            matrix.getEntry().setPs(ttmsg->getPsConc());
+        }
     }
     if (ttmsg->getType() == DATA) {
         EV << "Sending data..." << endl;
         deleteDataCacheEntries();
         saveToDataCache(ttmsg);
+        numRcvd[ttmsg->getDataType()]++;
         if (buffer.count(ttmsg->getDataType()) == 0) {
             Packet* msg = generateMessage(DATA_RETRY, ttmsg->getDataType());
             simtime_t scheduleTime = max(
@@ -256,7 +269,7 @@ void Node::handleMessage(cMessage *msg) {
 }
 
 Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type,
-        simtime_t timestamp, string dataType) {
+        simtime_t timestamp, string dataType, double psConc) {
     int src = getIndex();
 
     Packet *msg = new Packet();
@@ -267,6 +280,7 @@ Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type,
     msg->setType(type);
     msg->setTimestamp(timestamp);
     msg->setDataType(dataType.c_str());
+    msg->setPsConc(psConc);
     return msg;
 }
 

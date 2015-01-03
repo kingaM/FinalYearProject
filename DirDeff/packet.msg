@@ -7,5 +7,6 @@ message Packet
     int type;
     long expiresAt;
     string dataType;
+    double psConc;
 }
 

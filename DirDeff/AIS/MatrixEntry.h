@@ -18,7 +18,8 @@ class MatrixEntry {
         const Signal& getDs2() const;
         void setDs2(long timestamp, long expiry, long currTime);
         const Signal& getPs() const;
-        void setPs();
+        void setPs(int nrcvd, int nexp);
+        void setPs(double conc);
         const Signal& getSs1() const;
         void setSs1();
         const Signal& getSs2() const;
