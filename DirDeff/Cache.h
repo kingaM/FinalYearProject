@@ -24,12 +24,13 @@ class Cache {
     public:
         Cache();
         virtual ~Cache();
-        void addEntry(string type, long timestamp, int dataRate, long duration,
+        Gradient* addEntry(string type, long timestamp, int dataRate, long duration,
                 int neighbour);
         string toString();
         vector<int> getPaths(string type, long currTime);
         int getMinInterval(string type);
         void setInactive(set<pair<string, int>> inactive, long currTime);
+        const static int SIZE = MAX_SIZE;
     private:
         boost::circular_buffer<Entry> entries;
 };

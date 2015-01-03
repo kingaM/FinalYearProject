@@ -12,14 +12,22 @@
 #include <set>
 #include <map>
 #include <utility>
+#include <SignalMatrix.h>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/rolling_sum.hpp>
 
 #define INTEREST 1
 #define DATA 2
 #define SENSOR 0
 #define INTERVAL 3
 #define DATA_RETRY 4
+#define TIC 5
 
 using namespace std;
+using namespace boost::accumulators;
+
+typedef accumulator_set<int, stats<tag::rolling_sum>> SumAcc;
 
 class Node : public cSimpleModule {
     private:
@@ -38,6 +46,9 @@ class Node : public cSimpleModule {
         map<string, MultiLevelFeedbackQueue> buffer;
         simtime_t lastSent;
         RandomNumberGenerator generator;
+        SignalMatrix matrix;
+        SumAcc acc;
+        int numOfUpdates = 0;
 
     protected:
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
@@ -46,6 +57,9 @@ class Node : public cSimpleModule {
         virtual void forwardMessage(Packet *msg);
         virtual void initialize();
         virtual void handleMessage(cMessage *msg);
+
+    public:
+        Node() : acc(SumAcc(tag::rolling_window::window_size = 10)) {};
 };
 
 Define_Module(Node);
@@ -71,6 +85,8 @@ void Node::initialize() {
     }
     lastSent = simTime();
     generator = RandomNumberGenerator("seeds.csv", 0);
+    acc = SumAcc(tag::rolling_window::window_size = 10);
+    scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
 }
 
 void Node::addToCache(Packet* ttmsg) {
@@ -78,8 +94,13 @@ void Node::addToCache(Packet* ttmsg) {
     if (ttmsg->getArrivalGate()) {
         prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    cache.addEntry(string(ttmsg->getDataType()), simTime().raw(),
+    Gradient* prev = cache.addEntry(string(ttmsg->getDataType()), simTime().raw(),
             ttmsg->getInterval(), ttmsg->getExpiresAt(), prevHop);
+    if (prev != NULL) {
+        matrix.getEntry().setSs2();
+        numOfUpdates++;
+        matrix.getEntry().setDs2(prev->getTimestamp(), prev->getExpiry(), simTime().raw());
+    }
 }
 
 void Node::saveToDataCache(Packet* ttmsg) {
@@ -89,6 +110,8 @@ void Node::saveToDataCache(Packet* ttmsg) {
     }
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
+    // TODO: reinforced path?
+    matrix.getEntry().setSs1();
 }
 
 void Node::forwardInterestPacket(Packet* ttmsg) {
@@ -222,6 +245,12 @@ void Node::handleMessage(cMessage *msg) {
     }
     if (ttmsg->getType() == INTERVAL) {
         generateNewInterval(ttmsg->getDataType());
+    }
+    if (ttmsg->getType() == TIC) {
+        acc(numOfUpdates);
+        numOfUpdates = 0;
+        EV << "SUM OF EVENTS : " << rolling_sum(acc);
+        matrix.getEntry().setSs3Ds1(rolling_sum(acc));
     }
     delete msg;
 }

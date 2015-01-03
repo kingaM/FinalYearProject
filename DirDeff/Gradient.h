@@ -13,7 +13,7 @@ using namespace std;
 
 class Gradient {
     public:
-        Gradient(int dataRate, long timestamp, int neighbour);
+        Gradient(int dataRate, long timestamp, int neighbour, long currTime);
         virtual ~Gradient();
         int getDataRate() const;
         void setDataRate(int dataRate);
@@ -24,11 +24,14 @@ class Gradient {
         string toString() const;
         friend bool operator==(const Gradient& a, const Gradient& b);
         friend bool operator<(const Gradient& a, const Gradient& b);
+        long getExpiry() const;
+        void setExpiry(long expiry);
 
     private:
         int dataRate;
-        long timestamp;
+        long expiry;
         int neighbour;
+        long timestamp;
         int cmp(const Gradient& a, const Gradient& b);
 };
 

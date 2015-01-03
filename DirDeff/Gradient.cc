@@ -6,10 +6,11 @@
 #include "Gradient.h"
 using namespace std;
 
-Gradient::Gradient(int dataRate, long timestamp, int neighbour) {
+Gradient::Gradient(int dataRate, long expiry, int neighbour, long timestamp) {
     this->dataRate = dataRate;
-    this->timestamp = timestamp;
+    this->expiry = expiry;
     this->neighbour = neighbour;
+    this->timestamp = timestamp;
 }
 
 Gradient::~Gradient() {
@@ -65,3 +66,10 @@ bool operator<(const Gradient& a, const Gradient& b) {
     return cmp(a, b) == -1;
 }
 
+long Gradient::getExpiry() const {
+    return expiry;
+}
+
+void Gradient::setExpiry(long expiry) {
+    this->expiry = expiry;
+}

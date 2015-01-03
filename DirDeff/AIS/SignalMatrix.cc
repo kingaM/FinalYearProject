@@ -6,10 +6,10 @@
  */
 
 #include <AIS/SignalMatrix.h>
+#include <MatrixEntry.h>
 
 SignalMatrix::SignalMatrix() {
-    // TODO Auto-generated constructor stub
-
+    smallMatrix = MatrixEntry();
 }
 
 SignalMatrix::~SignalMatrix() {
@@ -17,9 +17,13 @@ SignalMatrix::~SignalMatrix() {
 }
 
 void SignalMatrix::addEntry(string type) {
-    matrix[type] = MatrixEntry();
+    largeMatrix[type] = MatrixEntry();
 }
 
 MatrixEntry SignalMatrix::getEntry(string type) {
-    return matrix.at(type);
+    return largeMatrix.at(type);
+}
+
+MatrixEntry SignalMatrix::getEntry() {
+    return smallMatrix;
 }

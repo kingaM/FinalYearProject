@@ -26,7 +26,7 @@ class Entry {
         void setTimestamp(long timestamp);
         const string& getType() const;
         void setType(const string& type);
-        void addGradient(int dataRate, long duration, int neighbour);
+        Gradient* addGradient(int dataRate, long duration, int neighbour, long currTime);
         vector<int> getPaths(long currTime);
         string toString();
         friend bool operator==(const Entry& a, const Entry& b);

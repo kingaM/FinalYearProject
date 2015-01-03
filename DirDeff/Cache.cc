@@ -22,15 +22,16 @@ Cache::~Cache() {
     // TODO Auto-generated destructor stub
 }
 
-void Cache::addEntry(string type, long timestamp, int dataRate, long expiresAt,
+Gradient* Cache::addEntry(string type, long timestamp, int dataRate, long expiresAt,
         int neighbour) {
     Entry e = Entry(type, timestamp, dataRate, expiresAt, neighbour);
     boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
             entries.end(), e);
     if (entry != entries.end()) {
-        entry->addGradient(dataRate, expiresAt, neighbour);
+        return entry->addGradient(dataRate, expiresAt, neighbour, timestamp);
     } else {
         entries.push_back(e);
+        return NULL;
     }
 }
 
@@ -70,7 +71,7 @@ void Cache::setInactive(set<pair<string, int>> inactive, long currTime) {
     for (Entry e : entries) {
         for (pair<string, int> p : inactive) {
             if (e.getType() == p.first) {
-                e.addGradient(20, currTime + 100 * 1000, p.second);
+                e.addGradient(20, currTime + 100 * 1000, p.second, currTime);
             }
         }
     }

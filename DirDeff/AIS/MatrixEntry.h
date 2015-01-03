@@ -16,7 +16,7 @@ class MatrixEntry {
         virtual ~MatrixEntry();
         const Signal& getDs1() const;
         const Signal& getDs2() const;
-        void setDs2(double remainingTime, double expirationTime);
+        void setDs2(long timestamp, long expiry, long currTime);
         const Signal& getPs() const;
         void setPs();
         const Signal& getSs1() const;

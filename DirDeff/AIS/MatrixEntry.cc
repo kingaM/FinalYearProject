@@ -7,6 +7,7 @@
 
 #include <AIS/MatrixEntry.h>
 #include <cmath>
+#include <Cache.h>
 
 #define CACHE_SIZE 1000
 
@@ -33,7 +34,9 @@ const Signal& MatrixEntry::getDs2() const {
     return ds2;
 }
 
-void MatrixEntry::setDs2(double remainingTime, double expirationTime) {
+void MatrixEntry::setDs2(long timestamp, long expiry, long currTime) {
+    double remainingTime = expiry - currTime;
+    double expirationTime = expiry - timestamp;
     double conc = remainingTime / expirationTime;
     this->ds2 = Signal(conc);
 }

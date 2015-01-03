@@ -19,7 +19,7 @@ Entry::Entry(string type, long timestamp, int dataRate, long duration,
         int neighbour) {
     this->type = type;
     this->timestamp = timestamp;
-    this->addGradient(dataRate, duration, neighbour);
+    this->addGradient(dataRate, duration, neighbour, timestamp);
 }
 
 Entry::~Entry() {
@@ -30,13 +30,17 @@ const set<Gradient>& Entry::getGradients() const {
     return gradients;
 }
 
-void Entry::addGradient(int dataRate, long duration, int neighbour) {
-    Gradient g = Gradient(dataRate, duration, neighbour);
+Gradient* Entry::addGradient(int dataRate, long duration, int neighbour, long currTime) {
+    Gradient g = Gradient(dataRate, duration, neighbour, currTime);
     set<Gradient>::iterator prevG = gradients.find(g);
     if (prevG != gradients.end()) {
         gradients.erase(prevG);
+        gradients.insert(g);
+        return new Gradient(*prevG);
+    } else {
+        gradients.insert(g);
+        return NULL;
     }
-    gradients.insert(g);
 }
 
 vector<int> Entry::getPaths(long currTime) {
@@ -45,7 +49,7 @@ vector<int> Entry::getPaths(long currTime) {
     int max = min_element(gradients.begin(), gradients.end())->getDataRate();
     cout << max << endl;
     while (it != gradients.end()) {
-        if (currTime > it->getTimestamp()) {
+        if (currTime > it->getExpiry()) {
             gradients.erase(it++);
             continue;
         }

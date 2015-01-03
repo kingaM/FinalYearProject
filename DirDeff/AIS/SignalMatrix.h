@@ -21,9 +21,11 @@ class SignalMatrix {
         virtual ~SignalMatrix();
         void addEntry(string type);
         MatrixEntry getEntry(string type);
+        MatrixEntry getEntry();
     private:
         // Maps each interest cache entry to an entry in a matrix
-        map<string, MatrixEntry> matrix;
+        map<string, MatrixEntry> largeMatrix;
+        MatrixEntry smallMatrix;
 };
 
 #endif /* SIGNALMATRIX_H_ */
