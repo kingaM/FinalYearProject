@@ -14,6 +14,7 @@
 #include <iterator>
 #include <string>
 #include <sstream>
+#include <stdio.h>
 
 Entry::Entry(string type, long timestamp, int dataRate, long duration,
         int neighbour) {
@@ -62,6 +63,10 @@ vector<int> Entry::getPaths(long currTime) {
 }
 
 int Entry::getMinInterval() {
+    if (gradients.empty()) {
+        cout << "Error: No gradients" << endl;;
+        return 0;
+    }
     return min_element(gradients.begin(), gradients.end())->getDataRate();
 }
 

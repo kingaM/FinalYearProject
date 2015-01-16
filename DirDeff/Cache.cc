@@ -11,6 +11,7 @@
 #include <sstream>
 #include <boost/circular_buffer.hpp>
 #include <utility>
+#include <stdio.h>
 
 using namespace std;
 
@@ -30,6 +31,7 @@ Gradient* Cache::addEntry(string type, long timestamp, int dataRate, long expire
     if (entry != entries.end()) {
         return entry->addGradient(dataRate, expiresAt, neighbour, timestamp);
     } else {
+        e.addGradient(dataRate, expiresAt, neighbour, timestamp);
         entries.push_back(e);
         return NULL;
     }
@@ -43,7 +45,12 @@ vector<int> Cache::getPaths(string type, long currTime) {
         vector<int> empty;
         return empty;
     }
-    return entry->getPaths(currTime);
+    vector<int> paths = entry->getPaths(currTime);
+    if (paths.empty()) {
+        cout << "Deleting entry" << endl;
+        entries.erase(entry);
+    }
+    return paths;
 }
 
 int Cache::getMinInterval(string type) {
@@ -51,8 +58,10 @@ int Cache::getMinInterval(string type) {
     boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
             entries.end(), wrapper);
     if (entry == entries.end()) {
-        return -1;
+        cout << "no entries" << endl;
+        return 0;
     }
+    cout << "min entry " << entry->getMinInterval() << endl;
     return entry->getMinInterval();
 }
 

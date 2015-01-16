@@ -12,11 +12,13 @@ simple Node
 network TestNetwork
 {
     types:
-        channel Channel extends ned.DelayChannel {
+        channel Channel extends ned.DelayChannel
+        {
             delay = 100ms;
         }
     submodules:
-        node[6]: Node;
+        node[7]: Node {
+        }
     connections:
         node[0].gate++ <--> Channel <--> node[1].gate++;
         node[1].gate++ <--> Channel <--> node[2].gate++;
@@ -24,5 +26,7 @@ network TestNetwork
         node[3].gate++ <--> Channel <--> node[4].gate++;
         node[3].gate++ <--> Channel <--> node[2].gate++;
         node[4].gate++ <--> Channel <--> node[5].gate++;
+        node[6].gate++ <--> Channel <--> node[5].gate++;
+        node[6].gate++ <--> Channel <--> node[4].gate++;
 }
 

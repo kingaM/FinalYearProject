@@ -16,6 +16,7 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/rolling_sum.hpp>
+#include <DendricCells.h>
 
 #define INTEREST 1
 #define DATA 2
@@ -105,6 +106,7 @@ void Node::addToCache(Packet* ttmsg) {
         numOfUpdates++;
         matrix.getEntry().setDs2(prev->getTimestamp(), prev->getExpiry(), simTime().raw());
     }
+    delete prev;
 }
 
 void Node::saveToDataCache(Packet* ttmsg) {
@@ -144,10 +146,10 @@ void Node::forwardDataPacket(Packet* ttmsg) {
     EV << "forward data packet" << endl;
     EV << cache.toString() << endl;
     if (lastSent + cache.getMinInterval(ttmsg->getDataType()) < simTime()) {
-        EV << "data sent within interval id: " << ttmsg->getMsgId() << endl;
         lastSent = simTime();
         vector<int> paths = cache.getPaths(ttmsg->getDataType(),
                 simTime().raw());
+        EV << paths.size() << endl;
         for (vector<int>::iterator it = paths.begin(); it != paths.end();
                 ++it) {
             if (*it == -1) {
@@ -155,6 +157,7 @@ void Node::forwardDataPacket(Packet* ttmsg) {
             } else {
                 Packet *dup = ttmsg->dup();
                 send(dup, "gate$o", *it);
+                EV << "last sent 2 " << lastSent;
                 EV << "Forwarding message " << ttmsg << " on gate[" << *it
                         << "]\n";
             }
@@ -192,13 +195,8 @@ void Node::generateNewInterval(string dataType) {
 void Node::deleteDataCacheEntries() {
     set<pair<string, int>> inactive = dataCache.getInactive(simTime().raw());
     EV << "deleting inactive " << inactive.size() << endl;
-    if (inactive.size() == 0) {
-        EV << "Nothing to delete" << endl;
-        return;
-    }
     cache.setInactive(inactive, simTime().raw());
     for (pair<string, int> p : inactive) {
-        EV << "Inactive first" << p.first << " " << p.second << endl;
         Packet *msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
                 p.first, -1);
         send(msg, "gate$o", p.second);
@@ -214,11 +212,8 @@ void Node::handleMessage(cMessage *msg) {
     EV << "MSG type " << ttmsg->getType() << " prevHop " << prevHop << " id "
             << ttmsg->getMsgId() << endl;
     if (ttmsg->getType() == SENSOR) {
-        EV << "recvd sensor data" << endl;
         generateSensor();
-        Packet *msg = generateMessage(1000, 20, DATA, simTime(), "sensor", -1);
-        EV << "sending data from " << getIndex() << "id " << msg->getMsgId()
-                << endl;
+        Packet *msg = generateMessage(simTime() + 1000, 20, DATA, simTime(), "sensor", -1);
         scheduleAt(simTime(), msg);
     }
     if (ttmsg->getType() == DATA_RETRY) {
@@ -229,7 +224,7 @@ void Node::handleMessage(cMessage *msg) {
             forwardDataPacket(dataMsg);
             delete dataMsg;
         } else {
-            EV << "buffer EMPTY!!" << endl;
+            EV << "buffer empty" << endl;
         }
     }
     if (dataCache.isInCache(ttmsg->getMsgId())) {
@@ -256,8 +251,7 @@ void Node::handleMessage(cMessage *msg) {
             scheduleAt(scheduleTime, msg);
         }
         saveToBuffer(ttmsg);
-//        forwardDataPacket(ttmsg);
-            return;
+        return;
     }
     if (ttmsg->getType() == INTERVAL) {
         generateNewInterval(ttmsg->getDataType());
@@ -268,6 +262,7 @@ void Node::handleMessage(cMessage *msg) {
         EV << "SUM OF EVENTS : " << rolling_sum(acc);
         matrix.getEntry().setSs3Ds1(rolling_sum(acc));
         dcs.cycle();
+        scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     }
     delete msg;
 }
@@ -279,7 +274,7 @@ Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type,
     Packet *msg = new Packet();
     msg->setMsgId(msg->getId());
     msg->setSource(src);
-    msg->setExpiresAt(expiresAt.raw());
+    msg->setExpiresAt((simTime() + 1000).raw());
     msg->setInterval(interval);
     msg->setType(type);
     msg->setTimestamp(timestamp);

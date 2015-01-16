@@ -8,6 +8,10 @@
 #include <DendricCell.h>
 #include <SignalMatrix.h>
 
+DendricCell::DendricCell() {
+
+}
+
 DendricCell::DendricCell(SignalMatrix signalMatrix) {
     this->signalMatrix = signalMatrix;
 }
