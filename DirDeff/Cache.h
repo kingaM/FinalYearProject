@@ -17,7 +17,7 @@
 #include <utility>
 #include <AIS/DendricCells.h>
 
-#define MAX_SIZE 10000
+#define MAX_SIZE 10
 
 using namespace std;
 

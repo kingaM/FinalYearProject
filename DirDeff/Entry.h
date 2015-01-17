@@ -24,7 +24,7 @@ class Entry {
         void setGradients(const set<Gradient>& gradients);
         long getTimestamp() const;
         void setTimestamp(long timestamp);
-        const string& getType() const;
+        const string getType() const;
         void setType(const string& type);
         Gradient* addGradient(int dataRate, long duration, int neighbour, long currTime);
         vector<int> getPaths(long currTime);

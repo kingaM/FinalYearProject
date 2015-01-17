@@ -100,8 +100,10 @@ void Node::addToCache(Packet* ttmsg) {
     if (ttmsg->getArrivalGate()) {
         prevHop = ttmsg->getArrivalGate()->getIndex();
     }
+    EV << "CACHE type: " << string(ttmsg->getDataType()) << endl;
     Gradient* prev = cache.addEntry(string(ttmsg->getDataType()), simTime().raw(),
             ttmsg->getInterval(), ttmsg->getExpiresAt(), prevHop);
+    EV << cache.toString() << endl;
     if (prev != NULL) {
         matrix.getEntry().setSs2();
         numOfUpdates++;
@@ -293,7 +295,6 @@ Packet *Node::generateMessage(int type, string dataType) {
 }
 
 void Node::forwardMessage(Packet *msg) {
-    EV << dataCache.toString() << endl;
     if (cache.getPaths(msg->getDataType(), simTime().raw()).size() > 0) {
         set<int> neighbours = dataCache.findBestNeighbour(msg->getDataType());
         for (set<int>::iterator it = neighbours.begin(); it != neighbours.end();

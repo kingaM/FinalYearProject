@@ -9,6 +9,15 @@ simple Node
         inout gate[];
 }
 
+simple EvilNode
+{
+    parameters:
+
+        @display("i=block/routing,red");
+    gates:
+        inout gate[];
+}
+
 network TestNetwork
 {
     types:
@@ -17,13 +26,14 @@ network TestNetwork
             delay = 100ms;
         }
     submodules:
-        node[7]: Node {
-        }
+        node[7]: Node;
+        evil[1]: EvilNode;
     connections:
         node[0].gate++ <--> Channel <--> node[1].gate++;
         node[1].gate++ <--> Channel <--> node[2].gate++;
         node[1].gate++ <--> Channel <--> node[4].gate++;
-        node[3].gate++ <--> Channel <--> node[4].gate++;
+        node[3].gate++ <--> Channel <--> evil[0].gate++;
+        node[4].gate++ <--> Channel <--> evil[0].gate++;
         node[3].gate++ <--> Channel <--> node[2].gate++;
         node[4].gate++ <--> Channel <--> node[5].gate++;
         node[6].gate++ <--> Channel <--> node[5].gate++;

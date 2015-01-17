@@ -82,7 +82,7 @@ void Entry::setTimestamp(long timestamp) {
     this->timestamp = timestamp;
 }
 
-const string& Entry::getType() const {
+const string Entry::getType() const {
     return type;
 }
 
@@ -103,7 +103,7 @@ string Entry::toString() {
 }
 
 int cmp(const Entry &a, const Entry &b) {
-    if (a.getType() == a.getType()) {
+    if (a.getType().compare(b.getType()) == 0) {
         return 1;
     } else {
         return 0;

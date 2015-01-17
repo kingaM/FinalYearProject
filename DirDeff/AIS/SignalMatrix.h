@@ -11,8 +11,6 @@
 #include <map>
 #include "MatrixEntry.h"
 
-#define MAX_SIZE 10000
-
 using namespace std;
 
 class SignalMatrix {
