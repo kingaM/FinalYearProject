@@ -42,7 +42,7 @@ Maturity DendricCell::mature() {
     }
 }
 
-string maturity(Maturity mat) {
+string DendricCell::maturity(Maturity mat) {
     switch (mat) {
         case Maturity::MAT:
             return "MAT";
