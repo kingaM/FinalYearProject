@@ -41,3 +41,12 @@ Maturity DendricCell::mature() {
         return Maturity::SEMI;
     }
 }
+
+string maturity(Maturity mat) {
+    switch (mat) {
+        case Maturity::MAT:
+            return "MAT";
+        case Maturity::SEMI:
+            return "SEMI";
+    }
+}

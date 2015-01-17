@@ -20,6 +20,7 @@ enum class Maturity {
 
 class DendricCell {
     public:
+        static string maturity(Maturity mat);
         DendricCell();
         DendricCell(SignalMatrix signalMatrix);
         virtual ~DendricCell();

@@ -12,6 +12,7 @@
 #include <boost/circular_buffer.hpp>
 #include <utility>
 #include <stdio.h>
+#include <AIS/DendricCells.h>
 
 using namespace std;
 
@@ -23,6 +24,10 @@ Cache::~Cache() {
     // TODO Auto-generated destructor stub
 }
 
+void Cache::setDcs(DendricCells dcs) {
+    this->dcs = dcs;
+}
+
 Gradient* Cache::addEntry(string type, long timestamp, int dataRate, long expiresAt,
         int neighbour) {
     Entry e = Entry(type, timestamp, dataRate, expiresAt, neighbour);
@@ -31,6 +36,9 @@ Gradient* Cache::addEntry(string type, long timestamp, int dataRate, long expire
     if (entry != entries.end()) {
         return entry->addGradient(dataRate, expiresAt, neighbour, timestamp);
     } else {
+        if(entries.full()) {
+            cout << "MATURITY: " << DendricCell::maturity(dcs.mature(entries.front().getType()));
+        }
         e.addGradient(dataRate, expiresAt, neighbour, timestamp);
         entries.push_back(e);
         return NULL;
@@ -48,6 +56,7 @@ vector<int> Cache::getPaths(string type, long currTime) {
     vector<int> paths = entry->getPaths(currTime);
     if (paths.empty()) {
         cout << "Deleting entry" << endl;
+        cout << "MATURITY: " << DendricCell::maturity(dcs.mature(entry->getType()));
         entries.erase(entry);
     }
     return paths;

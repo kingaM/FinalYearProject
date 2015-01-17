@@ -20,7 +20,9 @@ DendricCells::~DendricCells() {
 }
 
 Maturity DendricCells::mature(string type) {
-    return table[type].mature();
+    Maturity mat = table[type].mature();
+    table.erase(table[type]);
+    return mat;
 }
 
 void DendricCells::cycle() {

@@ -92,6 +92,7 @@ void Node::initialize() {
     acc = SumAcc(tag::rolling_window::window_size = 10);
     scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     dcs = DendricCells(matrix);
+    cache.setDcs(dcs);
 }
 
 void Node::addToCache(Packet* ttmsg) {
