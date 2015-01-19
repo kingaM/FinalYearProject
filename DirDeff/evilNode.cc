@@ -89,6 +89,7 @@ Packet *EvilNode::generateMessage(simtime_t expiresAt, int interval, int type,
     msg->setTimestamp(timestamp);
     msg->setDataType(dataType.c_str());
     msg->setPsConc(psConc);
+    msg->setMalicious(true);
     return msg;
 }
 
@@ -97,6 +98,7 @@ Packet *EvilNode::generateMessage(int type, string dataType) {
     msg->setMsgId(msg->getId());
     msg->setType(type);
     msg->setDataType(dataType.c_str());
+    msg->setMalicious(true);
     return msg;
 }
 

@@ -16,6 +16,7 @@
 #include <boost/circular_buffer.hpp>
 #include <utility>
 #include <AIS/DendricCells.h>
+#include <AIS/PacketFilter.h>
 
 #define MAX_SIZE 10
 
@@ -36,6 +37,7 @@ class Cache {
     private:
         boost::circular_buffer<Entry> entries;
         DendricCells dcs;
+        PacketFilter filter;
 };
 
 #endif /* CACHE_H_ */

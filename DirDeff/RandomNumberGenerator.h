@@ -19,7 +19,7 @@ class RandomNumberGenerator {
         RandomNumberGenerator(string filename, int row);
         virtual ~RandomNumberGenerator();
         int getNumber(int start, int end);
-
+        bool boolWithProbability(double p);
     private:
         default_random_engine generator;
         int getSeed(string filename, int row);

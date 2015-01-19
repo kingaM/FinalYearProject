@@ -10,6 +10,8 @@
 
 #include "DendricCell.h"
 #include "SignalMatrix.h"
+#include "PacketInfo.h"
+#include "PacketFilter.h"
 
 class DendricCells {
     public:
@@ -18,10 +20,14 @@ class DendricCells {
         virtual ~DendricCells();
         Maturity mature(string type);
         void cycle();
-        void addCell(string type);
+        void addCell(PacketInfo type);
+        void setFilter(const PacketFilter& filter);
+
     private:
-        map<string, DendricCell> table;
+        PacketInfo getKey(string type);
+        map<PacketInfo, DendricCell> table;
         SignalMatrix matrix;
+        PacketFilter filter;
 };
 
 #endif /* DENDRICCELLS_H_ */

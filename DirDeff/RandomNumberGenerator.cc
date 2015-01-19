@@ -31,6 +31,11 @@ int RandomNumberGenerator::getNumber(int start, int end) {
     return distribution(generator);
 }
 
+bool RandomNumberGenerator::boolWithProbability(double p) {
+    std::bernoulli_distribution distribution(p);
+    return distribution(generator);
+}
+
 int RandomNumberGenerator::getSeed(string filename, int row) {
     string line, csvItem;
     ifstream myfile(filename);

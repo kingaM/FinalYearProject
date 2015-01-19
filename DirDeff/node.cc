@@ -17,6 +17,8 @@
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/rolling_sum.hpp>
 #include <DendricCells.h>
+#include <AIS/ContentClassifier.h>
+#include <AIS/PacketFilter.h>
 
 #define INTEREST 1
 #define DATA 2
@@ -36,7 +38,7 @@ class Node : public cSimpleModule {
         void addToCache(Packet* ttmsg);
         void generateSensor();
         void saveToDataCache(Packet* ttmsg);
-        void forwardInterestPacket(Packet* ttmsg);
+        void forwardInterestPacket(Packet* ttmsg, Class classification);
         void forwardDataPacket(Packet* ttmsg);
         void generateNewInterval(string dataType);
         void deleteDataCacheEntries();
@@ -53,6 +55,8 @@ class Node : public cSimpleModule {
         map<string, int> numRcvd;
         map<string, int> numExp;
         DendricCells dcs;
+        ContentClassifier classifier;
+        PacketFilter filter;
 
     protected:
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
@@ -82,7 +86,7 @@ void Node::initialize() {
         scheduleAt(simTime() + 2, msg);
         msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
                 msg->getDataType(), 0);
-        forwardInterestPacket(msg);
+        forwardInterestPacket(msg, classifier.classify(msg));
     }
     if (getIndex() == 4 || getIndex() == 2) {
         generateSensor();
@@ -93,6 +97,9 @@ void Node::initialize() {
     scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     dcs = DendricCells(matrix);
     cache.setDcs(dcs);
+    classifier = ContentClassifier();
+    filter = PacketFilter();
+    dcs.setFilter(filter);
 }
 
 void Node::addToCache(Packet* ttmsg) {
@@ -123,13 +130,13 @@ void Node::saveToDataCache(Packet* ttmsg) {
     matrix.getEntry().setSs1();
 }
 
-void Node::forwardInterestPacket(Packet* ttmsg) {
+void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
     // We need to forward the message.
     EV << "FORWARDING INTEREST PACKET with interval " << ttmsg->getInterval()
             << endl;
     forwardMessage(ttmsg);
     addToCache(ttmsg);
-    dcs.addCell(ttmsg->getDataType());
+    dcs.addCell(PacketInfo(ttmsg->getDataType(), classification));
     saveToDataCache(ttmsg);
 }
 
@@ -160,7 +167,6 @@ void Node::forwardDataPacket(Packet* ttmsg) {
             } else {
                 Packet *dup = ttmsg->dup();
                 send(dup, "gate$o", *it);
-                EV << "last sent 2 " << lastSent;
                 EV << "Forwarding message " << ttmsg << " on gate[" << *it
                         << "]\n";
             }
@@ -183,9 +189,9 @@ void Node::generateNewInterval(string dataType) {
             matrix.getEntry().setPs(numRcvd[dataType], numExp[dataType]);
             psConc = matrix.getEntry().getPs().getConcentration();
         }
-        forwardInterestPacket(
-                generateMessage(simTime() + 40, 10, INTEREST, simTime(),
-                        dataType, psConc));
+        Packet* msg = generateMessage(simTime() + 40, 10, INTEREST, simTime(),
+                dataType, psConc);
+        forwardInterestPacket(msg, classifier.classify(msg));
         numExp[dataType] = 40/10;
         numRcvd[dataType] = 0;
     } else {
@@ -236,7 +242,13 @@ void Node::handleMessage(cMessage *msg) {
         return;
     }
     if (ttmsg->getType() == INTEREST) {
-        forwardInterestPacket(ttmsg);
+        Class classification = classifier.classify(ttmsg);
+        if(filter.filterPacket(PacketInfo(ttmsg->getDataType(), classification))) {
+            //AIS deemed this packet unsafe, so drop
+            delete msg;
+            return;
+        }
+        forwardInterestPacket(ttmsg, classification);
         if (ttmsg->getPsConc() > 0) {
             matrix.getEntry().setPs(ttmsg->getPsConc());
         }

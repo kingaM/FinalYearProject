@@ -8,5 +8,6 @@ message Packet
     long expiresAt;
     string dataType;
     double psConc;
+    bool malicious = false;
 }
 

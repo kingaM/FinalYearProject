@@ -97,4 +97,3 @@ void Cache::setInactive(set<pair<string, int>> inactive, long currTime) {
         }
     }
 }
-
