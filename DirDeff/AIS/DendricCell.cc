@@ -8,6 +8,8 @@
 #include <DendricCell.h>
 #include <SignalMatrix.h>
 
+#define ALPHA 0.7
+
 DendricCell::DendricCell() {
 
 }
@@ -23,15 +25,17 @@ DendricCell::~DendricCell() {
 void DendricCell::cycle() {
     signals.push_back(MatrixEntry(signalMatrix->getEntry()));
     MatrixEntry recent = signals.back();
-    semi += (2 * recent.getSs1().getConcentration()
+    double semiTmp = (2 * recent.getSs1().getConcentration()
             + 2 * recent.getSs2().getConcentration()
             + 2 * recent.getSs3().getConcentration()) / 2 + 2 + 2;
-    mat += (6 * recent.getPs().getConcentration()
+    double matTmp = (6 * recent.getPs().getConcentration()
             + 4 * recent.getDs1().getConcentration()
             + 4 * recent.getDs1().getConcentration()
             + -1 * recent.getSs1().getConcentration()
             + -1 * recent.getSs2().getConcentration()
             + -1 * recent.getSs3().getConcentration()) / 6 + 4 + 4 + 1 + 1 + 1;
+    semi = ALPHA * semiTmp + (1 - ALPHA) * semi;
+    mat = ALPHA * matTmp + (1 - ALPHA) * mat;
 }
 
 Maturity DendricCell::mature() {
