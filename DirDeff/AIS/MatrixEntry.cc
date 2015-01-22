@@ -9,8 +9,6 @@
 #include <cmath>
 #include <Cache.h>
 
-#define CACHE_SIZE 1000
-
 using namespace std;
 
 MatrixEntry::MatrixEntry() {
@@ -75,11 +73,11 @@ const Signal& MatrixEntry::getSs3() const {
 }
 
 void MatrixEntry::setSs3Ds1(double numOfUpdates) {
-    if (numOfUpdates > CACHE_SIZE) {
-        double conc = pow((numOfUpdates / (double) CACHE_SIZE), (double) 2);
+    if (numOfUpdates > Cache::SIZE) {
+        double conc = pow((numOfUpdates / (double) Cache::SIZE), (double) 2);
         this->ds1 = Signal(conc);
     } else {
-        double conc = 1.0 - ((numOfUpdates - 1.0) / (double) CACHE_SIZE);
+        double conc = 1.0 - ((numOfUpdates - 1.0) / (double) Cache::SIZE);
         this->ss3 = Signal(conc);
     }
 }

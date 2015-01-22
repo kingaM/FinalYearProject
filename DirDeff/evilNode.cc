@@ -10,6 +10,7 @@
 #include <utility>
 #include "RandomNumberGenerator.h"
 #include "Cache.h"
+#include "DataCache.h"
 
 #define INTEREST 1
 #define DATA 2
@@ -28,9 +29,11 @@ class EvilNode : public cSimpleModule {
         void sendBogusInterests();
         void forwardInterestPacket(Packet* ttmsg);
         string getRandomString(const int len);
+        void addToDataCache(Packet* ttmsg);
 
         simtime_t lastSent;
         RandomNumberGenerator generator;
+        DataCache dataCache;
 
     protected:
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
@@ -49,6 +52,7 @@ void EvilNode::initialize() {
     arrivalSignal = registerSignal("arrival");
     lastSent = simTime();
     generator = RandomNumberGenerator("seeds.csv", 0);
+    dataCache = DataCache();
 //    scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
 }
 
@@ -65,9 +69,12 @@ void EvilNode::handleMessage(cMessage *msg) {
     if (ttmsg->getArrivalGate()) {
         prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    EV << "MSG type " << ttmsg->getType() << " prevHop " << prevHop << " id "
-            << ttmsg->getMsgId() << endl;
+    if (dataCache.isInCache(ttmsg->getMsgId())) {
+        delete ttmsg;
+        return;
+    }
     if (ttmsg->getType() == INTEREST) {
+        addToDataCache(ttmsg);
         forwardInterestPacket(ttmsg);
     }
     if (ttmsg->getType() == TIC) {
@@ -103,7 +110,7 @@ Packet *EvilNode::generateMessage(int type, string dataType) {
 }
 
 void EvilNode::sendBogusInterests() {
-    for (int i = 0; i < Cache::SIZE + 10; i++) {
+    for (int i = 0; i < Cache::SIZE; i++) {
         string type = getRandomString(20);
         EV << "EVIL NODE TYPE: " << type;
         Packet* msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
@@ -112,6 +119,7 @@ void EvilNode::sendBogusInterests() {
         for (int i = 0; i < n; i++) {
             Packet *dup = msg->dup();
             send(dup, "gate$o", i);
+            addToDataCache(dup);
             EV << "Forwarding message " << msg << " on gate[" << i << "]\n";
         }
     }
@@ -127,4 +135,13 @@ string EvilNode::getRandomString(const int len) {
         s += alphanum[generator.getNumber(0,(sizeof(alphanum) - 1))];
     }
     return s;
+}
+
+void EvilNode::addToDataCache(Packet* ttmsg) {
+    int prevHop = -1;
+    if (ttmsg->getArrivalGate()) {
+        prevHop = ttmsg->getArrivalGate()->getIndex();
+    }
+    dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
+            ttmsg->getDataType(), simTime().raw());
 }

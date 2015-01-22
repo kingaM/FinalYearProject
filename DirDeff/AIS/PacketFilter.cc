@@ -10,6 +10,7 @@
 #include <boost/circular_buffer.hpp>
 #include "ContentClassifier.h"
 #include "RandomNumberGenerator.h"
+#include <stdio.h>
 
 PacketFilter::PacketFilter() {
     generator = RandomNumberGenerator("seeds.csv", 0);
@@ -32,9 +33,11 @@ void PacketFilter::addPacket(PacketInfo p) {
 bool PacketFilter::filterPacket(PacketInfo p) {
     double prob = 0;
     if (p.classification == Class::BENIGN) {
-        getDropRate(benign);
+        prob = getDropRate(benign);
+        cout << "Benign drop " << prob << endl;
     } else {
-        getDropRate(malicious);
+        prob = getDropRate(malicious);
+        cout << "Malicious drop " << prob << endl;
     }
     return generator.boolWithProbability(prob);
 }

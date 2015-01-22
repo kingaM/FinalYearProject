@@ -49,14 +49,14 @@ class Node : public cSimpleModule {
         map<string, MultiLevelFeedbackQueue> buffer;
         simtime_t lastSent;
         RandomNumberGenerator generator;
-        SignalMatrix matrix;
+        SignalMatrix* matrix;
         SumAcc acc;
         int numOfUpdates = 0;
         map<string, int> numRcvd;
         map<string, int> numExp;
-        DendricCells dcs;
+        DendricCells* dcs = NULL;
         ContentClassifier classifier;
-        PacketFilter filter;
+        PacketFilter* filter;
 
     protected:
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
@@ -80,6 +80,16 @@ void Node::generateSensor() {
 }
 
 void Node::initialize() {
+    lastSent = simTime() - 20;
+    generator = RandomNumberGenerator("seeds.csv", 0);
+    acc = SumAcc(tag::rolling_window::window_size = 10);
+    scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
+    matrix = new SignalMatrix();
+    dcs = new DendricCells(matrix);
+    cache.setDcs(dcs);
+    classifier = ContentClassifier();
+    filter = new PacketFilter();
+    dcs->setFilter(filter);
     arrivalSignal = registerSignal("arrival");
     if (getIndex() == 0) {
         Packet *msg = generateMessage(INTERVAL, "sensor");
@@ -88,18 +98,10 @@ void Node::initialize() {
                 msg->getDataType(), 0);
         forwardInterestPacket(msg, classifier.classify(msg));
     }
-    if (getIndex() == 4 || getIndex() == 2) {
+    if (getIndex() == 1 || getIndex() == 2) {
         generateSensor();
     }
-    lastSent = simTime();
-    generator = RandomNumberGenerator("seeds.csv", 0);
-    acc = SumAcc(tag::rolling_window::window_size = 10);
-    scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
-    dcs = DendricCells(matrix);
-    cache.setDcs(dcs);
-    classifier = ContentClassifier();
-    filter = PacketFilter();
-    dcs.setFilter(filter);
+
 }
 
 void Node::addToCache(Packet* ttmsg) {
@@ -112,9 +114,9 @@ void Node::addToCache(Packet* ttmsg) {
             ttmsg->getInterval(), ttmsg->getExpiresAt(), prevHop);
     EV << cache.toString() << endl;
     if (prev != NULL) {
-        matrix.getEntry().setSs2();
+        matrix->getEntry().setSs2();
         numOfUpdates++;
-        matrix.getEntry().setDs2(prev->getTimestamp(), prev->getExpiry(), simTime().raw());
+        matrix->getEntry().setDs2(prev->getTimestamp(), prev->getExpiry(), simTime().raw());
     }
     delete prev;
 }
@@ -127,16 +129,16 @@ void Node::saveToDataCache(Packet* ttmsg) {
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
     // TODO: reinforced path?
-    matrix.getEntry().setSs1();
+    matrix->getEntry().setSs1();
 }
 
 void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
     // We need to forward the message.
     EV << "FORWARDING INTEREST PACKET with interval " << ttmsg->getInterval()
             << endl;
+    dcs->addCell(PacketInfo(ttmsg->getDataType(), classification));
     forwardMessage(ttmsg);
     addToCache(ttmsg);
-    dcs.addCell(PacketInfo(ttmsg->getDataType(), classification));
     saveToDataCache(ttmsg);
 }
 
@@ -156,9 +158,12 @@ void Node::forwardDataPacket(Packet* ttmsg) {
     EV << "forward data packet" << endl;
     EV << cache.toString() << endl;
     if (lastSent + cache.getMinInterval(ttmsg->getDataType()) < simTime()) {
-        lastSent = simTime();
         vector<int> paths = cache.getPaths(ttmsg->getDataType(),
                 simTime().raw());
+        if (paths.empty()) {
+            return;
+        }
+        lastSent = simTime();
         EV << paths.size() << endl;
         for (vector<int>::iterator it = paths.begin(); it != paths.end();
                 ++it) {
@@ -171,9 +176,9 @@ void Node::forwardDataPacket(Packet* ttmsg) {
                         << "]\n";
             }
         }
-        Packet* msg = generateMessage(DATA_RETRY, ttmsg->getDataType());
-        scheduleAt(lastSent + cache.getMinInterval(msg->getDataType()) + 1,
-                msg);
+//        Packet* msg = generateMessage(DATA_RETRY, ttmsg->getDataType());
+//        scheduleAt(lastSent + cache.getMinInterval(msg->getDataType()) + 1,
+//                msg);
     } else {
         EV << "SHOULD NOT HAPPEN" << endl;
     }
@@ -186,18 +191,29 @@ void Node::generateNewInterval(string dataType) {
         scheduleAt(simTime() + 20, generateMessage(INTERVAL, ""));
         double psConc = 0;
         if (numExp.count(dataType)) {
-            matrix.getEntry().setPs(numRcvd[dataType], numExp[dataType]);
-            psConc = matrix.getEntry().getPs().getConcentration();
+            matrix->getEntry().setPs(numRcvd[dataType], numExp[dataType]);
+            psConc = matrix->getEntry().getPs().getConcentration();
         }
         Packet* msg = generateMessage(simTime() + 40, 10, INTEREST, simTime(),
                 dataType, psConc);
         forwardInterestPacket(msg, classifier.classify(msg));
         numExp[dataType] = 40/10;
         numRcvd[dataType] = 0;
+        scheduleAt(simTime() + 40, generateMessage(INTERVAL, dataType));
     } else {
         EV << "no data yet... delaying" << simTime() << " " << simTime() + 2
                 << "\n";
-        scheduleAt(simTime() + 2, generateMessage(INTERVAL, dataType));
+        double psConc = 0;
+        if (numExp.count(dataType)) {
+            matrix->getEntry().setPs(numRcvd[dataType], numExp[dataType]);
+            psConc = matrix->getEntry().getPs().getConcentration();
+        }
+        Packet* msg = generateMessage(simTime() + 40, 20, INTEREST, simTime(),
+                dataType, psConc);
+        forwardInterestPacket(msg, classifier.classify(msg));
+        numExp[dataType] = 40 / 20;
+        numRcvd[dataType] = 0;
+        scheduleAt(simTime() + 10, generateMessage(INTERVAL, dataType));
     }
 }
 
@@ -239,18 +255,20 @@ void Node::handleMessage(cMessage *msg) {
     if (dataCache.isInCache(ttmsg->getMsgId())) {
         EV << "Drop packet, already handled " << ttmsg->getType() << endl;
         addToCache(ttmsg);
+        delete ttmsg;
         return;
     }
     if (ttmsg->getType() == INTEREST) {
         Class classification = classifier.classify(ttmsg);
-        if(filter.filterPacket(PacketInfo(ttmsg->getDataType(), classification))) {
+        if(filter->filterPacket(PacketInfo(ttmsg->getDataType(), classification))) {
             //AIS deemed this packet unsafe, so drop
+            EV << "packet " << ttmsg->getDataType() << " dropped" << endl;
             delete msg;
             return;
         }
         forwardInterestPacket(ttmsg, classification);
         if (ttmsg->getPsConc() > 0) {
-            matrix.getEntry().setPs(ttmsg->getPsConc());
+            matrix->getEntry().setPs(ttmsg->getPsConc());
         }
     }
     if (ttmsg->getType() == DATA) {
@@ -275,9 +293,15 @@ void Node::handleMessage(cMessage *msg) {
         acc(numOfUpdates);
         numOfUpdates = 0;
         EV << "SUM OF EVENTS : " << rolling_sum(acc);
-        matrix.getEntry().setSs3Ds1(rolling_sum(acc));
-        dcs.cycle();
+        matrix->getEntry().setSs3Ds1(rolling_sum(acc));
+        dcs->cycle();
         scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
+        if (buffer.count(ttmsg->getDataType()) > 0
+                        && !buffer.at(ttmsg->getDataType()).empty()) {
+                    Packet *dataMsg = buffer.at(ttmsg->getDataType()).get();
+                    forwardDataPacket(dataMsg);
+                    delete dataMsg;
+                }
     }
     delete msg;
 }
@@ -307,7 +331,9 @@ Packet *Node::generateMessage(int type, string dataType) {
 }
 
 void Node::forwardMessage(Packet *msg) {
-    if (cache.getPaths(msg->getDataType(), simTime().raw()).size() > 0) {
+    if (cache.getPaths(msg->getDataType(), simTime().raw()).size() > 0 &&
+            dataCache.findBestNeighbour(msg->getDataType()).size() > 0) {
+        EV << "finding best0" << endl;
         set<int> neighbours = dataCache.findBestNeighbour(msg->getDataType());
         for (set<int>::iterator it = neighbours.begin(); it != neighbours.end();
                 ++it) {

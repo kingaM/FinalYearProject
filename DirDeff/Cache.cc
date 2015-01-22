@@ -24,7 +24,7 @@ Cache::~Cache() {
     // TODO Auto-generated destructor stub
 }
 
-void Cache::setDcs(DendricCells dcs) {
+void Cache::setDcs(DendricCells* dcs) {
     this->dcs = dcs;
 }
 
@@ -36,9 +36,8 @@ Gradient* Cache::addEntry(string type, long timestamp, int dataRate, long expire
     if (entry != entries.end()) {
         return entry->addGradient(dataRate, expiresAt, neighbour, timestamp);
     } else {
-        cout << "SIZE = " << entries.size() << endl;
         if(entries.full()) {
-            cout << "MATURITY: " << DendricCell::maturity(dcs.mature(type)) << " type " <<
+            cout << "MATURITY: " << DendricCell::maturity(dcs->mature(type)) << " type " <<
                             type << endl;;
         }
         e.addGradient(dataRate, expiresAt, neighbour, timestamp);
@@ -58,7 +57,7 @@ vector<int> Cache::getPaths(string type, long currTime) {
     vector<int> paths = entry->getPaths(currTime);
     if (paths.empty()) {
         cout << "Deleting entry" << endl;
-        cout << "MATURITY: " << DendricCell::maturity(dcs.mature(entry->getType())) << " type " <<
+        cout << "MATURITY: " << DendricCell::maturity(dcs->mature(entry->getType())) << " type " <<
                 entry->getType() << endl;
         entries.erase(entry);
     }
@@ -73,7 +72,6 @@ int Cache::getMinInterval(string type) {
         cout << "no entries" << endl;
         return 0;
     }
-    cout << "min entry " << entry->getMinInterval() << endl;
     return entry->getMinInterval();
 }
 

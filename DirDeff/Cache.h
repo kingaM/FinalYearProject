@@ -18,7 +18,7 @@
 #include <AIS/DendricCells.h>
 #include <AIS/PacketFilter.h>
 
-#define MAX_SIZE 10
+#define MAX_SIZE 4
 
 using namespace std;
 
@@ -32,11 +32,11 @@ class Cache {
         vector<int> getPaths(string type, long currTime);
         int getMinInterval(string type);
         void setInactive(set<pair<string, int>> inactive, long currTime);
-        void setDcs(DendricCells dcs);
+        void setDcs(DendricCells* dcs);
         const static int SIZE = MAX_SIZE;
     private:
         boost::circular_buffer<Entry> entries;
-        DendricCells dcs;
+        DendricCells* dcs;
         PacketFilter filter;
 };
 

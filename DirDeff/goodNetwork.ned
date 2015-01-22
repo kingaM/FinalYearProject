@@ -1,24 +1,4 @@
-simple Node
-{
-    parameters:
-        @signal[arrival](type="long");
-        @statisnode[hopCount](title="hop count"; source="arrival"; record=vector,stats; interpolationmode=none);
-
-        @display("i=block/routing");
-    gates:
-        inout gate[];
-}
-
-simple EvilNode
-{
-    parameters:
-
-        @display("i=block/routing,red");
-    gates:
-        inout gate[];
-}
-
-network TestNetwork
+network GoodNetwork
 {
     types:
         channel Channel extends ned.DelayChannel
@@ -32,11 +12,8 @@ network TestNetwork
         node[0].gate++ <--> Channel <--> node[1].gate++;
         node[1].gate++ <--> Channel <--> node[2].gate++;
         node[1].gate++ <--> Channel <--> node[4].gate++;
-        node[3].gate++ <--> Channel <--> evil[0].gate++;
-        node[4].gate++ <--> Channel <--> evil[0].gate++;
         node[3].gate++ <--> Channel <--> node[2].gate++;
         node[4].gate++ <--> Channel <--> node[5].gate++;
         node[6].gate++ <--> Channel <--> node[5].gate++;
         node[6].gate++ <--> Channel <--> node[4].gate++;
 }
-

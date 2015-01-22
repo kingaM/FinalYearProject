@@ -16,18 +16,19 @@
 class DendricCells {
     public:
         DendricCells();
-        DendricCells(SignalMatrix matrix);
+        DendricCells(SignalMatrix* matrix);
         virtual ~DendricCells();
         Maturity mature(string type);
         void cycle();
         void addCell(PacketInfo type);
-        void setFilter(const PacketFilter& filter);
+        void setFilter(PacketFilter* filter);
 
     private:
         PacketInfo getKey(string type);
-        map<PacketInfo, DendricCell> table;
-        SignalMatrix matrix;
-        PacketFilter filter;
+        map<string, DendricCell> table;
+        map<string, PacketInfo> info;
+        SignalMatrix* matrix;
+        PacketFilter* filter;
 };
 
 #endif /* DENDRICCELLS_H_ */

@@ -7,12 +7,13 @@
 
 #include <DendricCells.h>
 #include "PacketInfo.h"
+#include <stdio.h>
 
 DendricCells::DendricCells() {
     // TODO Auto-generated constructor stub
 }
 
-DendricCells::DendricCells(SignalMatrix matrix) {
+DendricCells::DendricCells(SignalMatrix* matrix) {
     this->matrix = matrix;
 }
 
@@ -21,11 +22,12 @@ DendricCells::~DendricCells() {
 }
 
 Maturity DendricCells::mature(string type) {
-    Maturity mat = table[PacketInfo(type)].mature();
+    Maturity mat = table[type].mature();
     PacketInfo p = getKey(type);
     p.decision = mat;
-    filter.addPacket(p);
-    table.erase(PacketInfo(type));
+    filter->addPacket(p);
+    table.erase(type);
+    info.erase(type);
     return mat;
 }
 
@@ -36,20 +38,16 @@ void DendricCells::cycle() {
 }
 
 PacketInfo DendricCells::getKey(string type) {
-    for (auto it = table.begin(); it != table.end(); it++) {
-        if (it->first.type == type) {
-            return it->first;
-        }
-    }
-    return PacketInfo();
+    return info[type];
 }
 
 void DendricCells::addCell(PacketInfo p) {
-    if (table.count(p) == 0) {
-        table[p] = DendricCell(matrix);
+    if (table.count(p.type) == 0) {
+        table[p.type] = DendricCell(matrix);
+        info[p.type] = PacketInfo(p);
     }
 }
 
-void DendricCells::setFilter(const PacketFilter& filter) {
+void DendricCells::setFilter(PacketFilter* filter) {
     this->filter = filter;
 }

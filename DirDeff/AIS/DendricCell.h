@@ -22,13 +22,13 @@ class DendricCell {
     public:
         static string maturity(Maturity mat);
         DendricCell();
-        DendricCell(SignalMatrix signalMatrix);
+        DendricCell(SignalMatrix* signalMatrix);
         virtual ~DendricCell();
         void cycle();
         Maturity mature();
 
     private:
-        SignalMatrix signalMatrix;
+        SignalMatrix* signalMatrix;
         string type;
         vector<MatrixEntry> signals;
         // concentration for semi-mature cytokines

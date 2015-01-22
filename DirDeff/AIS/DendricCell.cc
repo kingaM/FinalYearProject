@@ -12,7 +12,7 @@ DendricCell::DendricCell() {
 
 }
 
-DendricCell::DendricCell(SignalMatrix signalMatrix) {
+DendricCell::DendricCell(SignalMatrix* signalMatrix) {
     this->signalMatrix = signalMatrix;
 }
 
@@ -21,7 +21,7 @@ DendricCell::~DendricCell() {
 }
 
 void DendricCell::cycle() {
-    signals.push_back(MatrixEntry(signalMatrix.getEntry()));
+    signals.push_back(MatrixEntry(signalMatrix->getEntry()));
     MatrixEntry recent = signals.back();
     semi += (2 * recent.getSs1().getConcentration()
             + 2 * recent.getSs2().getConcentration()
@@ -49,4 +49,5 @@ string DendricCell::maturity(Maturity mat) {
         case Maturity::SEMI:
             return "SEMI";
     }
+    return "NONE";
 }
