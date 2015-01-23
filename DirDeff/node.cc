@@ -34,7 +34,6 @@ typedef accumulator_set<int, stats<tag::rolling_sum>> SumAcc;
 
 class Node : public cSimpleModule {
     private:
-        simsignal_t arrivalSignal;
         void addToCache(Packet* ttmsg);
         void generateSensor();
         void saveToDataCache(Packet* ttmsg);
@@ -57,6 +56,9 @@ class Node : public cSimpleModule {
         DendricCells* dcs = NULL;
         ContentClassifier classifier;
         PacketFilter* filter;
+        simsignal_t packetsSentSignal;
+        simsignal_t generatedDataSignal;
+        simsignal_t receievedPacketsSignal;
 
     protected:
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
@@ -73,6 +75,7 @@ class Node : public cSimpleModule {
 Define_Module(Node);
 
 void Node::generateSensor() {
+    emit(generatedDataSignal, 1);
     EV << "GENERATE DATA" << endl;
     Packet* msg = generateMessage(SENSOR, "sensor");
     int r = generator.getNumber(5, 25);
@@ -90,7 +93,9 @@ void Node::initialize() {
     classifier = ContentClassifier();
     filter = new PacketFilter();
     dcs->setFilter(filter);
-    arrivalSignal = registerSignal("arrival");
+    packetsSentSignal = registerSignal("pktSent");
+    generatedDataSignal = registerSignal("genData");
+    receievedPacketsSignal = registerSignal("rcvdPkt");
     if (getIndex() == 0) {
         Packet *msg = generateMessage(INTERVAL, "sensor");
         scheduleAt(simTime() + 2, msg);
@@ -163,11 +168,13 @@ void Node::forwardDataPacket(Packet* ttmsg) {
         if (paths.empty()) {
             return;
         }
+        emit(packetsSentSignal, 1);
         lastSent = simTime();
         EV << paths.size() << endl;
         for (vector<int>::iterator it = paths.begin(); it != paths.end();
                 ++it) {
             if (*it == -1) {
+                emit(receievedPacketsSignal, 1);
                 EV << "at the sink... YAAY!!";
             } else {
                 Packet *dup = ttmsg->dup();
@@ -297,11 +304,11 @@ void Node::handleMessage(cMessage *msg) {
         dcs->cycle();
         scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
         if (buffer.count(ttmsg->getDataType()) > 0
-                        && !buffer.at(ttmsg->getDataType()).empty()) {
-                    Packet *dataMsg = buffer.at(ttmsg->getDataType()).get();
-                    forwardDataPacket(dataMsg);
-                    delete dataMsg;
-                }
+                && !buffer.at(ttmsg->getDataType()).empty()) {
+            Packet *dataMsg = buffer.at(ttmsg->getDataType()).get();
+            forwardDataPacket(dataMsg);
+            delete dataMsg;
+        }
     }
     delete msg;
 }

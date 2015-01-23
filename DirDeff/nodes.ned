@@ -1,10 +1,10 @@
 simple Node
 {
     parameters:
-        @signal[arrival](type="long");
-        @statisnode[hopCount](title="hop count"; source="arrival"; record=vector,stats; interpolationmode=none);
-
         @display("i=block/routing");
+        @statistic[packetsSent](source=pktSent; record=count,histogram,vector);
+        @statistic[dataGenerated](source=genData; record=count,histogram,vector);
+        @statistic[recievedPackets](source=rcvdPkt; record=count,histogram,vector);
     gates:
         inout gate[];
 }
@@ -12,7 +12,6 @@ simple Node
 simple EvilNode
 {
     parameters:
-
         @display("i=block/routing,red");
     gates:
         inout gate[];
