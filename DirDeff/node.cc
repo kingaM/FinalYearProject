@@ -43,7 +43,7 @@ void Node::initialize() {
     acc = SumAcc(tag::rolling_window::window_size = 10);
     scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     matrix = new SignalMatrix();
-    dcs = new DendricCells(matrix);
+    dcs = new DendricCells(matrix, this);
     cache.setDcs(dcs);
     classifier = ContentClassifier();
     filter = new PacketFilter();
@@ -85,7 +85,7 @@ void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
     // We need to forward the message.
     EV << "FORWARDING INTEREST PACKET with interval " << ttmsg->getInterval()
             << endl;
-    dcs->addCell(PacketInfo(ttmsg->getDataType(), classification));
+    dcs->addCell(PacketInfo(ttmsg->getDataType(), classification, ttmsg->getMalicious()));
     forwardMessage(ttmsg);
     addToCache(ttmsg);
     saveToDataCache(ttmsg);
@@ -211,7 +211,9 @@ void Node::handleMessage(cMessage *msg) {
     }
     if (ttmsg->getType() == INTEREST) {
         Class classification = classifier.classify(ttmsg);
-        if(filter->filterPacket(PacketInfo(ttmsg->getDataType(), classification))) {
+        if (filter->filterPacket(
+                PacketInfo(ttmsg->getDataType(), classification,
+                        ttmsg->getMalicious()))) {
             //AIS deemed this packet unsafe, so drop
             EV << "packet " << ttmsg->getDataType() << " dropped" << endl;
             delete msg;

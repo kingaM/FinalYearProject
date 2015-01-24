@@ -12,11 +12,12 @@
 #include "SignalMatrix.h"
 #include "PacketInfo.h"
 #include "PacketFilter.h"
+#include <omnetpp.h>
 
 class DendricCells {
     public:
         DendricCells();
-        DendricCells(SignalMatrix* matrix);
+        DendricCells(SignalMatrix* matrix, cSimpleModule* node);
         virtual ~DendricCells();
         Maturity mature(string type);
         void cycle();
@@ -29,6 +30,9 @@ class DendricCells {
         map<string, PacketInfo> info;
         SignalMatrix* matrix;
         PacketFilter* filter;
+        cSimpleModule* node;
+        simsignal_t fpSignal;
+        simsignal_t fnSignal;
 };
 
 #endif /* DENDRICCELLS_H_ */

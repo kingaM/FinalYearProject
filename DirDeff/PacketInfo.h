@@ -15,12 +15,13 @@ class PacketInfo {
     public:
         PacketInfo();
         PacketInfo(string type, Class classifiction, Maturity decision);
-        PacketInfo(string type, Class classifiction);
+        PacketInfo(string type, Class classifiction, bool malicious);
         PacketInfo(string type);
         virtual ~PacketInfo();
         string type;
         Class classification;
         Maturity decision;
+        bool malicious;
         friend bool operator==(const PacketInfo& a, const PacketInfo& b);
         friend bool operator<(const PacketInfo& a, const PacketInfo& b);
 };

@@ -8,13 +8,17 @@
 #include <DendricCells.h>
 #include "PacketInfo.h"
 #include <stdio.h>
+#include <omnetpp.h>
 
 DendricCells::DendricCells() {
     // TODO Auto-generated constructor stub
 }
 
-DendricCells::DendricCells(SignalMatrix* matrix) {
+DendricCells::DendricCells(SignalMatrix* matrix, cSimpleModule* node) {
     this->matrix = matrix;
+    this->node = node;
+    fpSignal = node->registerSignal("fp");
+    fnSignal = node->registerSignal("fn");
 }
 
 DendricCells::~DendricCells() {
@@ -25,6 +29,11 @@ Maturity DendricCells::mature(string type) {
     Maturity mat = table[type].mature();
     PacketInfo p = getKey(type);
     p.decision = mat;
+    if (mat == Maturity::SEMI && !p.malicious) {
+        node->emit(fpSignal, 1);
+    } else if (mat == Maturity::MAT && p.malicious) {
+        node->emit(fnSignal, 1);
+    }
     filter->addPacket(p);
     table.erase(type);
     info.erase(type);

@@ -19,9 +19,10 @@ PacketInfo::PacketInfo(string type, Class classifiction, Maturity decision) {
     this->decision = decision;
 }
 
-PacketInfo::PacketInfo(string type, Class classifiction) {
+PacketInfo::PacketInfo(string type, Class classifiction, bool malicious) {
     this->type = type;
     this->classification = classifiction;
+    this->malicious = malicious;
 }
 
 PacketInfo::PacketInfo(string type) {
