@@ -15,48 +15,45 @@
 
 import Node;
 
-channel Link extends ned.DatarateChannel {
-    parameters:
-        int cost = default(0);
-}
-
 //
-// Generated network with random topology (10 nodes, 20 edges, seed=93).
+// Generated network with random topology (12 nodes, 20 edges, seed=100).
 //
-network RandomNetwork {
+network Network {
     submodules:
-        node0 : Node;
+        node0 : SourceNode;
+        			
         node1 : Node;
         node2 : Node;
         node3 : Node;
-        node4 : SourceNode;
-        			
+        node4 : Node;
         node5 : Node;
         node6 : Node;
-        node7 : Node;
-        node8 : SinkNode;
+        node7 : SinkNode;
         			
-        node9 : EvilNode;
+        node8 : Node;
+        node9 : Node;
+        node10 : EvilNode;
         			
+        node11 : Node;
     connections:
-        node0.gate++ <--> Link <--> node1.gate++;
-        node0.gate++ <--> Link <--> node2.gate++;
-        node0.gate++ <--> Link <--> node3.gate++;
-        node0.gate++ <--> Link <--> node6.gate++;
-        node0.gate++ <--> Link <--> node8.gate++;
-        node0.gate++ <--> Link <--> node9.gate++;
-        node1.gate++ <--> Link <--> node2.gate++;
-        node1.gate++ <--> Link <--> node4.gate++;
-        node1.gate++ <--> Link <--> node5.gate++;
-        node1.gate++ <--> Link <--> node8.gate++;
-        node2.gate++ <--> Link <--> node3.gate++;
-        node2.gate++ <--> Link <--> node4.gate++;
-        node3.gate++ <--> Link <--> node6.gate++;
-        node4.gate++ <--> Link <--> node5.gate++;
-        node4.gate++ <--> Link <--> node6.gate++;
-        node4.gate++ <--> Link <--> node7.gate++;
-        node4.gate++ <--> Link <--> node9.gate++;
-        node6.gate++ <--> Link <--> node7.gate++;
-        node6.gate++ <--> Link <--> node9.gate++;
-        node8.gate++ <--> Link <--> node9.gate++;
+        node0.gate++ <--> Channel <--> node1.gate++;
+        node0.gate++ <--> Channel <--> node2.gate++;
+        node0.gate++ <--> Channel <--> node4.gate++;
+        node0.gate++ <--> Channel <--> node6.gate++;
+        node0.gate++ <--> Channel <--> node11.gate++;
+        node1.gate++ <--> Channel <--> node2.gate++;
+        node1.gate++ <--> Channel <--> node3.gate++;
+        node1.gate++ <--> Channel <--> node5.gate++;
+        node1.gate++ <--> Channel <--> node8.gate++;
+        node2.gate++ <--> Channel <--> node4.gate++;
+        node2.gate++ <--> Channel <--> node8.gate++;
+        node3.gate++ <--> Channel <--> node5.gate++;
+        node3.gate++ <--> Channel <--> node7.gate++;
+        node3.gate++ <--> Channel <--> node10.gate++;
+        node4.gate++ <--> Channel <--> node11.gate++;
+        node5.gate++ <--> Channel <--> node9.gate++;
+        node6.gate++ <--> Channel <--> node10.gate++;
+        node6.gate++ <--> Channel <--> node11.gate++;
+        node7.gate++ <--> Channel <--> node9.gate++;
+        node8.gate++ <--> Channel <--> node9.gate++;
 }

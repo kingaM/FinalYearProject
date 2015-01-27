@@ -5,22 +5,7 @@ ${bannerComment}
 <#if gateName==""><#assign gateName = "gate"></#if>
 <#assign gateName = StringUtils.makeValidIdentifier(gateName)>
 
-<#assign nodeTypeExists = NedUtils.isVisibleType(nodeType,targetFolder)>
-<#if nodeTypeExists>
-import ${nodeType};
-  <#assign nodeType = nodeType?replace("^.*\\.", "", "r")>
-<#else>
-  <#assign nodeType = StringUtils.makeValidIdentifier(nodeType)>
-</#if>
-
-<#assign channelTypeSupplied = channelType!="">
-<#assign channelTypeExists = channelTypeSupplied && NedUtils.isVisibleType(channelType,targetFolder)>
-<#if channelTypeExists>
-import ${channelType};
-  <#assign channelType = channelType?replace("^.*\\.", "", "r")>
-<#else>
-  <#assign channelType = StringUtils.makeValidIdentifier(channelType)>
-</#if>
+import Channel;
 
 <#if channelTypeSupplied>
   <#assign channelSpec = " " + channelType + " <-->">
@@ -35,13 +20,6 @@ module ${nodeType} {
     gates:
         inout ${gateName}[];
     connections allowunconnected:
-}
-</#if>
-
-<#if channelTypeSupplied && !channelTypeExists>
-channel ${channelType} extends ned.DatarateChannel {
-    parameters:
-        int cost = default(0);
 }
 </#if>
 

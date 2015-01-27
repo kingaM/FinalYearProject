@@ -44,3 +44,8 @@ simple SinkNode
     gates:
         inout gate[];
 }
+
+channel Channel extends ned.DelayChannel
+{
+    delay = 100ms;
+}

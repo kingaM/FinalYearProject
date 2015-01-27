@@ -14,8 +14,9 @@ DendricCell::DendricCell() {
 
 }
 
-DendricCell::DendricCell(SignalMatrix* signalMatrix) {
+DendricCell::DendricCell(SignalMatrix* signalMatrix, string type) {
     this->signalMatrix = signalMatrix;
+    this->type = type;
 }
 
 DendricCell::~DendricCell() {
@@ -23,7 +24,7 @@ DendricCell::~DendricCell() {
 }
 
 void DendricCell::cycle() {
-    signals.push_back(MatrixEntry(signalMatrix->getEntry()));
+    signals.push_back(MatrixEntry(signalMatrix->getEntry(type)));
     MatrixEntry recent = signals.back();
     double semiTmp = (2 * recent.getSs1().getConcentration()
             + 2 * recent.getSs2().getConcentration()

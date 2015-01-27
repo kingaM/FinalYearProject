@@ -52,7 +52,7 @@ PacketInfo DendricCells::getKey(string type) {
 
 void DendricCells::addCell(PacketInfo p) {
     if (table.count(p.type) == 0) {
-        table[p.type] = DendricCell(matrix);
+        table[p.type] = DendricCell(matrix, p.type);
         info[p.type] = PacketInfo(p);
     }
 }

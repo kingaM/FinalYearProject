@@ -20,6 +20,7 @@ class SignalMatrix {
         void addEntry(string type);
         MatrixEntry getEntry(string type);
         MatrixEntry getEntry();
+        void addGlobalSs3Ds1(double numOfUpdates);
     private:
         // Maps each interest cache entry to an entry in a matrix
         map<string, MatrixEntry> largeMatrix;

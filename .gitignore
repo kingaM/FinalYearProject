@@ -73,3 +73,16 @@ local.properties
 # Java files
 *.class
 hs_err_pid*
+
+# Freemaker
+**/NetworkGenerator/freemraker-2.3.21/
+
+# Python files
+__pycache__/
+*.py[cod]
+
+# R files
+.Rhistory
+.Rapp.history
+*-Ex.R
+.Rproj.user/

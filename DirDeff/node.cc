@@ -63,9 +63,9 @@ void Node::addToCache(Packet* ttmsg) {
             ttmsg->getInterval(), ttmsg->getExpiresAt(), prevHop);
     EV << cache.toString() << endl;
     if (prev != NULL) {
-        matrix->getEntry().setSs2();
+        matrix->getEntry(ttmsg->getDataType()).setSs2();
         numOfUpdates++;
-        matrix->getEntry().setDs2(prev->getTimestamp(), prev->getExpiry(), simTime().raw());
+        matrix->getEntry(ttmsg->getDataType()).setDs2(prev->getTimestamp(), prev->getExpiry(), simTime().raw());
     }
     delete prev;
 }
@@ -78,7 +78,7 @@ void Node::saveToDataCache(Packet* ttmsg) {
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
     // TODO: reinforced path?
-    matrix->getEntry().setSs1();
+    matrix->getEntry(ttmsg->getDataType()).setSs1();
 }
 
 void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
@@ -142,8 +142,8 @@ void Node::generateNewInterval(string dataType) {
         scheduleAt(simTime() + 20, generateMessage(INTERVAL, ""));
         double psConc = 0;
         if (numExp.count(dataType)) {
-            matrix->getEntry().setPs(numRcvd[dataType], numExp[dataType]);
-            psConc = matrix->getEntry().getPs().getConcentration();
+            matrix->getEntry(dataType).setPs(numRcvd[dataType], numExp[dataType]);
+            psConc = matrix->getEntry(dataType).getPs().getConcentration();
         }
         Packet* msg = generateMessage(simTime() + 40, 10, INTEREST, simTime(),
                 dataType, psConc);
@@ -156,8 +156,8 @@ void Node::generateNewInterval(string dataType) {
                 << "\n";
         double psConc = 0;
         if (numExp.count(dataType)) {
-            matrix->getEntry().setPs(numRcvd[dataType], numExp[dataType]);
-            psConc = matrix->getEntry().getPs().getConcentration();
+            matrix->getEntry(dataType).setPs(numRcvd[dataType], numExp[dataType]);
+            psConc = matrix->getEntry(dataType).getPs().getConcentration();
         }
         Packet* msg = generateMessage(simTime() + 40, 20, INTEREST, simTime(),
                 dataType, psConc);
@@ -221,7 +221,7 @@ void Node::handleMessage(cMessage *msg) {
         }
         forwardInterestPacket(ttmsg, classification);
         if (ttmsg->getPsConc() > 0) {
-            matrix->getEntry().setPs(ttmsg->getPsConc());
+            matrix->getEntry(ttmsg->getDataType()).setPs(ttmsg->getPsConc());
         }
     }
     if (ttmsg->getType() == DATA) {
@@ -246,7 +246,7 @@ void Node::handleMessage(cMessage *msg) {
         acc(numOfUpdates);
         numOfUpdates = 0;
         EV << "SUM OF EVENTS : " << rolling_sum(acc);
-        matrix->getEntry().setSs3Ds1(rolling_sum(acc));
+        matrix->addGlobalSs3Ds1(rolling_sum(acc));
         dcs->cycle();
         scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
         if (buffer.count(ttmsg->getDataType()) > 0

@@ -22,7 +22,7 @@ class DendricCell {
     public:
         static string maturity(Maturity mat);
         DendricCell();
-        DendricCell(SignalMatrix* signalMatrix);
+        DendricCell(SignalMatrix* signalMatrix, string type);
         virtual ~DendricCell();
         void cycle();
         Maturity mature();
