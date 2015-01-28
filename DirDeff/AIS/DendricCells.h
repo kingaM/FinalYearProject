@@ -33,6 +33,8 @@ class DendricCells {
         cSimpleModule* node;
         simsignal_t fpSignal;
         simsignal_t fnSignal;
+        simsignal_t tpSignal;
+        simsignal_t tnSignal;
 };
 
 #endif /* DENDRICCELLS_H_ */

@@ -19,6 +19,8 @@ DendricCells::DendricCells(SignalMatrix* matrix, cSimpleModule* node) {
     this->node = node;
     fpSignal = node->registerSignal("fp");
     fnSignal = node->registerSignal("fn");
+    tpSignal = node->registerSignal("tp");
+    tnSignal = node->registerSignal("tn");
 }
 
 DendricCells::~DendricCells() {
@@ -33,6 +35,10 @@ Maturity DendricCells::mature(string type) {
         node->emit(fpSignal, 1);
     } else if (mat == Maturity::MAT && p.malicious) {
         node->emit(fnSignal, 1);
+    } else if (mat == Maturity::MAT && !p.malicious) {
+        node->emit(tnSignal, 1);
+    } else if (mat == Maturity::SEMI && p.malicious) {
+        node->emit(tpSignal, 1);
     }
     filter->addPacket(p);
     table.erase(type);

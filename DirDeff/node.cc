@@ -33,7 +33,7 @@ void Node::generateSensor() {
     emit(generatedDataSignal, 1);
     EV << "GENERATE DATA" << endl;
     Packet* msg = generateMessage(SENSOR, "sensor");
-    int r = generator.getNumber(5, 25);
+    int r = generator.getNumber(1, 5);
     scheduleAt(simTime() + r, msg);
 }
 
@@ -51,6 +51,12 @@ void Node::initialize() {
     packetsSentSignal = registerSignal("pktSent");
     generatedDataSignal = registerSignal("genData");
     receievedPacketsSignal = registerSignal("rcvdPkt");
+    fnfSignal = registerSignal("fnf");
+    fpfSignal = registerSignal("fpf");
+    tpfSignal = registerSignal("tpf");
+    tnfSignal = registerSignal("tnf");
+    totalBenSignal = registerSignal("totalb");
+    totalMalSignal = registerSignal("totalm");
 }
 
 void Node::addToCache(Packet* ttmsg) {
@@ -139,18 +145,18 @@ void Node::generateNewInterval(string dataType) {
     EV << "INTEREST PACKET RCVD" << endl;
     if (dataCache.findBestNeighbour(dataType).size() > 0) {
         EV << "generating a new interest with a lower rate" << endl;
-        scheduleAt(simTime() + 20, generateMessage(INTERVAL, ""));
+//        scheduleAt(simTime() + 20, generateMessage(INTERVAL, dataType));
         double psConc = 0;
         if (numExp.count(dataType)) {
             matrix->getEntry(dataType).setPs(numRcvd[dataType], numExp[dataType]);
             psConc = matrix->getEntry(dataType).getPs().getConcentration();
         }
-        Packet* msg = generateMessage(simTime() + 40, 10, INTEREST, simTime(),
+        Packet* msg = generateMessage(simTime() + 40, 2, INTEREST, simTime(),
                 dataType, psConc);
         forwardInterestPacket(msg, classifier.classify(msg));
-        numExp[dataType] = 40/10;
+        numExp[dataType] = 10/2;
         numRcvd[dataType] = 0;
-        scheduleAt(simTime() + 40, generateMessage(INTERVAL, dataType));
+        scheduleAt(simTime() + 10, generateMessage(INTERVAL, dataType));
     } else {
         EV << "no data yet... delaying" << simTime() << " " << simTime() + 2
                 << "\n";
@@ -159,10 +165,10 @@ void Node::generateNewInterval(string dataType) {
             matrix->getEntry(dataType).setPs(numRcvd[dataType], numExp[dataType]);
             psConc = matrix->getEntry(dataType).getPs().getConcentration();
         }
-        Packet* msg = generateMessage(simTime() + 40, 20, INTEREST, simTime(),
+        Packet* msg = generateMessage(simTime() + 40, 10, INTEREST, simTime(),
                 dataType, psConc);
         forwardInterestPacket(msg, classifier.classify(msg));
-        numExp[dataType] = 40 / 20;
+        numExp[dataType] = 10 / 10;
         numRcvd[dataType] = 0;
         scheduleAt(simTime() + 10, generateMessage(INTERVAL, dataType));
     }
@@ -210,14 +216,33 @@ void Node::handleMessage(cMessage *msg) {
         return;
     }
     if (ttmsg->getType() == INTEREST) {
+        if (!ttmsg->getMalicious()) {
+            emit(totalBenSignal, 1);
+        } else {
+            emit(totalMalSignal, 1);
+        }
         Class classification = classifier.classify(ttmsg);
+
         if (filter->filterPacket(
                 PacketInfo(ttmsg->getDataType(), classification,
                         ttmsg->getMalicious()))) {
             //AIS deemed this packet unsafe, so drop
             EV << "packet " << ttmsg->getDataType() << " dropped" << endl;
+            if (!ttmsg->getMalicious()) {
+                emit(fpfSignal, 1);
+
+            } else if (ttmsg->getMalicious()) {
+                emit(tpfSignal, 1);
+            }
+            saveToDataCache(ttmsg);
             delete msg;
             return;
+        } else {
+            if (ttmsg->getMalicious()) {
+                emit(fnfSignal, 1);
+            } else if (!ttmsg->getMalicious()) {
+                emit(tnfSignal, 1);
+            }
         }
         forwardInterestPacket(ttmsg, classification);
         if (ttmsg->getPsConc() > 0) {
@@ -272,6 +297,7 @@ Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type,
     msg->setTimestamp(timestamp);
     msg->setDataType(dataType.c_str());
     msg->setPsConc(psConc);
+    msg->setMalicious(false);
     return msg;
 }
 

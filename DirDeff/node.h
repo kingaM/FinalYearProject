@@ -59,6 +59,12 @@ class Node : public cSimpleModule {
         simsignal_t packetsSentSignal;
         simsignal_t generatedDataSignal;
         simsignal_t receievedPacketsSignal;
+        simsignal_t fnfSignal;
+        simsignal_t fpfSignal;
+        simsignal_t tpfSignal;
+        simsignal_t tnfSignal;
+        simsignal_t totalMalSignal;
+        simsignal_t totalBenSignal;
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
                 int type, simtime_t timestamp, string dataType, double psConc);
         virtual Packet *generateMessage(int type, string dataType);
