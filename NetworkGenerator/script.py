@@ -7,13 +7,14 @@ iniTemplate = """
 [Config {0}]
 network = {0}
 """
+path = "../RandomNetworks/"
 try:
-    os.remove('random.ini')
+    os.remove(path + 'random.ini')
 except OSError:
     pass
-ini = open('random.ini', 'a')
-ini.write('[General]\nsim-time-limit = 1000s\n')
-for i in range(2, 10):
+ini = open(path + 'random.ini', 'a')
+ini.write('[General]\nsim-time-limit = 1000s\nrecord-eventlog = true\n')
+for i in range(2, 9):
     network = "RandomNetwork" + str(i)
     nodes = 2**i
     edges = int(nodes * 2)
@@ -21,10 +22,10 @@ for i in range(2, 10):
                                  str(nodes) + " " + str(edges) + 
                                  " 101 " + network).split())
     try:
-        os.remove(network + '.ned')
+        os.remove(path + network + '.ned')
     except OSError:
         pass
-    file = open(network + '.ned', 'a')
+    file = open(path + network + '.ned', 'a')
     file.write(p)
     file.close()
     ini.write(iniTemplate.format(network))

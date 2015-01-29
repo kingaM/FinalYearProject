@@ -1,6 +1,9 @@
 <#assign gateName = "gate">
-
 import Channel;
+import Node;
+import SourceNode;
+import SinkNode;
+import EvilNode;
 
 <#assign neighborLists = topo.generate()>
 <#assign sinks = topo.getSinks(1)>
@@ -24,7 +27,7 @@ network ${targetTypeName} {
   <#assign neighborList = neighborLists[i] >
   <#list neighborList as neighbor>
      <#if (i < neighbor)>
-        node${i}.${gateName}++ <--> Channel node${neighbor}.${gateName}++;
+        node${i}.${gateName}++ <--> Channel <--> node${neighbor}.${gateName}++;
      </#if>
   </#list>
 </#list>
