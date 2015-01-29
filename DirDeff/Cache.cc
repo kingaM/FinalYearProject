@@ -33,8 +33,11 @@ Gradient* Cache::addEntry(string type, long timestamp, int dataRate, long expire
     Entry e = Entry(type, timestamp, dataRate, expiresAt, neighbour);
     boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
             entries.end(), e);
-    if (entry != entries.end()) {
+    // add only when it's better
+    if (entry != entries.end() && entry->getMinInterval() > dataRate) {
         return entry->addGradient(dataRate, expiresAt, neighbour, timestamp);
+    } else if (entry != entries.end()) {
+        return NULL;
     } else {
         if(entries.full()) {
             cout << "MATURITY: " << DendricCell::maturity(dcs->mature(type)) << " type " <<

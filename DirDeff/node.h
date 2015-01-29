@@ -24,6 +24,7 @@
 #define DATA 2
 #define SENSOR 0
 #define INTERVAL 3
+#define EXP_INT 6
 #define DATA_RETRY 4
 #define TIC 5
 
@@ -39,7 +40,7 @@ class Node : public cSimpleModule {
         void saveToDataCache(Packet* ttmsg);
         void forwardInterestPacket(Packet* ttmsg, Class classification);
         void forwardDataPacket(Packet* ttmsg);
-        void generateNewInterval(string dataType);
+        void generateNewInterval(string dataType, int interval);
         void deleteDataCacheEntries();
         void saveToBuffer(Packet* ttmsg);
 
@@ -65,6 +66,7 @@ class Node : public cSimpleModule {
         simsignal_t tnfSignal;
         simsignal_t totalMalSignal;
         simsignal_t totalBenSignal;
+        bool first = true;
         virtual Packet *generateMessage(simtime_t expiresAt, int interval,
                 int type, simtime_t timestamp, string dataType, double psConc);
         virtual Packet *generateMessage(int type, string dataType);

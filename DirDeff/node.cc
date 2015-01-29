@@ -21,6 +21,9 @@
 #include <AIS/PacketFilter.h>
 #include "node.h"
 
+#define EXPLORATORY_INT 10
+#define INT 2
+
 using namespace std;
 using namespace boost::accumulators;
 
@@ -126,6 +129,12 @@ void Node::forwardDataPacket(Packet* ttmsg) {
             if (*it == -1) {
                 emit(receievedPacketsSignal, 1);
                 EV << "at the sink... YAAY!!";
+                // TODO: find a better way to do this, if not, add types
+                if (first) {
+                    scheduleAt(simTime() + 1,
+                            generateMessage(INTERVAL, ttmsg->getDataType()));
+                    first = false;
+                }
             } else {
                 Packet *dup = ttmsg->dup();
                 send(dup, "gate$o", *it);
@@ -133,44 +142,31 @@ void Node::forwardDataPacket(Packet* ttmsg) {
                         << "]\n";
             }
         }
-//        Packet* msg = generateMessage(DATA_RETRY, ttmsg->getDataType());
-//        scheduleAt(lastSent + cache.getMinInterval(msg->getDataType()) + 1,
-//                msg);
     } else {
         EV << "SHOULD NOT HAPPEN" << endl;
     }
 }
 
-void Node::generateNewInterval(string dataType) {
-    EV << "INTEREST PACKET RCVD" << endl;
-    if (dataCache.findBestNeighbour(dataType).size() > 0) {
-        EV << "generating a new interest with a lower rate" << endl;
-//        scheduleAt(simTime() + 20, generateMessage(INTERVAL, dataType));
+void Node::generateNewInterval(string dataType, int interval) {
+    if (dataCache.findBestNeighbour(dataType).size() > 0 && interval != EXPLORATORY_INT) {
         double psConc = 0;
         if (numExp.count(dataType)) {
             matrix->getEntry(dataType).setPs(numRcvd[dataType], numExp[dataType]);
             psConc = matrix->getEntry(dataType).getPs().getConcentration();
         }
-        Packet* msg = generateMessage(simTime() + 40, 2, INTEREST, simTime(),
+        Packet* msg = generateMessage(simTime() + 40, INT, INTEREST, simTime(),
                 dataType, psConc);
         forwardInterestPacket(msg, classifier.classify(msg));
-        numExp[dataType] = 10/2;
+        numExp[dataType] = 10 / INT;
         numRcvd[dataType] = 0;
         scheduleAt(simTime() + 10, generateMessage(INTERVAL, dataType));
     } else {
-        EV << "no data yet... delaying" << simTime() << " " << simTime() + 2
-                << "\n";
-        double psConc = 0;
-        if (numExp.count(dataType)) {
-            matrix->getEntry(dataType).setPs(numRcvd[dataType], numExp[dataType]);
-            psConc = matrix->getEntry(dataType).getPs().getConcentration();
-        }
-        Packet* msg = generateMessage(simTime() + 40, 10, INTEREST, simTime(),
-                dataType, psConc);
+        EV << "Sending exploratory packet" << endl;
+        // TODO: PS conc?
+        Packet* msg = generateMessage(simTime() + 40, EXPLORATORY_INT, INTEREST,
+                simTime(), dataType, 0);
         forwardInterestPacket(msg, classifier.classify(msg));
-        numExp[dataType] = 10 / 10;
-        numRcvd[dataType] = 0;
-        scheduleAt(simTime() + 10, generateMessage(INTERVAL, dataType));
+        scheduleAt(simTime() + 20, generateMessage(EXP_INT, dataType));
     }
 }
 
@@ -265,7 +261,10 @@ void Node::handleMessage(cMessage *msg) {
         return;
     }
     if (ttmsg->getType() == INTERVAL) {
-        generateNewInterval(ttmsg->getDataType());
+        generateNewInterval(ttmsg->getDataType(), INT);
+    }
+    if (ttmsg->getType() == EXP_INT) {
+        generateNewInterval(ttmsg->getDataType(), EXPLORATORY_INT);
     }
     if (ttmsg->getType() == TIC) {
         acc(numOfUpdates);
@@ -310,8 +309,11 @@ Packet *Node::generateMessage(int type, string dataType) {
 }
 
 void Node::forwardMessage(Packet *msg) {
-    if (cache.getPaths(msg->getDataType(), simTime().raw()).size() > 0 &&
-            dataCache.findBestNeighbour(msg->getDataType()).size() > 0) {
+    // If the message is not exploratory and there is data in cache that can be used to determine
+    // where to send the packet
+    if (msg->getInterval() == INT
+            && cache.getPaths(msg->getDataType(), simTime().raw()).size() > 0
+            && dataCache.findBestNeighbour(msg->getDataType()).size() > 0) {
         EV << "finding best0" << endl;
         set<int> neighbours = dataCache.findBestNeighbour(msg->getDataType());
         for (set<int>::iterator it = neighbours.begin(); it != neighbours.end();
@@ -328,6 +330,7 @@ void Node::forwardMessage(Packet *msg) {
         }
         return;
     }
+    // Default to broadcast
     int n = gateSize("gate");
     for (int i = 0; i < n; i++) {
         Packet *dup = msg->dup();
