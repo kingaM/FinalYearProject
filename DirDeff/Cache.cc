@@ -41,7 +41,8 @@ Gradient* Cache::addEntry(string type, long timestamp, int dataRate, long expire
         return NULL;
     } else {
         if(entries.full()) {
-            DEBUG_MSG("MATURITY: " << DendricCell::maturity(dcs->mature(type)) << " type " <<
+            Maturity m = dcs->mature(type);
+            DEBUG_MSG("MATURITY: " << DendricCell::maturity(m) << " type " <<
                             type);
         }
         e.addGradient(dataRate, expiresAt, neighbour, timestamp);
@@ -61,7 +62,8 @@ vector<int> Cache::getPaths(string type, long currTime) {
     vector<int> paths = entry->getPaths(currTime);
     if (paths.empty()) {
         DEBUG_MSG("Deleting entry");
-        DEBUG_MSG("MATURITY: " << DendricCell::maturity(dcs->mature(entry->getType())) << " type " <<
+        Maturity m = dcs->mature(entry->getType());
+        DEBUG_MSG("MATURITY: " << DendricCell::maturity(m) << " type " <<
                 entry->getType());
         entries.erase(entry);
     }

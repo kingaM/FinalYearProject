@@ -36,7 +36,7 @@ void Node::generateSensor() {
     emit(generatedDataSignal, 1);
     EV << "GENERATE DATA" << endl;
     Packet* msg = generateMessage(SENSOR, "sensor");
-    int r = generator.getNumber(1, 5);
+    int r = generator.getNumber(2, 5);
     scheduleAt(simTime() + r, msg);
 }
 

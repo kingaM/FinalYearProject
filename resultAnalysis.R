@@ -1,10 +1,18 @@
 require(omnetpp)
 require(plyr)
+require(parallel)
 
 loadVector <- function(name) {
   vec <- loadDataset(name)
   val <- loadVectors(vec, NULL)
   return(val)
+}
+
+getPkts <- function(name) {
+  sca <- loadDataset(name)
+  gen <- subset(sca$scalars, name %in% c('dataGenerated:count'))$value
+  rcvd <- subset(sca$scalars, name %in% c('recievedPackets:count'))$value
+  return(rcvd/gen)
 }
 
 getKey <- function(vector, metricName) {
@@ -76,7 +84,7 @@ dc <- function(name) {
   f$precision = f$tp / (f$tp + f$fp)
   f$recall = f$tp / (f$fn + f$tp)
   f$precision[f$tp == 0 & f$fp == 0] <- 1
-  f$recall[f$tp == 0 & f$fp == 0] <- 1
+  f$recall[f$tp == 0 & f$fn == 0] <- 1
   f$precision[is.na(f$precision)] <- 0
   f$recall[is.na(f$recall)] <- 0
   return(f)
@@ -87,7 +95,7 @@ filter <- function(name) {
   f$precision = f$tp / (f$tp + f$fp)
   f$recall = f$tp / (f$fn + f$tp)
   f$precision[f$tp == 0 & f$fp == 0] <- 1
-  f$recall[f$tp == 0 & f$fp == 0] <- 1
+  f$recall[f$tp == 0 & f$fn == 0] <- 1
   f$precision[is.na(f$precision)] <- 0
   f$recall[is.na(f$recall)] <- 0
   return(f)
@@ -96,18 +104,26 @@ filter <- function(name) {
 precision <- function() {
   setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
   files = list.files(pattern = "RandomNetwork.*-0.vec")
-  all <- lapply(files, filter)
-  tmp = lapply(all, FUN = function(x) { sum(x$precision)/10 })
+  all <- mclapply(files, filter)
+  tmp = mclapply(all, FUN = function(x) { sum(x$precision)/10 })
   return(unlist(tmp))
 }
 
 recall <- function() {
   setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
   files = list.files(pattern = "RandomNetwork.*-0.vec")
-  all <- lapply(files, filter)
-  tmp = lapply(all, FUN = function(x) { sum(x$recall)/10 })
+  all <- mclapply(files, filter)
+  tmp = mclapply(all, FUN = function(x) { sum(x$recall)/10 })
   return(unlist(tmp))
+}
+
+rcvPkts <- function() {
+  setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
+  files = list.files(pattern = "RandomNetwork.*-0.sca")
+  all <- mclapply(files, getPkts)
+  return(unlist(all))
 }
 
 precision()
 recall()
+rcvPkts()
