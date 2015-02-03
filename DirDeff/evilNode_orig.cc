@@ -18,21 +18,18 @@
 #define INTERVAL 3
 #define DATA_RETRY 4
 #define TIC 5
-#define BROADCAST 6
 
 using namespace std;
 
 typedef vector<char> char_array;
 
-class EvilNode : public cSimpleModule {
+class EvilNode_Orig : public cSimpleModule {
     private:
         simsignal_t arrivalSignal;
         void sendBogusInterests();
         void forwardInterestPacket(Packet* ttmsg);
         string getRandomString(const int len);
         void addToDataCache(Packet* ttmsg);
-        int broadcastInterest(int i);
-        int wait(int i);
 
         simtime_t lastSent;
         RandomNumberGenerator generator;
@@ -46,12 +43,12 @@ class EvilNode : public cSimpleModule {
         virtual void handleMessage(cMessage *msg);
 
     public:
-        EvilNode() {};
+        EvilNode_Orig() {};
 };
 
-Define_Module(EvilNode);
+Define_Module(EvilNode_Orig);
 
-void EvilNode::initialize() {
+void EvilNode_Orig::initialize() {
     arrivalSignal = registerSignal("arrival");
     lastSent = simTime();
     generator = RandomNumberGenerator("seeds.csv", 0);
@@ -59,30 +56,14 @@ void EvilNode::initialize() {
 //    scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
 }
 
-void EvilNode::forwardInterestPacket(Packet* ttmsg) {
-    broadcastInterest(
-            broadcastInterest(
-                    broadcastInterest(
-                            broadcastInterest(
-                                    wait(
-                                            wait(
-                                                    broadcastInterest(
-                                                            broadcastInterest(
-                                                                    broadcastInterest(
-                                                                            wait(
-                                                                                    4))))))))));
+void EvilNode_Orig::forwardInterestPacket(Packet* ttmsg) {
+    // We need to forward the message.
+    EV << "FORWARDING INTEREST PACKET with interval " << ttmsg->getInterval()
+            << endl;
+    sendBogusInterests();
 }
 
-int EvilNode::wait(int i) {
-    return ++i;
-}
-
-int EvilNode::broadcastInterest(int i) {
-    scheduleAt(simTime() + i, generateMessage(BROADCAST, "sensor"));
-    return i;
-}
-
-void EvilNode::handleMessage(cMessage *msg) {
+void EvilNode_Orig::handleMessage(cMessage *msg) {
     Packet *ttmsg = check_and_cast<Packet *>(msg);
     int prevHop = -1;
     if (ttmsg->getArrivalGate()) {
@@ -99,13 +80,10 @@ void EvilNode::handleMessage(cMessage *msg) {
     if (ttmsg->getType() == TIC) {
         scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     }
-    if (ttmsg->getType() == BROADCAST) {
-        sendBogusInterests();
-    }
     delete msg;
 }
 
-Packet *EvilNode::generateMessage(simtime_t expiresAt, int interval, int type,
+Packet *EvilNode_Orig::generateMessage(simtime_t expiresAt, int interval, int type,
         simtime_t timestamp, string dataType, double psConc) {
     int src = getIndex();
 
@@ -122,7 +100,7 @@ Packet *EvilNode::generateMessage(simtime_t expiresAt, int interval, int type,
     return msg;
 }
 
-Packet *EvilNode::generateMessage(int type, string dataType) {
+Packet *EvilNode_Orig::generateMessage(int type, string dataType) {
     Packet *msg = new Packet();
     msg->setMsgId(msg->getId());
     msg->setType(type);
@@ -131,21 +109,23 @@ Packet *EvilNode::generateMessage(int type, string dataType) {
     return msg;
 }
 
-void EvilNode::sendBogusInterests() {
-    string type = getRandomString(20);
-    EV << "EVIL NODE TYPE: " << type;
-    Packet* msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
-            type, 0);
-    int n = gateSize("gate");
-    for (int i = 0; i < n; i++) {
-        Packet *dup = msg->dup();
-        send(dup, "gate$o", i);
-        addToDataCache(dup);
-        EV << "Forwarding message " << msg << " on gate[" << i << "]\n";
+void EvilNode_Orig::sendBogusInterests() {
+    for (int i = 0; i < Cache::SIZE; i++) {
+        string type = getRandomString(20);
+        EV << "EVIL NODE TYPE: " << type;
+        Packet* msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
+                type, 0);
+        int n = gateSize("gate");
+        for (int i = 0; i < n; i++) {
+            Packet *dup = msg->dup();
+            send(dup, "gate$o", i);
+            addToDataCache(dup);
+            EV << "Forwarding message " << msg << " on gate[" << i << "]\n";
+        }
     }
 }
 
-string EvilNode::getRandomString(const int len) {
+string EvilNode_Orig::getRandomString(const int len) {
     static const char alphanum[] =
         "0123456789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -157,7 +137,7 @@ string EvilNode::getRandomString(const int len) {
     return s;
 }
 
-void EvilNode::addToDataCache(Packet* ttmsg) {
+void EvilNode_Orig::addToDataCache(Packet* ttmsg) {
     int prevHop = -1;
     if (ttmsg->getArrivalGate()) {
         prevHop = ttmsg->getArrivalGate()->getIndex();

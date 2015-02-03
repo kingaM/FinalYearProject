@@ -48,7 +48,6 @@ vector<int> Entry::getPaths(long currTime) {
     vector<int> paths;
     set<Gradient>::iterator it = gradients.begin();
     int max = min_element(gradients.begin(), gradients.end())->getDataRate();
-    cout << max << endl;
     while (it != gradients.end()) {
         if (currTime > it->getExpiry()) {
             gradients.erase(it++);
@@ -64,7 +63,6 @@ vector<int> Entry::getPaths(long currTime) {
 
 int Entry::getMinInterval() {
     if (gradients.empty()) {
-        cout << "Error: No gradients" << endl;;
         return 0;
     }
     return min_element(gradients.begin(), gradients.end())->getDataRate();

@@ -19,7 +19,7 @@ Define_Module(SinkNode);
 
 void SinkNode::initialize() {
     Node::initialize();
-    Packet *msg = generateMessage(INTERVAL, "sensor");
+    Packet *msg = generateMessage(EXP_INT, "sensor");
     scheduleAt(simTime() + 2, msg);
     msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
             msg->getDataType(), 0);

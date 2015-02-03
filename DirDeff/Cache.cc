@@ -13,6 +13,7 @@
 #include <utility>
 #include <stdio.h>
 #include <AIS/DendricCells.h>
+#include "debug.h"
 
 using namespace std;
 
@@ -40,8 +41,8 @@ Gradient* Cache::addEntry(string type, long timestamp, int dataRate, long expire
         return NULL;
     } else {
         if(entries.full()) {
-            cout << "MATURITY: " << DendricCell::maturity(dcs->mature(type)) << " type " <<
-                            type << endl;;
+            DEBUG_MSG("MATURITY: " << DendricCell::maturity(dcs->mature(type)) << " type " <<
+                            type);
         }
         e.addGradient(dataRate, expiresAt, neighbour, timestamp);
         entries.push_back(e);
@@ -59,9 +60,9 @@ vector<int> Cache::getPaths(string type, long currTime) {
     }
     vector<int> paths = entry->getPaths(currTime);
     if (paths.empty()) {
-        cout << "Deleting entry" << endl;
-        cout << "MATURITY: " << DendricCell::maturity(dcs->mature(entry->getType())) << " type " <<
-                entry->getType() << endl;
+        DEBUG_MSG("Deleting entry");
+        DEBUG_MSG("MATURITY: " << DendricCell::maturity(dcs->mature(entry->getType())) << " type " <<
+                entry->getType());
         entries.erase(entry);
     }
     return paths;
@@ -72,7 +73,7 @@ int Cache::getMinInterval(string type) {
     boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
             entries.end(), wrapper);
     if (entry == entries.end()) {
-        cout << "no entries" << endl;
+        DEBUG_MSG("no entries");
         return 0;
     }
     return entry->getMinInterval();

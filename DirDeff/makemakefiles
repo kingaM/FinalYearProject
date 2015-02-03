@@ -1,0 +1,11 @@
+#
+# Usage:
+#    make -f makemakefiles
+# or, for Microsoft Visual C++:
+#    nmake -f makemakefiles MMOPT=-n
+#
+
+MAKEMAKE=opp_makemake $(MMOPT)
+
+all:
+	$(MAKEMAKE) -f --deep -O out -u Cmdenv -- /home/kinga/omnetpp-4.5/out/gcc-debug/src/nedxml/*.so /usr/lib/libmpi.so* /lib/x86_64-linux-gnu/libpthread.so.0

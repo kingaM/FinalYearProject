@@ -1,8 +1,6 @@
 require(omnetpp)
 require(plyr)
 
-setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
-
 loadVector <- function(name) {
   vec <- loadDataset(name)
   val <- loadVectors(vec, NULL)
@@ -77,6 +75,10 @@ dc <- function(name) {
   f <- dcMaturity(name)
   f$precision = f$tp / (f$tp + f$fp)
   f$recall = f$tp / (f$fn + f$tp)
+  f$precision[f$tp == 0 & f$fp == 0] <- 1
+  f$recall[f$tp == 0 & f$fp == 0] <- 1
+  f$precision[is.na(f$precision)] <- 0
+  f$recall[is.na(f$recall)] <- 0
   return(f)
 }
 
@@ -84,5 +86,28 @@ filter <- function(name) {
   f <- filterClassification(name)
   f$precision = f$tp / (f$tp + f$fp)
   f$recall = f$tp / (f$fn + f$tp)
+  f$precision[f$tp == 0 & f$fp == 0] <- 1
+  f$recall[f$tp == 0 & f$fp == 0] <- 1
+  f$precision[is.na(f$precision)] <- 0
+  f$recall[is.na(f$recall)] <- 0
   return(f)
 }
+
+precision <- function() {
+  setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
+  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  all <- lapply(files, filter)
+  tmp = lapply(all, FUN = function(x) { sum(x$precision)/10 })
+  return(unlist(tmp))
+}
+
+recall <- function() {
+  setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
+  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  all <- lapply(files, filter)
+  tmp = lapply(all, FUN = function(x) { sum(x$recall)/10 })
+  return(unlist(tmp))
+}
+
+precision()
+recall()

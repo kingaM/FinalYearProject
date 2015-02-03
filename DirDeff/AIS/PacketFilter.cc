@@ -11,6 +11,7 @@
 #include "ContentClassifier.h"
 #include "RandomNumberGenerator.h"
 #include <stdio.h>
+#include "debug.h"
 
 PacketFilter::PacketFilter() {
     generator = RandomNumberGenerator("seeds.csv", 0);
@@ -34,10 +35,10 @@ bool PacketFilter::filterPacket(PacketInfo p) {
     double prob = 0;
     if (p.classification == Class::BENIGN) {
         prob = getDropRate(benign);
-        cout << "Benign drop " << prob << endl;
+        DEBUG_MSG("Benign drop " << prob);
     } else {
         prob = getDropRate(malicious);
-        cout << "Malicious drop " << prob << endl;
+        DEBUG_MSG("Malicious drop " << prob);
     }
     return generator.boolWithProbability(prob);
 }
