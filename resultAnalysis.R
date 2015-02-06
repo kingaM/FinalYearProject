@@ -2,6 +2,8 @@ require(omnetpp)
 require(plyr)
 require(parallel)
 
+directory <- "~/Documents/GitHub/FinalYearProject/RandomNetworks/"
+
 loadVector <- function(name) {
   vec <- loadDataset(name)
   val <- loadVectors(vec, NULL)
@@ -102,26 +104,194 @@ filter <- function(name) {
 }
 
 precision <- function() {
-  setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
+  return(precisionNameFilter("results"))
+}
+
+recall <- function() {
+  return(recallNameFilter("results"))
+}
+
+rcvPktsName <- function(name) {
+  setwd(paste(, name, sep=""))
+  files = list.files(pattern = "RandomNetwork.*-0.sca")
+  all <- mclapply(files, getPkts)
+  return(unlist(all))
+}
+
+plotOne <- function(dirName, fileName) {
+  setwd(paste(directory, dirName, sep=""))
+  files = list.files(pattern = fileName)
+  f <- mclapply(files, filter)
+  d <- mclapply(files, dc)
+  show(f)
+  ggplot() +
+    geom_line(data = f[[1]], aes(x = Group.1, y = precision, color = "Precision Filter")) + 
+    geom_line(data = f[[1]], aes(x = Group.1, y = recall, color = "Recall Filter")) +
+    geom_line(data = d[[1]], aes(x = Group.1, y = precision, color = "Precision DC")) + 
+    geom_line(data = d[[1]], aes(x = Group.1, y = recall, color = "Recall DC")) +
+    ylim(0,1)
+}
+
+precisionName <- function(name, FUN) {
+  setwd(paste(directory, name, sep=""))
   files = list.files(pattern = "RandomNetwork.*-0.vec")
-  all <- mclapply(files, filter)
+  all <- mclapply(files, FUN)
   tmp = mclapply(all, FUN = function(x) { sum(x$precision)/10 })
   return(unlist(tmp))
 }
 
-recall <- function() {
-  setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
+precisionNameFilter <- function(name) {
+  return(precisionName(name, filter))
+}
+
+recallNameFilter <- function(name) {
+  return(recallName(name, filter))
+}
+
+precisionNameDc <- function(name) {
+  return(precisionName(name, dc))
+}
+
+recallNameDc <- function(name) {
+  return(recallName(name, dc))
+}
+
+recallName <- function(name, FUN) {
+  setwd(paste(directory, name, sep=""))
   files = list.files(pattern = "RandomNetwork.*-0.vec")
-  all <- mclapply(files, filter)
+  all <- mclapply(files, FUN)
   tmp = mclapply(all, FUN = function(x) { sum(x$recall)/10 })
   return(unlist(tmp))
 }
 
 rcvPkts <- function() {
-  setwd("~/Documents/GitHub/FinalYearProject/RandomNetworks/results")
+  setwd(paste(directory, "results", sep=""))
   files = list.files(pattern = "RandomNetwork.*-0.sca")
   all <- mclapply(files, getPkts)
   return(unlist(all))
+}
+
+plotAll <- function(FUN, name) {
+  library(plyr)
+  library(ggplot2)
+  library(reshape2)
+  setwd(directory)
+  files = list.files(pattern="results_.*")
+  show(files)
+  list <- lapply(files, FUN)
+  show(list)
+  df <- data.frame(y = unlist(list), 
+                   grp = rep(files[1:length(list)],
+                             times = sapply(list,length)))
+  df$Index <- ave( 1:nrow(df), factor( df$grp), FUN=function(x) 1:length(x) )
+  show(df)
+  p <- ggplot(df, aes(x = Index, y = y, color = grp)) + 
+       geom_point(size=3) + ggtitle(name) + ylim(0,1)
+  ggsave(paste(name, ".png", sep=""), width = 10)
+  return(p)
+}
+
+plotEverything <- function() {
+  library(gridExtra)
+  p1 <- plotAll(rcvPktsName, "Rcvd Packets")
+  p2 <- plotAll(precisionNameFilter, "Precision - Filter")
+  p3 <- plotAll(recallNameFilter, "Recall - Filter")
+  p4 <- plotAll(precisionNameDc, "Precision - DC")
+  p5 <- plotAll(recallNameDc, "Recall - DC")
+  grid.arrange(p1, p2, p3, p4, p5)
+}
+
+plotAverage <- function(dirName) {
+  library(reshape)
+  library(ggplot2)
+  setwd(paste(directory, dirName, sep=""))
+  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  f <- lapply(files, filter)
+  fm <- merge_all(f)
+  d <- lapply(files, dc)
+  dm <- merge_all(d)
+  fm <- aggregate(fm, by = list(fm$Group.1), FUN = mean)
+  dm <- aggregate(dm, by = list(dm$Group.1), FUN = mean)
+  ggplot() +
+    geom_line(data = fm, aes(x = Group.1, y = precision, color = "Precision Filter")) + 
+    geom_line(data = fm, aes(x = Group.1, y = recall, color = "Recall Filter")) +
+    geom_line(data = dm, aes(x = Group.1, y = precision, color = "Precision DC")) + 
+    geom_line(data = dm, aes(x = Group.1, y = recall, color = "Recall DC")) +
+    ylim(0,1)
+}
+
+plotAverageErrorBars <- function(dirName) {
+  library(reshape)
+  library(ggplot2)
+  setwd(paste(directory, dirName, sep=""))
+  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  f <- lapply(files, filter)
+  fm <- merge_all(f)
+  d <- lapply(files, dc)
+  dm <- merge_all(d)
+  precisionF <- summarySE(fm, measurevar="precision", groupvars="Group.1")
+  recallF <- summarySE(fm, measurevar="recall", groupvars="Group.1")
+  precisionD <- summarySE(dm, measurevar="precision", groupvars="Group.1")
+  recallD <- summarySE(dm, measurevar="recall", groupvars="Group.1")
+  ggplot() + 
+    geom_line(data=precisionF, aes(x=Group.1, y=precision, color="Precision Filter")) +
+    geom_errorbar(data=precisionF, 
+                  mapping=aes(ymin=precision-se, ymax=precision+se, x=Group.1, y=precision, color="Precision Filter"), 
+                  width=10) +
+    geom_line(data=recallF, aes(x=Group.1, y=recall, color="Recall Filter")) +
+    geom_errorbar(data=recallF, 
+                  mapping=aes(ymin=recall-se, ymax=recall+se, x=Group.1, y=recall, color="Recall Filter"), 
+                  width=10) +
+    geom_line(data=precisionD, aes(x=Group.1, y=precision, color="Precision DC")) +
+    geom_errorbar(data=precisionD, 
+                  mapping=aes(ymin=precision-se, ymax=precision+se, x=Group.1, y=precision, color="Precision DC"), 
+                  width=10) +
+    geom_line(data=recallD, aes(x=Group.1, y=recall, color="Recall DC")) +
+    geom_errorbar(data=recallD, 
+                  mapping=aes(ymin=recall-se, ymax=recall+se, x=Group.1, y=recall, color="Recall DC"), 
+                  width=10) +
+    ggtitle(dirName) +
+    theme(legend.title=element_blank()) +
+    ylab("") + xlab("Time") +
+    ylim(0,1)
+  ggsave(paste(dirName, "_plot.png", sep=""), width = 10)
+}
+ 
+# Taken from: http://www.cookbook-r.com/Manipulating_data/Summarizing_data/
+summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
+                      conf.interval=.95, .drop=TRUE) {
+  require(plyr)
+  
+  # New version of length which can handle NA's: if na.rm==T, don't count them
+  length2 <- function (x, na.rm=FALSE) {
+    if (na.rm) sum(!is.na(x))
+    else       length(x)
+  }
+  
+  # This does the summary. For each group's data frame, return a vector with
+  # N, mean, and sd
+  datac <- ddply(data, groupvars, .drop=.drop,
+                 .fun = function(xx, col) {
+                   c(N    = length2(xx[[col]], na.rm=na.rm),
+                     mean = mean   (xx[[col]], na.rm=na.rm),
+                     sd   = sd     (xx[[col]], na.rm=na.rm)
+                   )
+                 },
+                 measurevar
+  )
+  
+  # Rename the "mean" column    
+  datac <- rename(datac, c("mean" = measurevar))
+  
+  datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
+  
+  # Confidence interval multiplier for standard error
+  # Calculate t-statistic for confidence interval: 
+  # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
+  ciMult <- qt(conf.interval/2 + .5, datac$N-1)
+  datac$ci <- datac$se * ciMult
+  
+  return(datac)
 }
 
 precision()
