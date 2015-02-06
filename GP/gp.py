@@ -16,7 +16,6 @@ def getResults():
     os.chdir(
         "/home/kinga/Documents/GitHub/FinalYearProject/RandomNetworks/results")
     files = getAllScaFiles()
-    print files
     results = []
     for file in files:
         results.append(getValuesFromSca(file))
@@ -53,8 +52,14 @@ def getValuesFromSca(f):
             rec += getNumFromLineInSca(line)
         elif "dataGenerated:count" in line:
             gen += getNumFromLineInSca(line)
-    p = float(tpf) / (tpf + fpf)
-    r = float(tpf) / (tpf + fnf)
+    if tpf == 0 and fpf == 0:
+        p = 1
+    else:
+        p = float(tpf) / (tpf + fpf)
+    if tpf == 0 and fnf == 0:
+        r = 1
+    else:
+        r = float(tpf) / (tpf + fnf)
     rcvd = float(rec) / gen
     return {'p': p, 'r': r, 'rcvd': rcvd}
 
@@ -100,7 +105,7 @@ def eval_func(chromosome):
     result = runOmnetpp(chromosome.getPreOrderExpression())
     results = getResults()
     for i in xrange(0, 2):
-        evaluated = (results[i]['p'] + results[i]['r']) / 2
+        evaluated = results[i]['rcvd']
         target = 0
         rmse_accum += (target, evaluated)
     print rmse_accum.getRMSE()
