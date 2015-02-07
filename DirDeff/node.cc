@@ -310,7 +310,6 @@ void Node::forwardMessage(Packet *msg) {
             EV << "Forwarding message to best " << msg << " on gate[" << i
                     << "]\n";
             Packet *dup = msg->dup();
-            dup->setSource(getIndex());
             if (i == -1) {
                 continue;
             }

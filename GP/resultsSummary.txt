@@ -1,0 +1,15 @@
+#### RESULT 6 ####
+Generation: 40, Crossover Rate: 1.0, Mutation Rate: 0.25, Population Size: 50, Sample: 2, 3
+Fitness Function: (p + r + 3 * rcvd) / 5
+wait(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(wait(wait(broadcastInterest(0)))))))))))))))
+
+#### RESULT 7 ####
+Generation: 40, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 50, Sample: 2, 3
+Fitness Function: (p + r + 2 * rcvd) / 4
+wait(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(wait(wait(wait(wait(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(0)))))))))))))))))))))))))
+
+#### RESULT 8 ####
+Generation: 35, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 45, Sample: 3, 4, 5
+Fitness Function: (p + r) / 2
+broadcastInterest(wait(0))
+

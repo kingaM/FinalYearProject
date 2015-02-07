@@ -79,11 +79,8 @@ void EvilNode_Orig::handleMessage(cMessage *msg) {
 
 Packet *EvilNode_Orig::generateMessage(simtime_t expiresAt, int interval,
         int type, simtime_t timestamp, string dataType, double psConc) {
-    int src = getIndex();
-
     Packet *msg = new Packet();
     msg->setMsgId(msg->getId());
-    msg->setSource(src);
     msg->setExpiresAt((simTime() + 1000).raw());
     msg->setInterval(interval);
     msg->setType(type);
