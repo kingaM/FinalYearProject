@@ -43,7 +43,9 @@ class EvilNode_Orig : public cSimpleModule {
         virtual void handleMessage(cMessage *msg);
 
     public:
-        EvilNode_Orig() {};
+        EvilNode_Orig() {
+        }
+        ;
 };
 
 Define_Module(EvilNode_Orig);
@@ -75,8 +77,8 @@ void EvilNode_Orig::handleMessage(cMessage *msg) {
     delete msg;
 }
 
-Packet *EvilNode_Orig::generateMessage(simtime_t expiresAt, int interval, int type,
-        simtime_t timestamp, string dataType, double psConc) {
+Packet *EvilNode_Orig::generateMessage(simtime_t expiresAt, int interval,
+        int type, simtime_t timestamp, string dataType, double psConc) {
     int src = getIndex();
 
     Packet *msg = new Packet();
@@ -118,13 +120,12 @@ void EvilNode_Orig::sendBogusInterests() {
 }
 
 string EvilNode_Orig::getRandomString(const int len) {
-    static const char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
+    static const char alphanum[] = "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
     string s = "";
     for (int i = 0; i < len; ++i) {
-        s += alphanum[generator.getNumber(0,(sizeof(alphanum) - 1))];
+        s += alphanum[generator.getNumber(0, (sizeof(alphanum) - 1))];
     }
     return s;
 }

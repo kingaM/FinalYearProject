@@ -10,6 +10,11 @@
 
 #include "Signal.h"
 
+/**
+ * An entry in the signal matrix. It holds all signals that happened recently
+ * in the node.
+ * @see Node
+ */
 class MatrixEntry {
     public:
         MatrixEntry();
@@ -27,17 +32,29 @@ class MatrixEntry {
         void setSs3Ds1(double numOfUpdates);
 
     private:
-        // Generated from data delivery failures
+        /**
+         * PAMP signal generated from data delivery failures
+         */
         Signal ps;
-        // Generated from data packet arrival
+        /**
+         * Safe signal generated from data packet arrival
+         */
         Signal ss1;
-        // Generated from cache entry expiration
+        /**
+         * Safe signal generated from cache entry expiration
+         */
         Signal ss2;
-        // Generated from cache update rate
+        /**
+         * Safe signal generated from cache update rate
+         */
         Signal ss3;
-        // Generated from cache update rate
+        /**
+         * Danger signal generated from cache update rate
+         */
         Signal ds1;
-        // Generated from cache entry overwriting
+        /**
+         * Danger signal generated from cache entry overwriting
+         */
         Signal ds2;
 };
 

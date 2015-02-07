@@ -15,6 +15,11 @@ enum class Class {
     BENIGN, MALICIOUS
 };
 
+/**
+ * Class that is used to classify incoming packets into two classes.
+ * For the purpose of this project the classification is mocked with an 80%
+ * accuracy.
+ */
 class ContentClassifier {
     public:
         ContentClassifier();

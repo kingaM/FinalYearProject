@@ -49,23 +49,12 @@ set<int> DataCache::findBestNeighbour(string dataType) {
     return neighbours;
 }
 
-set<string> DataCache::getAllTypes() {
-    set<string> types;
-    for (vector<DataEntry>::iterator it = entries.begin(); it != entries.end();
-            ++it) {
-        if (it->getMsgType() == 1) {
-            types.insert(it->getDataType());
-        }
-    }
-    return types;
-}
-
 set<pair<string, int>> DataCache::getInactive(int currTime) {
     set<pair<string, int>> inactive;
     for (vector<DataEntry>::iterator it = entries.begin(); it != entries.end();
             ) {
-        if (currTime - it->getTime() > 30 * 100000000000 && it->getMsgType() == 2
-                && it->getPrevHop() != -1) {
+        if (currTime - it->getTime() > 30 * 100000000000
+                && it->getMsgType() == 2 && it->getPrevHop() != -1) {
             inactive.insert(
                     pair<string, int>(it->getDataType(), it->getPrevHop()));
             it = entries.erase(it);

@@ -39,6 +39,7 @@ void Signal::setPresent(bool present) {
 
 string Signal::toString() const {
     stringstream ss;
-    ss << "present: " << present << " conc: " << concentration << endl;;
+    ss << "present: " << present << " conc: " << concentration << endl;
+    ;
     return ss.str();
 }

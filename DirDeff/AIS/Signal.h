@@ -12,6 +12,10 @@
 
 using namespace std;
 
+/**
+ * Represents a signal in the matrix entry.
+ * @see MatrixEntry
+ */
 class Signal {
     public:
         Signal();

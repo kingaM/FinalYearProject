@@ -12,17 +12,20 @@
 
 using namespace std;
 
+/**
+ * Class representing a gradient of a interest cache entry.
+ * @see Entry
+ */
 class Gradient {
     public:
         Gradient(int dataRate, long timestamp, int neighbour, long currTime);
-        virtual ~Gradient();
         int getDataRate() const;
         int getNeighbour() const;
         long getTimestamp() const;
+        long getExpiry() const;
         string toString() const;
         friend bool operator==(const Gradient& a, const Gradient& b);
         friend bool operator<(const Gradient& a, const Gradient& b);
-        long getExpiry() const;
 
     private:
         int dataRate;

@@ -15,15 +15,30 @@
 #include <string>
 
 using namespace std;
-
+/**
+ * Class representing an entry in the interest cache.
+ * An entry is composed of a type and a list of gradients
+ * @see Cache
+ * @see Gradient
+ */
 class Entry {
     public:
         Entry(string type, long timestamp, int dataRate, long duration,
                 int neighbour);
-        const set<Gradient>& getGradients() const;
         long getTimestamp() const;
         const string getType() const;
-        Gradient* addGradient(int dataRate, long duration, int neighbour, long currTime);
+        /**
+         * Adds a gradient to an already existing entry.
+         * @see Gradient
+         * @return Previous gradient of the same specification (neighbour),
+         *  NULL otherwise
+         */
+        Gradient* addGradient(int dataRate, long duration, int neighbour,
+                long currTime);
+        /**
+         * Finds best paths for the current entry.
+         * @return List of gates that the "next hop" neighbours lie on.
+         */
         vector<int> getPaths(long currTime);
         string toString();
         friend bool operator==(const Entry& a, const Entry& b);

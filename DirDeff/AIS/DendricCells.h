@@ -14,6 +14,11 @@
 #include "PacketFilter.h"
 #include <omnetpp.h>
 
+/**
+ * A class that holds all cells that are currently maturing. The cells are
+ * created per packet type.
+ * @see DendricCell
+ */
 class DendricCells {
     public:
         DendricCells();

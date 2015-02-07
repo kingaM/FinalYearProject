@@ -88,7 +88,9 @@ void Node::saveToDataCache(Packet* ttmsg) {
 }
 
 void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
-    dcs->addCell(PacketInfo(ttmsg->getDataType(), classification, ttmsg->getMalicious()));
+    dcs->addCell(
+            PacketInfo(ttmsg->getDataType(), classification,
+                    ttmsg->getMalicious()));
     forwardMessage(ttmsg);
     addToCache(ttmsg);
     saveToDataCache(ttmsg);
@@ -138,10 +140,12 @@ void Node::forwardDataPacket(Packet* ttmsg) {
 }
 
 void Node::generateNewInterval(string dataType, int interval) {
-    if (dataCache.findBestNeighbour(dataType).size() > 0 && interval != EXPLORATORY_INT) {
+    if (dataCache.findBestNeighbour(dataType).size()
+            > 0&& interval != EXPLORATORY_INT) {
         double psConc = 0;
         if (numExp.count(dataType)) {
-            matrix->getEntry(dataType).setPs(numRcvd[dataType], numExp[dataType]);
+            matrix->getEntry(dataType).setPs(numRcvd[dataType],
+                    numExp[dataType]);
             psConc = matrix->getEntry(dataType).getPs().getConcentration();
         }
         Packet* msg = generateMessage(simTime() + 40, INT, INTEREST, simTime(),
@@ -180,7 +184,8 @@ void Node::handleMessage(cMessage *msg) {
             << ttmsg->getMsgId() << endl;
     if (ttmsg->getType() == SENSOR) {
         generateSensor();
-        Packet *msg = generateMessage(simTime() + 1000, 20, DATA, simTime(), "sensor", 0);
+        Packet *msg = generateMessage(simTime() + 1000, 20, DATA, simTime(),
+                "sensor", 0);
         scheduleAt(simTime(), msg);
     }
     if (ttmsg->getType() == DATA_RETRY) {
@@ -209,7 +214,8 @@ void Node::handleMessage(cMessage *msg) {
                 PacketInfo(ttmsg->getDataType(), classification,
                         ttmsg->getMalicious()))) {
             //AIS deemed this packet unsafe, so drop
-            EV << "Packet " << ttmsg->getDataType() << " dropped by AIS" << endl;
+            EV << "Packet " << ttmsg->getDataType() << " dropped by AIS"
+                    << endl;
             if (!ttmsg->getMalicious()) {
                 emit(fpfSignal, 1);
             } else if (ttmsg->getMalicious()) {
@@ -269,11 +275,9 @@ void Node::handleMessage(cMessage *msg) {
 
 Packet *Node::generateMessage(simtime_t expiresAt, int interval, int type,
         simtime_t timestamp, string dataType, double psConc) {
-    int src = getIndex();
 
     Packet *msg = new Packet();
     msg->setMsgId(msg->getId());
-    msg->setSource(src);
     msg->setExpiresAt((simTime() + 1000).raw());
     msg->setInterval(interval);
     msg->setType(type);

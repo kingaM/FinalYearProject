@@ -14,25 +14,50 @@
 
 using namespace std;
 
+/**
+ * Defines the possible stages of the cell.
+ */
 enum class Maturity {
-    SEMI, MAT
+    SEMI, /*!< A semi-mature cell is considered dangerous */
+    MAT /*!< A mature cell is considered benign */
 };
 
+/**
+ * A class representing a dendric cell used in the Artificial Immune System
+ * algorithm.
+ */
 class DendricCell {
     public:
+        /**
+         * Converts the Maturity enum into a string
+         * @see Maturity
+         */
         static string maturity(Maturity mat);
         DendricCell();
         DendricCell(SignalMatrix* signalMatrix, string type);
+        /**
+         * Simulates one cycle of the cell. Retrieves the latest signals from
+         * the signal matrix and updates the cytokines accordingly.
+         * @see SignalMatrix
+         */
         void cycle();
+        /**
+         * Matures the cell into either semi-mature (dangerous) or mature
+         * (benign) cell.
+         */
         Maturity mature();
 
     private:
         SignalMatrix* signalMatrix;
         string type;
         vector<MatrixEntry> signals;
-        // concentration for semi-mature cytokines
+        /**
+         * Concentration for semi-mature cytokines
+         */
         double semi;
-        // concentration for mature cytokines
+        /**
+         * Concentration for mature cytokines
+         */
         double mat;
 };
 

@@ -12,7 +12,10 @@ using namespace std;
 
 #include <vector>
 #include <string>
-
+/**
+ * Class representing an entry in data cache
+ * @see DataCache
+ */
 class DataEntry {
     public:
         DataEntry(long int id, int prevHop, int msgType, string dataType,

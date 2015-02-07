@@ -46,7 +46,9 @@ class EvilNode : public cSimpleModule {
         virtual void handleMessage(cMessage *msg);
 
     public:
-        EvilNode() {};
+        EvilNode() {
+        }
+        ;
 };
 
 Define_Module(EvilNode);
@@ -59,7 +61,32 @@ void EvilNode::initialize() {
 }
 
 void EvilNode::forwardInterestPacket(Packet* ttmsg) {
-    broadcastInterest(wait(wait(wait(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(wait(broadcastInterest(wait(wait(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(0))))))))))))))))))))))))) ;
+    broadcastInterest(
+            wait(
+                    wait(
+                            wait(
+                                    wait(
+                                            broadcastInterest(
+                                                    wait(
+                                                            broadcastInterest(
+                                                                    wait(
+                                                                            broadcastInterest(
+                                                                                    wait(
+                                                                                            wait(
+                                                                                                    broadcastInterest(
+                                                                                                            wait(
+                                                                                                                    wait(
+                                                                                                                            wait(
+                                                                                                                                    wait(
+                                                                                                                                            broadcastInterest(
+                                                                                                                                                    broadcastInterest(
+                                                                                                                                                            broadcastInterest(
+                                                                                                                                                                    wait(
+                                                                                                                                                                            broadcastInterest(
+                                                                                                                                                                                    broadcastInterest(
+                                                                                                                                                                                            wait(
+                                                                                                                                                                                                    broadcastInterest(
+                                                                                                                                                                                                            0)))))))))))))))))))))))));
 }
 
 int EvilNode::wait(int i) {
@@ -128,13 +155,12 @@ void EvilNode::sendBogusInterests() {
 }
 
 string EvilNode::getRandomString(const int len) {
-    static const char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
+    static const char alphanum[] = "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
     string s = "";
     for (int i = 0; i < len; ++i) {
-        s += alphanum[generator.getNumber(0,(sizeof(alphanum) - 1))];
+        s += alphanum[generator.getNumber(0, (sizeof(alphanum) - 1))];
     }
     return s;
 }

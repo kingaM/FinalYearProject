@@ -77,5 +77,8 @@ class Node : public cSimpleModule {
         virtual void handleMessage(cMessage *msg);
 
     public:
-        Node() : acc(SumAcc(tag::rolling_window::window_size = 10)) {};
+        Node() :
+                acc(SumAcc(tag::rolling_window::window_size = 10)) {
+        }
+        ;
 };

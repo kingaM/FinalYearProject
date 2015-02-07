@@ -15,18 +15,18 @@ ContentClassifier::ContentClassifier() {
 
 Class ContentClassifier::classify(Packet* p) {
     bool result = generator.boolWithProbability(0.8);
-    if(p->getMalicious()) {
-       if (result) {
-           return Class::MALICIOUS;
-       } else {
-           return Class::BENIGN;
-       }
+    if (p->getMalicious()) {
+        if (result) {
+            return Class::MALICIOUS;
+        } else {
+            return Class::BENIGN;
+        }
     } else {
         if (result) {
             return Class::BENIGN;
         } else {
             return Class::MALICIOUS;
         }
-     }
+    }
 }
 

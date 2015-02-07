@@ -18,6 +18,4 @@
 #define DEBUG_MSG(str) do { } while ( false )
 #endif
 
-
-
 #endif /* DEBUG_H_ */

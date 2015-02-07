@@ -15,10 +15,6 @@ Gradient::Gradient(int dataRate, long expiry, int neighbour, long timestamp) {
     this->timestamp = timestamp;
 }
 
-Gradient::~Gradient() {
-    // TODO Auto-generated destructor stub
-}
-
 string Gradient::toString() const {
     stringstream ss;
     ss << "Gradient [dataRate: " << dataRate << " timestamp: " << timestamp
@@ -38,6 +34,10 @@ long Gradient::getTimestamp() const {
     return timestamp;
 }
 
+long Gradient::getExpiry() const {
+    return expiry;
+}
+
 int cmp(const Gradient &a, const Gradient &b) {
     if (a.getNeighbour() == b.getNeighbour()) {
         return 0;
@@ -54,8 +54,4 @@ bool operator==(const Gradient& a, const Gradient& b) {
 
 bool operator<(const Gradient& a, const Gradient& b) {
     return cmp(a, b) == -1;
-}
-
-long Gradient::getExpiry() const {
-    return expiry;
 }

@@ -13,10 +13,19 @@
 
 using namespace std;
 
+/**
+ * Enum representing the priority in the queue.
+ */
 enum class Priority {
     HIGH, LOW
 };
 
+/**
+ * A class representing a multilevel feedback queue. This class is used to
+ * prioritise sending packets that originate from the current node, over
+ * packets from other nodes.
+ * @see Packet
+ */
 class MultiLevelFeedbackQueue {
     public:
         void insert(Packet *packet, Priority priority);

@@ -23,7 +23,8 @@ Entry::Entry(string type, long timestamp, int dataRate, long duration,
     this->addGradient(dataRate, duration, neighbour, timestamp);
 }
 
-Gradient* Entry::addGradient(int dataRate, long duration, int neighbour, long currTime) {
+Gradient* Entry::addGradient(int dataRate, long duration, int neighbour,
+        long currTime) {
     Gradient g = Gradient(dataRate, duration, neighbour, currTime);
     set<Gradient>::iterator prevG = gradients.find(g);
     if (prevG != gradients.end()) {
