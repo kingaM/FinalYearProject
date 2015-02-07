@@ -53,7 +53,6 @@ void EvilNode_Orig::initialize() {
     lastSent = simTime();
     generator = RandomNumberGenerator("seeds.csv", 0);
     dataCache = DataCache();
-//    scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
 }
 
 void EvilNode_Orig::forwardInterestPacket(Packet* ttmsg) {
@@ -65,10 +64,6 @@ void EvilNode_Orig::forwardInterestPacket(Packet* ttmsg) {
 
 void EvilNode_Orig::handleMessage(cMessage *msg) {
     Packet *ttmsg = check_and_cast<Packet *>(msg);
-    int prevHop = -1;
-    if (ttmsg->getArrivalGate()) {
-        prevHop = ttmsg->getArrivalGate()->getIndex();
-    }
     if (dataCache.isInCache(ttmsg->getMsgId())) {
         delete ttmsg;
         return;
@@ -76,9 +71,6 @@ void EvilNode_Orig::handleMessage(cMessage *msg) {
     if (ttmsg->getType() == INTEREST) {
         addToDataCache(ttmsg);
         forwardInterestPacket(ttmsg);
-    }
-    if (ttmsg->getType() == TIC) {
-        scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     }
     delete msg;
 }

@@ -11,15 +11,6 @@
 
 using namespace std;
 
-MultiLevelFeedbackQueue::MultiLevelFeedbackQueue() {
-    // TODO Auto-generated constructor stub
-
-}
-
-MultiLevelFeedbackQueue::~MultiLevelFeedbackQueue() {
-    // TODO Auto-generated destructor stub
-}
-
 void MultiLevelFeedbackQueue::insert(Packet* packet, Priority priority) {
     switch (priority) {
         case Priority::HIGH:

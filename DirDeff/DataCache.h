@@ -4,21 +4,20 @@
  *  Created on: Nov 25, 2014
  *      Author: kinga
  */
+
+#ifndef DATACACHE_H_
+#define DATACACHE_H_
+
 #include <vector>
 #include "DataEntry.h"
 #include <string>
 #include <set>
 #include <utility>
 
-#ifndef DATACACHE_H_
-#define DATACACHE_H_
-
 using namespace std;
 
 class DataCache {
     public:
-        DataCache();
-        virtual ~DataCache();
         bool isInCache(long int id);
         void add(long int id, int prevHop, int msgType, string dataType,
                 int time);

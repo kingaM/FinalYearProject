@@ -1,9 +1,11 @@
 /*
- * Gradient.cpp
+ * Gradient.cc
  */
+
 #include <string>
 #include <sstream>
 #include "Gradient.h"
+
 using namespace std;
 
 Gradient::Gradient(int dataRate, long expiry, int neighbour, long timestamp) {
@@ -28,24 +30,12 @@ int Gradient::getDataRate() const {
     return dataRate;
 }
 
-void Gradient::setDataRate(int dataRate) {
-    this->dataRate = dataRate;
-}
-
 int Gradient::getNeighbour() const {
     return neighbour;
 }
 
-void Gradient::setNeighbour(int neighbour) {
-    this->neighbour = neighbour;
-}
-
 long Gradient::getTimestamp() const {
     return timestamp;
-}
-
-void Gradient::setTimestamp(long timestamp) {
-    this->timestamp = timestamp;
 }
 
 int cmp(const Gradient &a, const Gradient &b) {
@@ -68,8 +58,4 @@ bool operator<(const Gradient& a, const Gradient& b) {
 
 long Gradient::getExpiry() const {
     return expiry;
-}
-
-void Gradient::setExpiry(long expiry) {
-    this->expiry = expiry;
 }

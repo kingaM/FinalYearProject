@@ -15,17 +15,14 @@
 #include <array>
 #include <boost/circular_buffer.hpp>
 #include <utility>
-#include <AIS/DendricCells.h>
-#include <AIS/PacketFilter.h>
-
-#define MAX_SIZE 4
+#include "AIS/DendricCells.h"
+#include "AIS/PacketFilter.h"
 
 using namespace std;
 
 class Cache {
     public:
         Cache();
-        virtual ~Cache();
         Gradient* addEntry(string type, long timestamp, int dataRate, long duration,
                 int neighbour);
         string toString();
@@ -33,7 +30,7 @@ class Cache {
         int getMinInterval(string type);
         void setInactive(set<pair<string, int>> inactive, long currTime);
         void setDcs(DendricCells* dcs);
-        const static int SIZE = MAX_SIZE;
+        const static int SIZE = 4;
     private:
         boost::circular_buffer<Entry> entries;
         DendricCells* dcs;

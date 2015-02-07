@@ -1,5 +1,5 @@
 /*
- * Cache.cpp
+ * Cache.cc
  *
  *  Created on: Nov 24, 2014
  *      Author: kinga
@@ -12,17 +12,13 @@
 #include <boost/circular_buffer.hpp>
 #include <utility>
 #include <stdio.h>
-#include <AIS/DendricCells.h>
+#include "AIS/DendricCells.h"
 #include "debug.h"
 
 using namespace std;
 
 Cache::Cache() {
-    entries.set_capacity(MAX_SIZE);
-}
-
-Cache::~Cache() {
-    // TODO Auto-generated destructor stub
+    entries.set_capacity(SIZE);
 }
 
 void Cache::setDcs(DendricCells* dcs) {

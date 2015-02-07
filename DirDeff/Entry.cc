@@ -1,5 +1,5 @@
 /*
- * Entry.cpp
+ * Entry.cc
  *
  *  Created on: Nov 23, 2014
  *      Author: kinga
@@ -21,14 +21,6 @@ Entry::Entry(string type, long timestamp, int dataRate, long duration,
     this->type = type;
     this->timestamp = timestamp;
     this->addGradient(dataRate, duration, neighbour, timestamp);
-}
-
-Entry::~Entry() {
-
-}
-
-const set<Gradient>& Entry::getGradients() const {
-    return gradients;
 }
 
 Gradient* Entry::addGradient(int dataRate, long duration, int neighbour, long currTime) {
@@ -68,24 +60,12 @@ int Entry::getMinInterval() {
     return min_element(gradients.begin(), gradients.end())->getDataRate();
 }
 
-void Entry::setGradients(const set<Gradient>& gradients) {
-    this->gradients = gradients;
-}
-
 long Entry::getTimestamp() const {
     return timestamp;
 }
 
-void Entry::setTimestamp(long timestamp) {
-    this->timestamp = timestamp;
-}
-
 const string Entry::getType() const {
     return type;
-}
-
-void Entry::setType(const string& type) {
-    this->type = type;
 }
 
 string Entry::toString() {

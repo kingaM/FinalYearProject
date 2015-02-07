@@ -1,5 +1,5 @@
 /*
- * Entry.cpp
+ * Entry.cc
  *
  *  Created on: Nov 23, 2014
  *      Author: kinga
@@ -21,18 +21,6 @@ DataEntry::DataEntry(long int id, int prevHop, int msgType, string dataType,
     this->msgType = msgType;
     this->dataType = dataType;
     this->time = time;
-}
-
-DataEntry::~DataEntry() {
-
-}
-
-int cmp(const DataEntry &a, const DataEntry &b) {
-    if (a.getId() == b.getId()) {
-        return 1;
-    } else {
-        return 0;
-    }
 }
 
 bool operator==(const DataEntry& a, const DataEntry& b) {

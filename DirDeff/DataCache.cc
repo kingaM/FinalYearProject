@@ -5,7 +5,7 @@
  *      Author: kinga
  */
 
-#include <DataCache.h>
+#include "DataCache.h"
 #include <algorithm>
 #include <sstream>
 #include <string>
@@ -13,15 +13,6 @@
 #include <utility>
 
 using namespace std;
-
-DataCache::DataCache() {
-    // TODO Auto-generated constructor stub
-
-}
-
-DataCache::~DataCache() {
-    // TODO Auto-generated destructor stub
-}
 
 bool DataCache::isInCache(long int id) {
     DataEntry wrapper = DataEntry(id, -1, -1, "", 0);

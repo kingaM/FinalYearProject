@@ -8,8 +8,8 @@
 #ifndef PACKETINFO_H_
 #define PACKETINFO_H_
 
-#include <AIS/ContentClassifier.h>
-#include <AIS/DendricCell.h>
+#include "AIS/ContentClassifier.h"
+#include "AIS/DendricCell.h"
 
 class PacketInfo {
     public:
@@ -17,7 +17,6 @@ class PacketInfo {
         PacketInfo(string type, Class classifiction, Maturity decision);
         PacketInfo(string type, Class classifiction, bool malicious);
         PacketInfo(string type);
-        virtual ~PacketInfo();
         string type;
         Class classification;
         Maturity decision;

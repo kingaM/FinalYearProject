@@ -19,9 +19,6 @@ enum class Priority {
 
 class MultiLevelFeedbackQueue {
     public:
-        MultiLevelFeedbackQueue();
-        virtual ~MultiLevelFeedbackQueue();
-
         void insert(Packet *packet, Priority priority);
         Packet* get();
         bool empty();

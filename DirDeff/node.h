@@ -27,6 +27,8 @@
 #define EXP_INT 6
 #define DATA_RETRY 4
 #define TIC 5
+#define EXPLORATORY_INT 10
+#define INT 2
 
 using namespace std;
 using namespace boost::accumulators;

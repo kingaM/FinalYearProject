@@ -5,11 +5,11 @@
  *      Author: kinga
  */
 
-#include <string>
-#include <random>
-
 #ifndef RANDOMNUMBERGENERATOR_H_
 #define RANDOMNUMBERGENERATOR_H_
+
+#include <string>
+#include <random>
 
 using namespace std;
 
@@ -17,7 +17,6 @@ class RandomNumberGenerator {
     public:
         RandomNumberGenerator();
         RandomNumberGenerator(string filename, int row);
-        virtual ~RandomNumberGenerator();
         int getNumber(int start, int end);
         bool boolWithProbability(double p);
     private:

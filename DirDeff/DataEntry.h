@@ -5,19 +5,18 @@
  *      Author: kinga
  */
 
-#include <vector>
-#include <string>
-
 using namespace std;
 
 #ifndef DATAENTRY_H_
 #define DATAENTRY_H_
 
+#include <vector>
+#include <string>
+
 class DataEntry {
     public:
         DataEntry(long int id, int prevHop, int msgType, string dataType,
                 int time);
-        virtual ~DataEntry();
         friend bool operator==(const DataEntry& a, const DataEntry& b);
         long int getId() const;
         int getPrevHop() const;
@@ -31,7 +30,6 @@ class DataEntry {
         int msgType;
         string dataType;
         int time;
-        int cmp(const DataEntry& a, const DataEntry& b);
 };
 
 #endif /* DATAENTRY_H_ */

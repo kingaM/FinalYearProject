@@ -21,14 +21,10 @@
 #include <AIS/PacketFilter.h>
 #include "node.h"
 
-#define EXPLORATORY_INT 10
-#define INT 2
-
 using namespace std;
 using namespace boost::accumulators;
 
 typedef accumulator_set<int, stats<tag::rolling_sum>> SumAcc;
-
 
 Define_Module(Node);
 
@@ -67,14 +63,15 @@ void Node::addToCache(Packet* ttmsg) {
     if (ttmsg->getArrivalGate()) {
         prevHop = ttmsg->getArrivalGate()->getIndex();
     }
-    EV << "CACHE type: " << string(ttmsg->getDataType()) << endl;
-    Gradient* prev = cache.addEntry(string(ttmsg->getDataType()), simTime().raw(),
-            ttmsg->getInterval(), ttmsg->getExpiresAt(), prevHop);
+    Gradient* prev = cache.addEntry(string(ttmsg->getDataType()),
+            simTime().raw(), ttmsg->getInterval(), ttmsg->getExpiresAt(),
+            prevHop);
     EV << cache.toString() << endl;
     if (prev != NULL) {
         matrix->getEntry(ttmsg->getDataType()).setSs2();
         numOfUpdates++;
-        matrix->getEntry(ttmsg->getDataType()).setDs2(prev->getTimestamp(), prev->getExpiry(), simTime().raw());
+        matrix->getEntry(ttmsg->getDataType()).setDs2(prev->getTimestamp(),
+                prev->getExpiry(), simTime().raw());
     }
     delete prev;
 }
@@ -91,9 +88,6 @@ void Node::saveToDataCache(Packet* ttmsg) {
 }
 
 void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
-    // We need to forward the message.
-    EV << "FORWARDING INTEREST PACKET with interval " << ttmsg->getInterval()
-            << endl;
     dcs->addCell(PacketInfo(ttmsg->getDataType(), classification, ttmsg->getMalicious()));
     forwardMessage(ttmsg);
     addToCache(ttmsg);
@@ -101,7 +95,6 @@ void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
 }
 
 void Node::saveToBuffer(Packet* ttmsg) {
-    EV << "save to buffer" << endl;
     if (buffer.count(ttmsg->getDataType()) == 0) {
         buffer[ttmsg->getDataType()];
     }
@@ -113,7 +106,6 @@ void Node::saveToBuffer(Packet* ttmsg) {
 }
 
 void Node::forwardDataPacket(Packet* ttmsg) {
-    EV << "forward data packet" << endl;
     EV << cache.toString() << endl;
     if (lastSent + cache.getMinInterval(ttmsg->getDataType()) < simTime()) {
         vector<int> paths = cache.getPaths(ttmsg->getDataType(),
@@ -142,8 +134,6 @@ void Node::forwardDataPacket(Packet* ttmsg) {
                         << "]\n";
             }
         }
-    } else {
-        EV << "SHOULD NOT HAPPEN" << endl;
     }
 }
 
@@ -172,7 +162,6 @@ void Node::generateNewInterval(string dataType, int interval) {
 
 void Node::deleteDataCacheEntries() {
     set<pair<string, int>> inactive = dataCache.getInactive(simTime().raw());
-    EV << "deleting inactive " << inactive.size() << endl;
     cache.setInactive(inactive, simTime().raw());
     for (pair<string, int> p : inactive) {
         Packet *msg = generateMessage(simTime() + 1000, 20, INTEREST, simTime(),
@@ -201,12 +190,9 @@ void Node::handleMessage(cMessage *msg) {
             Packet *dataMsg = buffer.at(ttmsg->getDataType()).get();
             forwardDataPacket(dataMsg);
             delete dataMsg;
-        } else {
-            EV << "buffer empty" << endl;
         }
     }
     if (dataCache.isInCache(ttmsg->getMsgId())) {
-        EV << "Drop packet, already handled " << ttmsg->getType() << endl;
         addToCache(ttmsg);
         delete ttmsg;
         return;
@@ -223,10 +209,9 @@ void Node::handleMessage(cMessage *msg) {
                 PacketInfo(ttmsg->getDataType(), classification,
                         ttmsg->getMalicious()))) {
             //AIS deemed this packet unsafe, so drop
-            EV << "packet " << ttmsg->getDataType() << " dropped" << endl;
+            EV << "Packet " << ttmsg->getDataType() << " dropped by AIS" << endl;
             if (!ttmsg->getMalicious()) {
                 emit(fpfSignal, 1);
-
             } else if (ttmsg->getMalicious()) {
                 emit(tpfSignal, 1);
             }
@@ -269,7 +254,6 @@ void Node::handleMessage(cMessage *msg) {
     if (ttmsg->getType() == TIC) {
         acc(numOfUpdates);
         numOfUpdates = 0;
-        EV << "SUM OF EVENTS : " << rolling_sum(acc);
         matrix->addGlobalSs3Ds1(rolling_sum(acc));
         dcs->cycle();
         scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));

@@ -11,14 +11,15 @@ import fnmatch
 
 rmse_accum = Util.ErrorAccumulator()
 
+home = "/home/kinga/Documents/GitHub/"
 
 def getResults():
-    os.chdir(
-        "/home/kinga/Documents/GitHub/FinalYearProject/RandomNetworks/results")
+    os.chdir(home + 
+        "FinalYearProject/RandomNetworks/results")
     files = getAllScaFiles()
     results = []
     for file in files:
-        results.append(getValuesFromSca(file))
+        results.append(getValuesFromSca(file, ""))
         file.close()
     print results
     return results
@@ -32,7 +33,10 @@ def getAllScaFiles():
     return files
 
 
-def getValuesFromSca(f):
+'''
+@param type - "" for DC and "Filter" for packet filter
+'''
+def getValuesFromSca(f, type):
     tpf = 0
     tnf = 0
     fpf = 0
@@ -40,13 +44,13 @@ def getValuesFromSca(f):
     rec = 0
     gen = 0
     for line in f:
-        if "truePositiveFilter:count" in line:
+        if "truePositive" + type + ":count" in line:
             tpf += getNumFromLineInSca(line)
-        elif "trueNegativeFilter:count" in line:
+        elif "trueNegative" + type + ":count" in line:
             tnf += getNumFromLineInSca(line)
-        elif "falePositiveFilter:count" in line:
+        elif "falePositive" + type + ":count" in line:
             fpf += getNumFromLineInSca(line)
-        elif "falseNegativeFilter:count" in line:
+        elif "falseNegative" + type + ":count" in line:
             fnf += getNumFromLineInSca(line)
         elif "recievedPackets:count" in line:
             rec += getNumFromLineInSca(line)
@@ -67,7 +71,7 @@ def getNumFromLineInSca(line):
     return int(line.split("\t")[2].split("\n")[0])
 
 def runOmnetpp(gpCode):
-    os.chdir("/home/kinga/Documents/GitHub/FinalYearProject/GP")
+    os.chdir(home + "FinalYearProject/GP")
     tmpl = open('evilNode.tmpl')
     d = {'gp': gpCode}
     path = "../DirDeff/"
@@ -80,10 +84,10 @@ def runOmnetpp(gpCode):
     evil.write(src.substitute(d))
     tmpl.close()
     evil.close()
-    os.chdir("/home/kinga/Documents/GitHub/FinalYearProject/DirDeff")
+    os.chdir(home + "FinalYearProject/DirDeff")
     subprocess.check_output("make")
     processes = []
-    for i in xrange(3, 5):
+    for i in xrange(2, 4):
         p = Process(target=runOmnetExe, args=(i, ))
         processes.append(p)
         p.start()
@@ -92,7 +96,7 @@ def runOmnetpp(gpCode):
 
 
 def runOmnetExe(i):
-    subprocess.check_output(("./out/gcc-debug/DirDeff" +
+    print subprocess.check_output(("./out/gcc-debug/DirDeff" +
                              " -u Cmdenv -f ../RandomNetworks/random.ini " +
                              "-c RandomNetwork" + str(i) + " -n ../RandomNetworks/").split())
 
@@ -105,7 +109,7 @@ def eval_func(chromosome):
     result = runOmnetpp(chromosome.getPreOrderExpression())
     results = getResults()
     for i in xrange(0, 2):
-        evaluated = results[i]['rcvd']
+        evaluated = (results[i]['p'] + results[i]['r']) / 2
         target = 0
         rmse_accum += (target, evaluated)
     print rmse_accum.getRMSE()
@@ -125,7 +129,7 @@ def main_run():
     ga.setGenerations(30)
     ga.setCrossoverRate(0.9)
     ga.setMutationRate(0.25)
-    ga.setPopulationSize(100)
+    ga.setPopulationSize(50)
     # ga.setMultiProcessing(True)
 
     ga(freq_stats=10)
@@ -133,6 +137,6 @@ def main_run():
     print best
 
 if __name__ == "__main__":
-    print "Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 100, Sample: 3, 4"
-    print "Fitness Function: rcvd"
+    print "Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 50, Sample: 2, 3"
+    print "Fitness Function: DC_p + DC_r / 2"
     main_run()

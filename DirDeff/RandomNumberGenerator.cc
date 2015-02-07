@@ -1,5 +1,5 @@
 /*
- * RandomNumberGenerator.cpp
+ * RandomNumberGenerator.cc
  *
  *  Created on: Nov 30, 2014
  *      Author: kinga
@@ -21,10 +21,6 @@ RandomNumberGenerator::RandomNumberGenerator() {
 RandomNumberGenerator::RandomNumberGenerator(string filename, int row) {
     // This will use a new seed for each node, thus each row needs to be substantial
     generator.seed(getSeed(filename, row));
-}
-
-RandomNumberGenerator::~RandomNumberGenerator() {
-    // TODO Auto-generated destructor stub
 }
 
 int RandomNumberGenerator::getNumber(int start, int end) {

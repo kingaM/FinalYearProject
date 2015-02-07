@@ -56,21 +56,10 @@ void EvilNode::initialize() {
     lastSent = simTime();
     generator = RandomNumberGenerator("seeds.csv", 0);
     dataCache = DataCache();
-//    scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
 }
 
 void EvilNode::forwardInterestPacket(Packet* ttmsg) {
-    broadcastInterest(
-            broadcastInterest(
-                    broadcastInterest(
-                            broadcastInterest(
-                                    wait(
-                                            wait(
-                                                    broadcastInterest(
-                                                            broadcastInterest(
-                                                                    broadcastInterest(
-                                                                            wait(
-                                                                                    4))))))))));
+    broadcastInterest(wait(wait(wait(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(wait(broadcastInterest(wait(wait(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(0))))))))))))))))))))))))) ;
 }
 
 int EvilNode::wait(int i) {
@@ -84,10 +73,6 @@ int EvilNode::broadcastInterest(int i) {
 
 void EvilNode::handleMessage(cMessage *msg) {
     Packet *ttmsg = check_and_cast<Packet *>(msg);
-    int prevHop = -1;
-    if (ttmsg->getArrivalGate()) {
-        prevHop = ttmsg->getArrivalGate()->getIndex();
-    }
     if (dataCache.isInCache(ttmsg->getMsgId())) {
         delete ttmsg;
         return;
@@ -95,9 +80,6 @@ void EvilNode::handleMessage(cMessage *msg) {
     if (ttmsg->getType() == INTEREST) {
         addToDataCache(ttmsg);
         forwardInterestPacket(ttmsg);
-    }
-    if (ttmsg->getType() == TIC) {
-        scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     }
     if (ttmsg->getType() == BROADCAST) {
         sendBogusInterests();
