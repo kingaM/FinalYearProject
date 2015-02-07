@@ -41,8 +41,8 @@ void Node::generateSensor() {
 }
 
 void Node::initialize() {
-    lastSent = simTime() - 20;
     generator = RandomNumberGenerator("seeds.csv", 0);
+    lastSent = simTime() - 20;
     acc = SumAcc(tag::rolling_window::window_size = 10);
     scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     matrix = new SignalMatrix();
@@ -191,7 +191,7 @@ void Node::handleMessage(cMessage *msg) {
             << ttmsg->getMsgId() << endl;
     if (ttmsg->getType() == SENSOR) {
         generateSensor();
-        Packet *msg = generateMessage(simTime() + 1000, 20, DATA, simTime(), "sensor", -1);
+        Packet *msg = generateMessage(simTime() + 1000, 20, DATA, simTime(), "sensor", 0);
         scheduleAt(simTime(), msg);
     }
     if (ttmsg->getType() == DATA_RETRY) {
