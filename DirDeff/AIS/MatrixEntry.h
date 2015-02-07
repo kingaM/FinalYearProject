@@ -13,7 +13,6 @@
 class MatrixEntry {
     public:
         MatrixEntry();
-        virtual ~MatrixEntry();
         const Signal& getDs1() const;
         const Signal& getDs2() const;
         void setDs2(long timestamp, long expiry, long currTime);

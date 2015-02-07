@@ -5,7 +5,7 @@
  *      Author: kinga
  */
 
-#include <AIS/Signal.h>
+#include "Signal.h"
 #include <string>
 #include <sstream>
 
@@ -19,10 +19,6 @@ Signal::Signal() {
 Signal::Signal(double concentration) {
     this->present = true;
     this->concentration = concentration;
-}
-
-Signal::~Signal() {
-    // TODO Auto-generated destructor stub
 }
 
 double Signal::getConcentration() const {

@@ -12,10 +12,6 @@ SignalMatrix::SignalMatrix() {
     smallMatrix = MatrixEntry();
 }
 
-SignalMatrix::~SignalMatrix() {
-    // TODO Auto-generated destructor stub
-}
-
 void SignalMatrix::addEntry(string type) {
     largeMatrix[type] = MatrixEntry();
 }

@@ -8,7 +8,7 @@
 #ifndef DENDRICCELL_H_
 #define DENDRICCELL_H_
 
-#include <SignalMatrix.h>
+#include "SignalMatrix.h"
 #include <string.h>
 #include <vector>
 
@@ -23,7 +23,6 @@ class DendricCell {
         static string maturity(Maturity mat);
         DendricCell();
         DendricCell(SignalMatrix* signalMatrix, string type);
-        virtual ~DendricCell();
         void cycle();
         Maturity mature();
 

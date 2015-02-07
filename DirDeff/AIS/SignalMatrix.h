@@ -16,7 +16,6 @@ using namespace std;
 class SignalMatrix {
     public:
         SignalMatrix();
-        virtual ~SignalMatrix();
         void addEntry(string type);
         MatrixEntry getEntry(string type);
         MatrixEntry getEntry();

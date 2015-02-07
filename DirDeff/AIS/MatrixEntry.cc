@@ -20,10 +20,6 @@ MatrixEntry::MatrixEntry() {
     ds2 = Signal();
 }
 
-MatrixEntry::~MatrixEntry() {
-    // TODO Auto-generated destructor stub
-}
-
 const Signal& MatrixEntry::getDs1() const {
     return ds1;
 }

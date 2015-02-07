@@ -9,7 +9,7 @@
 #define CONTENTCLASSIFIER_H_
 
 #include "RandomNumberGenerator.h"
-#include <packet_m.h>
+#include "packet_m.h"
 
 enum class Class {
     BENIGN, MALICIOUS
@@ -18,7 +18,6 @@ enum class Class {
 class ContentClassifier {
     public:
         ContentClassifier();
-        virtual ~ContentClassifier();
         Class classify(Packet* p);
     private:
         RandomNumberGenerator generator;

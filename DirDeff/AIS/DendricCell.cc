@@ -19,10 +19,6 @@ DendricCell::DendricCell(SignalMatrix* signalMatrix, string type) {
     this->type = type;
 }
 
-DendricCell::~DendricCell() {
-    // TODO Auto-generated destructor stub
-}
-
 void DendricCell::cycle() {
     signals.push_back(MatrixEntry(signalMatrix->getEntry(type)));
     MatrixEntry recent = signals.back();
@@ -54,5 +50,6 @@ string DendricCell::maturity(Maturity mat) {
         case Maturity::SEMI:
             return "SEMI";
     }
+    // Will never happen
     return "NONE";
 }

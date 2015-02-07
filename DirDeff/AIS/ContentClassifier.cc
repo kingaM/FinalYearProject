@@ -5,16 +5,12 @@
  *      Author: kinga
  */
 
-#include <ContentClassifier.h>
-#include <packet_m.h>
+#include "ContentClassifier.h"
+#include "packet_m.h"
 #include <stdio.h>
 
 ContentClassifier::ContentClassifier() {
     generator = RandomNumberGenerator("seeds.csv", 0);
-}
-
-ContentClassifier::~ContentClassifier() {
-    // TODO Auto-generated destructor stub
 }
 
 Class ContentClassifier::classify(Packet* p) {

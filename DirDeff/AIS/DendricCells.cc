@@ -1,11 +1,11 @@
 /*
- * DendricCells.cpp
+ * DendricCells.cc
  *
  *  Created on: Jan 3, 2015
  *      Author: kinga
  */
 
-#include <DendricCells.h>
+#include "DendricCells.h"
 #include "PacketInfo.h"
 #include <stdio.h>
 #include <omnetpp.h>
@@ -21,10 +21,6 @@ DendricCells::DendricCells(SignalMatrix* matrix, cSimpleModule* node) {
     fnSignal = node->registerSignal("fn");
     tpSignal = node->registerSignal("tp");
     tnSignal = node->registerSignal("tn");
-}
-
-DendricCells::~DendricCells() {
-    // TODO Auto-generated destructor stub
 }
 
 Maturity DendricCells::mature(string type) {

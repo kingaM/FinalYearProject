@@ -18,7 +18,6 @@ class DendricCells {
     public:
         DendricCells();
         DendricCells(SignalMatrix* matrix, cSimpleModule* node);
-        virtual ~DendricCells();
         Maturity mature(string type);
         void cycle();
         void addCell(PacketInfo type);

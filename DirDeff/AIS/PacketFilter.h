@@ -15,7 +15,6 @@
 class PacketFilter {
     public:
         PacketFilter();
-        virtual ~PacketFilter();
         void addPacket(PacketInfo p);
         bool filterPacket(PacketInfo p);
     private:

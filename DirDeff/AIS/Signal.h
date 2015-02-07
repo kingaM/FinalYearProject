@@ -16,7 +16,6 @@ class Signal {
     public:
         Signal();
         Signal(double concentration);
-        virtual ~Signal();
         double getConcentration() const;
         void setConcentration(double concentration);
         bool isPresent() const;

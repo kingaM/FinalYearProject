@@ -19,10 +19,6 @@ PacketFilter::PacketFilter() {
     malicious.set_capacity(10);
 }
 
-PacketFilter::~PacketFilter() {
-    // TODO Auto-generated destructor stub
-}
-
 void PacketFilter::addPacket(PacketInfo p) {
     if (p.classification == Class::BENIGN) {
         benign.push_back(p);
