@@ -13,3 +13,13 @@ Generation: 35, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 45, S
 Fitness Function: (p + r) / 2
 broadcastInterest(wait(0))
 
+#### RESULT 11 ####
+Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 3, 4
+Fitness Function: DC_p + DC_r / 2
+wait(wait(broadcastInterest(broadcastInterest(wait(wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(0))))))))))))))))))))))
+
+#### RESULT 12 ####
+Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 3, 4
+Fitness Function: r
+wait(wait(wait(broadcastInterest(wait(wait(wait(wait(wait(0)))))))))
+

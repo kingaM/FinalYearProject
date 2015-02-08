@@ -10,8 +10,6 @@
 
 #include <string>
 
-using namespace std;
-
 /**
  * Class representing a gradient of a interest cache entry.
  * @see Entry
@@ -23,7 +21,7 @@ class Gradient {
         int getNeighbour() const;
         long getTimestamp() const;
         long getExpiry() const;
-        string toString() const;
+        std::string toString() const;
         friend bool operator==(const Gradient& a, const Gradient& b);
         friend bool operator<(const Gradient& a, const Gradient& b);
 

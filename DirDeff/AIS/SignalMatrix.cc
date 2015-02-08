@@ -1,12 +1,14 @@
 /*
- * SignalMatrix.cpp
+ * SignalMatrix.cc
  *
  *  Created on: Dec 29, 2014
  *      Author: kinga
  */
 
-#include <AIS/SignalMatrix.h>
-#include <MatrixEntry.h>
+#include "AIS/SignalMatrix.h"
+#include "AIS/MatrixEntry.h"
+
+using namespace std;
 
 SignalMatrix::SignalMatrix() {
     smallMatrix = MatrixEntry();

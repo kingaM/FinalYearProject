@@ -112,7 +112,7 @@ recall <- function() {
 }
 
 rcvPktsName <- function(name) {
-  setwd(paste(, name, sep=""))
+  setwd(paste(directory, name, sep=""))
   files = list.files(pattern = "RandomNetwork.*-0.sca")
   all <- mclapply(files, getPkts)
   return(unlist(all))

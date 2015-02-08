@@ -10,8 +10,6 @@
 
 #include <string>
 
-using namespace std;
-
 /**
  * Represents a signal in the matrix entry.
  * @see MatrixEntry
@@ -24,7 +22,7 @@ class Signal {
         void setConcentration(double concentration);
         bool isPresent() const;
         void setPresent(bool present);
-        string toString() const;
+        std::string toString() const;
     private:
         bool present;
         double concentration;

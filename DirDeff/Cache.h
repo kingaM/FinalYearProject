@@ -19,6 +19,7 @@
 #include "AIS/PacketFilter.h"
 
 using namespace std;
+
 /**
  * Class representing interest cache of the directed diffusion protocol.
  */
@@ -48,7 +49,7 @@ class Cache {
          * @param inactive The set of inactive gradients (type and gate)
          * @param currTime The current time
          */
-        void setInactive(set<pair<string, int>> inactive, long currTime);
+        void setInactive(std::set<pair<string, int>> inactive, long currTime);
         void setDcs(DendricCells* dcs);
         const static int SIZE = 4;
     private:

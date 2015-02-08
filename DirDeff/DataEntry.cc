@@ -14,6 +14,8 @@
 #include <sstream>
 #include <iostream>
 
+using namespace std;
+
 DataEntry::DataEntry(long int id, int prevHop, int msgType, string dataType,
         int time) {
     this->id = id;

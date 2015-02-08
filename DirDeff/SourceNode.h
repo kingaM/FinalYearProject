@@ -1,12 +1,15 @@
 #ifndef SOURCENODE_H_
 #define SOURCENODE_H_
 
-#include "node.h"
+#include "Node.h"
 
+/**
+ * SourceNode - node that generates data and sends it according to the interests
+ * received.
+ */
 class SourceNode : public Node {
     protected:
         virtual void initialize();
-        virtual void handleMessage(cMessage *msg);
 };
 
 #endif /* SOURCENODE_H_ */

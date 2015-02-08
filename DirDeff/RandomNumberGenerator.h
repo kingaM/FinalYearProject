@@ -11,8 +11,6 @@
 #include <string>
 #include <random>
 
-using namespace std;
-
 /**
  * A class containing methods that generate random numbers. This class reads
  * a seed from a csv file and based on that generates pseudo-random numbers.
@@ -26,7 +24,7 @@ class RandomNumberGenerator {
          * The class keeps count of how many times it was already initialised and
          * chooses the next column in the csv file each time.
          */
-        RandomNumberGenerator(string filename, int row);
+        RandomNumberGenerator(std::string filename, int row);
         /**
          * Returns a random number within the specified range. Numbers generated
          * follow uniform distribution.
@@ -38,8 +36,8 @@ class RandomNumberGenerator {
          */
         bool boolWithProbability(double p);
     private:
-        default_random_engine generator;
-        int getSeed(string filename, int row);
+        std::default_random_engine generator;
+        int getSeed(std::string filename, int row);
 };
 
 #endif /* RANDOMNUMBERGENERATOR_H_ */

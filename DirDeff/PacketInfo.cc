@@ -9,6 +9,8 @@
 #include "AIS/ContentClassifier.h"
 #include "AIS/DendricCell.h"
 
+using namespace std;
+
 PacketInfo::PacketInfo() {
     // TODO Auto-generated constructor stub
 }

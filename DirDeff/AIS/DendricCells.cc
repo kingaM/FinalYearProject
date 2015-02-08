@@ -7,16 +7,19 @@
 
 #include "DendricCells.h"
 #include "PacketInfo.h"
-#include <stdio.h>
 #include <omnetpp.h>
+
+using namespace std;
 
 DendricCells::DendricCells() {
     // TODO Auto-generated constructor stub
 }
 
-DendricCells::DendricCells(SignalMatrix* matrix, cSimpleModule* node) {
+DendricCells::DendricCells(SignalMatrix* matrix, PacketFilter* filter,
+        cSimpleModule* node) {
     this->matrix = matrix;
     this->node = node;
+    this->filter = filter;
     fpSignal = node->registerSignal("fp");
     fnSignal = node->registerSignal("fn");
     tpSignal = node->registerSignal("tp");
@@ -57,8 +60,4 @@ void DendricCells::addCell(PacketInfo p) {
         table[p.type] = DendricCell(matrix, p.type);
         info[p.type] = PacketInfo(p);
     }
-}
-
-void DendricCells::setFilter(PacketFilter* filter) {
-    this->filter = filter;
 }

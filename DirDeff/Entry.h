@@ -12,9 +12,7 @@
 #include <set>
 #include "Gradient.h"
 #include <vector>
-#include <string>
 
-using namespace std;
 /**
  * Class representing an entry in the interest cache.
  * An entry is composed of a type and a list of gradients
@@ -23,10 +21,10 @@ using namespace std;
  */
 class Entry {
     public:
-        Entry(string type, long timestamp, int dataRate, long duration,
+        Entry(std::string type, long timestamp, int dataRate, long duration,
                 int neighbour);
         long getTimestamp() const;
-        const string getType() const;
+        const std::string getType() const;
         /**
          * Adds a gradient to an already existing entry.
          * @see Gradient
@@ -39,14 +37,14 @@ class Entry {
          * Finds best paths for the current entry.
          * @return List of gates that the "next hop" neighbours lie on.
          */
-        vector<int> getPaths(long currTime);
-        string toString();
+        std::vector<int> getPaths(long currTime);
+        std::string toString();
         friend bool operator==(const Entry& a, const Entry& b);
         int getMinInterval();
     private:
-        string type;
+        std::string type;
         long timestamp;
-        set<Gradient> gradients;
+        std::set<Gradient> gradients;
         int cmp(const Entry& a, const Entry& b);
 };
 

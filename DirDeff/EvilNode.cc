@@ -17,7 +17,7 @@ void EvilNode::initialize() {
 }
 
 void EvilNode::forwardInterestPacket(Packet* ttmsg) {
-    $gp ;
+    // GP input here
 }
 
 int EvilNode::wait(int i) {
@@ -52,7 +52,7 @@ void EvilNode::sendBogusInterests() {
     int n = gateSize("gate");
     for (int i = 0; i < n; i++) {
         Packet *dup = msg->dup();
-        send(dup, "gate$$o", i);
+        send(dup, "gate$o", i);
         addToDataCache(dup);
         EV << "Forwarding message " << msg << " on gate[" << i << "]\n";
     }
@@ -77,4 +77,3 @@ void EvilNode::addToDataCache(Packet* ttmsg) {
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
 }
-

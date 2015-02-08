@@ -9,9 +9,8 @@
 #define SIGNALMATRIX_H_
 
 #include <map>
+#include <string>
 #include "MatrixEntry.h"
-
-using namespace std;
 
 /**
  * Represents the signal matrix used for intrusion detection. Stores one
@@ -21,8 +20,8 @@ using namespace std;
 class SignalMatrix {
     public:
         SignalMatrix();
-        void addEntry(string type);
-        MatrixEntry getEntry(string type);
+        void addEntry(std::string type);
+        MatrixEntry getEntry(std::string type);
         MatrixEntry getEntry();
         /**
          * Most signals are stored per MatrixEntry, however SS3 and DS1 signals
@@ -34,7 +33,7 @@ class SignalMatrix {
         /**
          * Maps each interest cache entry to an entry in the matrix
          */
-        map<string, MatrixEntry> largeMatrix;
+        std::map<std::string, MatrixEntry> largeMatrix;
         /**
          * Maps all interest cache entries to a single entry in the matrix
          */

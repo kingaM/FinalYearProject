@@ -5,33 +5,30 @@
  *      Author: kinga
  */
 
-using namespace std;
-
 #ifndef DATAENTRY_H_
 #define DATAENTRY_H_
 
-#include <vector>
 #include <string>
 /**
- * Class representing an entry in data cache
+ * Class representing an entry in data cache.
  * @see DataCache
  */
 class DataEntry {
     public:
-        DataEntry(long int id, int prevHop, int msgType, string dataType,
+        DataEntry(long int id, int prevHop, int msgType, std::string dataType,
                 int time);
         friend bool operator==(const DataEntry& a, const DataEntry& b);
         long int getId() const;
         int getPrevHop() const;
         int getMsgType() const;
-        const string& getDataType() const;
+        const std::string& getDataType() const;
         int getTime() const;
 
     private:
         long int id;
         int prevHop;
         int msgType;
-        string dataType;
+        std::string dataType;
         int time;
 };
 

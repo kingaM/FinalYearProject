@@ -14,7 +14,8 @@
 #include <iterator>
 #include <string>
 #include <sstream>
-#include <stdio.h>
+
+using namespace std;
 
 Entry::Entry(string type, long timestamp, int dataRate, long duration,
         int neighbour) {
@@ -73,8 +74,7 @@ string Entry::toString() {
     stringstream ss;
     ss << "Entry [type: " << type << " timestamp: " << timestamp
             << " gradients: ";
-    for (set<Gradient>::iterator it = gradients.begin(); it != gradients.end();
-            ++it) {
+    for (auto it = gradients.begin(); it != gradients.end(); ++it) {
         ss << it->toString() << ", ";
     }
     ss << "]";

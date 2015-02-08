@@ -22,16 +22,16 @@
 class DendricCells {
     public:
         DendricCells();
-        DendricCells(SignalMatrix* matrix, cSimpleModule* node);
-        Maturity mature(string type);
+        DendricCells(SignalMatrix* matrix, PacketFilter* filter,
+                cSimpleModule* node);
+        Maturity mature(std::string type);
         void cycle();
         void addCell(PacketInfo type);
-        void setFilter(PacketFilter* filter);
 
     private:
-        PacketInfo getKey(string type);
-        map<string, DendricCell> table;
-        map<string, PacketInfo> info;
+        PacketInfo getKey(std::string type);
+        std::map<std::string, DendricCell> table;
+        std::map<std::string, PacketInfo> info;
         SignalMatrix* matrix;
         PacketFilter* filter;
         cSimpleModule* node;

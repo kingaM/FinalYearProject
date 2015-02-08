@@ -9,10 +9,8 @@
 #define DENDRICCELL_H_
 
 #include "SignalMatrix.h"
-#include <string.h>
+#include <string>
 #include <vector>
-
-using namespace std;
 
 /**
  * Defines the possible stages of the cell.
@@ -32,9 +30,9 @@ class DendricCell {
          * Converts the Maturity enum into a string
          * @see Maturity
          */
-        static string maturity(Maturity mat);
+        static std::string maturity(Maturity mat);
         DendricCell();
-        DendricCell(SignalMatrix* signalMatrix, string type);
+        DendricCell(SignalMatrix* signalMatrix, std::string type);
         /**
          * Simulates one cycle of the cell. Retrieves the latest signals from
          * the signal matrix and updates the cytokines accordingly.
@@ -49,8 +47,8 @@ class DendricCell {
 
     private:
         SignalMatrix* signalMatrix;
-        string type;
-        vector<MatrixEntry> signals;
+        std::string type;
+        std::vector<MatrixEntry> signals;
         /**
          * Concentration for semi-mature cytokines
          */

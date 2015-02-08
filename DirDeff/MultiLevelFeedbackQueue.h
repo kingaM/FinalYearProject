@@ -11,8 +11,6 @@
 #include "packet_m.h"
 #include <queue>
 
-using namespace std;
-
 /**
  * Enum representing the priority in the queue.
  */
@@ -33,8 +31,8 @@ class MultiLevelFeedbackQueue {
         bool empty();
     private:
         int lastSwitch = 0;
-        queue<Packet*> high;
-        queue<Packet*> low;
+        std::queue<Packet*> high;
+        std::queue<Packet*> low;
         int const switchLength = 10;
 
 };

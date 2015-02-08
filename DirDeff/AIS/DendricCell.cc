@@ -10,6 +10,8 @@
 
 #define ALPHA 0.7
 
+using namespace std;
+
 DendricCell::DendricCell() {
 
 }

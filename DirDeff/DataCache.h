@@ -14,23 +14,21 @@
 #include <set>
 #include <utility>
 
-using namespace std;
-
 /**
  * Class representing the data cache in the directed diffusion protocol.
  */
 class DataCache {
     public:
         bool isInCache(long int id);
-        void add(long int id, int prevHop, int msgType, string dataType,
+        void add(long int id, int prevHop, int msgType, std::string dataType,
                 int time);
-        string toString();
+        std::string toString();
         /**
          * Finds best neighbours to forward the reinforced interest to, based on
          *  where the previous data came from.
          * @return
          */
-        set<int> findBestNeighbour(string dataType);
+        std::set<int> findBestNeighbour(std::string dataType);
         /**
          * Returns the data paths that did not send data in the last 30 seconds.
          * Deletes them from the cache. This is used to negatively reinforce
@@ -39,9 +37,9 @@ class DataCache {
          *  long currTime)
          * @return Set of type, gate pairs that are inactive.
          */
-        set<pair<string, int>> getInactive(int currTime);
+        std::set<std::pair<std::string, int>> getInactive(int currTime);
     private:
-        vector<DataEntry> entries;
+        std::vector<DataEntry> entries;
 };
 
 #endif /* DATACACHE_H_ */

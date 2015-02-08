@@ -19,13 +19,13 @@
 class PacketInfo {
     public:
         PacketInfo();
-        PacketInfo(string type, Class classifiction, Maturity decision);
-        PacketInfo(string type, Class classifiction, bool malicious);
-        PacketInfo(string type);
+        PacketInfo(std::string type, Class classifiction, Maturity decision);
+        PacketInfo(std::string type, Class classifiction, bool malicious);
+        PacketInfo(std::string type);
         /**
          * The type of the packet. This is based on data type in the packet.
          */
-        string type;
+        std::string type;
         /**
          * The classification of the packet.
          * @see Class
