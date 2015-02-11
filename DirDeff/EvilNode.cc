@@ -30,6 +30,8 @@ int EvilNode::broadcastInterest(int i) {
 }
 
 int EvilNode::sendDataPacket(int i) {
+    // A slight hack, the psConc value in the message is used to store the gate
+    // value, so that the node know where to send the data to.
     scheduleAt(simTime() + i, generateMessage(0, SENSOR, "sensor", gate));
     return i;
 }
@@ -51,6 +53,8 @@ void EvilNode::handleMessage(cMessage *msg) {
     if (ttmsg->getType() == SENSOR) {
         Packet* dataMsg = generateMessage(0, DATA, "sensor", 0);
         addToDataCache(dataMsg);
+        // PsConc here acts as a placeholder for the message, rather than the
+        // actual PsConc used in intrusion detection.
         send(dataMsg, "gate$o", ttmsg->getPsConc());
     }
     delete msg;
@@ -67,6 +71,7 @@ void EvilNode::sendBogusInterests() {
         addToDataCache(dup);
         EV << "Forwarding message " << msg << " on gate[" << i << "]\n";
     }
+    delete msg;
 }
 
 string EvilNode::getRandomString(const int len) {
