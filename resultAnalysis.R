@@ -36,7 +36,7 @@ roundTo100 <- function(x) {
 
 stepsOf100 <- function(vector) {
   vector$x = roundTo100(vector$x)
-  return (aggregate(vector, by = list(vector$x), FUN = sum))
+  return (aggregate(vector, by = list(vector$x), FUN =  function(x){sum(as.numeric(x))}))
 }
 
 all <- function(name, metricName) {
@@ -115,14 +115,25 @@ rcvPktsName <- function(name) {
   setwd(paste(directory, name, sep=""))
   files = list.files(pattern = "RandomNetwork.*-0.sca")
   all <- mclapply(files, getPkts)
-  return(unlist(all))
+  return(changeListToDf(name, all, files))
+}
+
+changeListToDf <- function(name, list, files) {
+  df <- data.frame(y = unlist(list), 
+                   grp = rep(files[1:length(list)],
+                             times = sapply(list,length)))
+  df$grp = sub('(_[0-9])*-[0-9]\\.(sca|vec)', '', df$grp)
+  df <- summarySE(df, measurevar="y", groupvars="grp")
+  df$net = name
+  show(df)
+  return(df)
 }
 
 plotOne <- function(dirName, fileName) {
   setwd(paste(directory, dirName, sep=""))
   files = list.files(pattern = fileName)
-  f <- mclapply(files, filter)
-  d <- mclapply(files, dc)
+  f <- lapply(files, filter)
+  d <- lapply(files, dc)
   show(f)
   ggplot() +
     geom_line(data = f[[1]], aes(x = Group.1, y = precision, color = "Precision Filter")) + 
@@ -135,9 +146,10 @@ plotOne <- function(dirName, fileName) {
 precisionName <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
   files = list.files(pattern = "RandomNetwork.*-0.vec")
-  all <- mclapply(files, FUN)
-  tmp = mclapply(all, FUN = function(x) { sum(x$precision)/10 })
-  return(unlist(tmp))
+  all <- lapply(files, FUN)
+  tmp = lapply(all, FUN = function(x) { sum(as.numeric(x$precision))/nrow(x) })
+  show(tmp)
+  return(return(changeListToDf(name, tmp, files)))
 }
 
 precisionNameFilter <- function(name) {
@@ -159,15 +171,15 @@ recallNameDc <- function(name) {
 recallName <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
   files = list.files(pattern = "RandomNetwork.*-0.vec")
-  all <- mclapply(files, FUN)
-  tmp = mclapply(all, FUN = function(x) { sum(x$recall)/10 })
-  return(unlist(tmp))
+  all <- lapply(files, FUN)
+  tmp = lapply(all, FUN = function(x) { mean(x$recall) })
+  return(changeListToDf(name, tmp, files))
 }
 
 rcvPkts <- function() {
   setwd(paste(directory, "results", sep=""))
   files = list.files(pattern = "RandomNetwork.*-0.sca")
-  all <- mclapply(files, getPkts)
+  all <- lapply(files, getPkts)
   return(unlist(all))
 }
 
@@ -177,16 +189,16 @@ plotAll <- function(FUN, name) {
   library(reshape2)
   setwd(directory)
   files = list.files(pattern="results_.*")
-  show(files)
-  list <- lapply(files, FUN)
-  show(list)
-  df <- data.frame(y = unlist(list), 
-                   grp = rep(files[1:length(list)],
-                             times = sapply(list,length)))
-  df$Index <- ave( 1:nrow(df), factor( df$grp), FUN=function(x) 1:length(x) )
+  list <- mclapply(files, FUN)
+  df <- ldply(list, data.frame)
+  df$Index <- ave( 1:nrow(df), factor( df$net), FUN=function(x) 1:length(x) )
   show(df)
-  p <- ggplot(df, aes(x = Index, y = y, color = grp)) + 
-       geom_point(size=3) + ggtitle(name) + ylim(0,1)
+  pd <- position_dodge(.1)
+  p <- ggplot(df, aes(x = Index, y = y, group = net, color = net, ymin=y-se, ymax=y+se), position = pd) + 
+    geom_line(position = pd) +
+    geom_point(position = pd, size = 3) + 
+    ggtitle(name) + ylim(0,1) +
+    geom_errorbar(width=0.2, position = pd)
   ggsave(paste(name, ".png", sep=""), width = 10)
   return(p)
 }
@@ -256,7 +268,7 @@ plotAverageErrorBars <- function(dirName) {
     ylim(0,1)
   ggsave(paste(dirName, "_plot.png", sep=""), width = 10)
 }
- 
+
 # Taken from: http://www.cookbook-r.com/Manipulating_data/Summarizing_data/
 summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
                       conf.interval=.95, .drop=TRUE) {
@@ -294,6 +306,6 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
   return(datac)
 }
 
-precision()
-recall()
-rcvPkts()
+# precision()
+# recall()
+# rcvPkts()

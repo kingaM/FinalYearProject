@@ -13,20 +13,22 @@ try:
 except OSError:
     pass
 ini = open(path + 'random.ini', 'a')
-ini.write('[General]\nsim-time-limit = 1000s\nrecord-eventlog = true\n')
+ini.write('[General]\nsim-time-limit = 1000s\nrecord-eventlog = false\n')
 for i in range(2, 9):
-    network = "RandomNetwork" + str(i)
-    nodes = 2**i
-    edges = int(nodes * 2)
-    p = subprocess.check_output(("java -cp .:freemarker.jar Topogen " +
-                                 str(nodes) + " " + str(edges) + 
-                                 " 101 " + network).split())
-    try:
-        os.remove(path + network + '.ned')
-    except OSError:
-        pass
-    file = open(path + network + '.ned', 'a')
-    file.write(p)
-    file.close()
-    ini.write(iniTemplate.format(network))
+    for j in range(0, 3):
+        network = "RandomNetwork" + str(i) + "_" + str(j)
+        nodes = 2**i
+        edges = int(nodes * 2)
+        seed = 100 * (j + 1)
+        p = subprocess.check_output(("java -cp .:freemarker.jar Topogen " +
+                                     str(nodes) + " " + str(edges) +
+                                     " " + str(seed) + " " + network).split())
+        try:
+            os.remove(path + network + '.ned')
+        except OSError:
+            pass
+        file = open(path + network + '.ned', 'a')
+        file.write(p)
+        file.close()
+        ini.write(iniTemplate.format(network))
 ini.close()
