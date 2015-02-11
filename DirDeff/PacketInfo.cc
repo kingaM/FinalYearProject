@@ -27,10 +27,6 @@ PacketInfo::PacketInfo(string type, Class classifiction, bool malicious) {
     this->malicious = malicious;
 }
 
-PacketInfo::PacketInfo(string type) {
-    this->type = type;
-}
-
 bool operator==(const PacketInfo& a, const PacketInfo& b) {
     return a.type.compare(b.type) == 0;
 }

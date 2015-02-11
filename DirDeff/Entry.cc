@@ -29,9 +29,10 @@ Gradient* Entry::addGradient(int dataRate, long duration, int neighbour,
     Gradient g = Gradient(dataRate, duration, neighbour, currTime);
     set<Gradient>::iterator prevG = gradients.find(g);
     if (prevG != gradients.end()) {
+        Gradient *tmp = new Gradient(*prevG);
         gradients.erase(prevG);
         gradients.insert(g);
-        return new Gradient(*prevG);
+        return tmp;
     } else {
         gradients.insert(g);
         return NULL;
@@ -41,13 +42,13 @@ Gradient* Entry::addGradient(int dataRate, long duration, int neighbour,
 vector<int> Entry::getPaths(long currTime) {
     vector<int> paths;
     set<Gradient>::iterator it = gradients.begin();
-    int max = min_element(gradients.begin(), gradients.end())->getDataRate();
+    int min = min_element(gradients.begin(), gradients.end())->getDataRate();
     while (it != gradients.end()) {
         if (currTime > it->getExpiry()) {
             gradients.erase(it++);
             continue;
         }
-        if (it->getDataRate() == max) {
+        if (it->getDataRate() == min) {
             paths.insert(paths.begin(), it->getNeighbour());
         }
         it++;

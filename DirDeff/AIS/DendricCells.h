@@ -13,6 +13,7 @@
 #include "PacketInfo.h"
 #include "PacketFilter.h"
 #include <omnetpp.h>
+#include <map>
 
 /**
  * A class that holds all cells that are currently maturing. The cells are
@@ -29,12 +30,11 @@ class DendricCells {
         void addCell(PacketInfo type);
 
     private:
-        PacketInfo getKey(std::string type);
         std::map<std::string, DendricCell> table;
         std::map<std::string, PacketInfo> info;
-        SignalMatrix* matrix;
-        PacketFilter* filter;
-        cSimpleModule* node;
+        SignalMatrix* matrix = NULL;
+        PacketFilter* filter = NULL;
+        cSimpleModule* node = NULL;
         simsignal_t fpSignal;
         simsignal_t fnSignal;
         simsignal_t tpSignal;

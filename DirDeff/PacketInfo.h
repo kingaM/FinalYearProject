@@ -21,7 +21,6 @@ class PacketInfo {
         PacketInfo();
         PacketInfo(std::string type, Class classifiction, Maturity decision);
         PacketInfo(std::string type, Class classifiction, bool malicious);
-        PacketInfo(std::string type);
         /**
          * The type of the packet. This is based on data type in the packet.
          */

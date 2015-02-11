@@ -28,7 +28,7 @@ DendricCells::DendricCells(SignalMatrix* matrix, PacketFilter* filter,
 
 Maturity DendricCells::mature(string type) {
     Maturity mat = table[type].mature();
-    PacketInfo p = getKey(type);
+    PacketInfo p = info[type];
     p.decision = mat;
     if (mat == Maturity::SEMI && !p.malicious) {
         node->emit(fpSignal, 1);
@@ -51,13 +51,9 @@ void DendricCells::cycle() {
     }
 }
 
-PacketInfo DendricCells::getKey(string type) {
-    return info[type];
-}
-
 void DendricCells::addCell(PacketInfo p) {
     if (table.count(p.type) == 0) {
         table[p.type] = DendricCell(matrix, p.type);
-        info[p.type] = PacketInfo(p);
+        info[p.type] = PacketInfo(p.type, p.classification, p.malicious);
     }
 }

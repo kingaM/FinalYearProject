@@ -29,6 +29,11 @@ int EvilNode::broadcastInterest(int i) {
     return i;
 }
 
+int EvilNode::sendDataPacket(int i) {
+    scheduleAt(simTime() + i, generateMessage(0, SENSOR, "sensor", gate));
+    return i;
+}
+
 void EvilNode::handleMessage(cMessage *msg) {
     Packet *ttmsg = check_and_cast<Packet *>(msg);
     if (dataCache.isInCache(ttmsg->getMsgId())) {
@@ -37,10 +42,16 @@ void EvilNode::handleMessage(cMessage *msg) {
     }
     if (ttmsg->getType() == INTEREST) {
         addToDataCache(ttmsg);
+        gate = ttmsg->getArrivalGate()->getIndex();
         forwardInterestPacket(ttmsg);
     }
     if (ttmsg->getType() == BROADCAST) {
         sendBogusInterests();
+    }
+    if (ttmsg->getType() == SENSOR) {
+        Packet* dataMsg = generateMessage(0, DATA, "sensor", 0);
+        addToDataCache(dataMsg);
+        send(dataMsg, "gate$$o", ttmsg->getPsConc());
     }
     delete msg;
 }
@@ -77,4 +88,5 @@ void EvilNode::addToDataCache(Packet* ttmsg) {
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
 }
+
 

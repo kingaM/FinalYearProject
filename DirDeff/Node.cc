@@ -11,7 +11,7 @@
 #include "DataCache.h"
 #include "RandomNumberGenerator.h"
 #include "MultiLevelFeedbackQueue.h"
-#include "DendricCells.h"
+#include "AIS/DendricCells.h"
 #include "AIS/ContentClassifier.h"
 #include "AIS/PacketFilter.h"
 #include "AIS/SignalMatrix.h"
@@ -49,6 +49,7 @@ void Node::initialize() {
     filter = new PacketFilter();
     dcs = new DendricCells(matrix, filter, this);
     cache.setDcs(dcs);
+    classifier = ContentClassifier();
     packetsSentSignal = registerSignal("pktSent");
     generatedDataSignal = registerSignal("genData");
     receievedPacketsSignal = registerSignal("rcvdPkt");
@@ -122,7 +123,9 @@ void Node::forwardDataPacket(Packet* ttmsg) {
         EV << paths.size() << endl;
         for (auto it = paths.begin(); it != paths.end(); ++it) {
             if (*it == -1) {
-                emit(receievedPacketsSignal, 1);
+                if (!ttmsg->getMalicious()) {
+                    emit(receievedPacketsSignal, 1);
+                }
                 EV << "at the sink... YAAY!!";
                 // TODO: find a better way to do this, if not, add types
                 if (first) {
@@ -141,6 +144,7 @@ void Node::forwardDataPacket(Packet* ttmsg) {
 }
 
 void Node::generateNewInterval(string dataType, int interval) {
+    Packet* msg = NULL;
     if (dataCache.findBestNeighbour(dataType).size()
             > 0&& interval != EXPLORATORY_INT) {
         double psConc = 0;
@@ -149,7 +153,7 @@ void Node::generateNewInterval(string dataType, int interval) {
                     numExp[dataType]);
             psConc = matrix->getEntry(dataType).getPs().getConcentration();
         }
-        Packet* msg = generateMessage(INT, INTEREST, dataType, psConc);
+        msg = generateMessage(INT, INTEREST, dataType, psConc);
         forwardInterestPacket(msg, classifier.classify(msg));
         numExp[dataType] = 10 / INT;
         numRcvd[dataType] = 0;
@@ -157,17 +161,18 @@ void Node::generateNewInterval(string dataType, int interval) {
     } else {
         EV << "Sending exploratory packet" << endl;
         // TODO: PS conc?
-        Packet* msg = generateMessage(EXPLORATORY_INT, INTEREST, dataType, 0);
+        msg = generateMessage(EXPLORATORY_INT, INTEREST, dataType, 0);
         forwardInterestPacket(msg, classifier.classify(msg));
         scheduleAt(simTime() + 20, generateMessage(EXP_INT, dataType));
     }
+    delete msg;
 }
 
 void Node::deleteDataCacheEntries() {
     set<pair<string, int>> inactive = dataCache.getInactive(simTime().raw());
     cache.setInactive(inactive, simTime().raw());
     for (pair<string, int> p : inactive) {
-        Packet *msg = generateMessage(20, INTEREST, p.first, -1);
+        Packet *msg = generateMessage(EXPLORATORY_INT, INTEREST, p.first, -1);
         send(msg, "gate$o", p.second);
     }
 }
@@ -213,15 +218,13 @@ void Node::handleMessage(cMessage *msg) {
     EV << "MSG type " << ttmsg->getType() << " prevHop " << prevHop << " id "
             << ttmsg->getMsgId() << endl;
     if (dataCache.isInCache(ttmsg->getMsgId())) {
-        addToCache(ttmsg);
         delete ttmsg;
         return;
     }
     switch (ttmsg->getType()) {
         case SENSOR:
             generateSensor();
-            scheduleAt(simTime(),
-                    generateMessage(20, DATA, "sensor", 0));
+            scheduleAt(simTime(), generateMessage(20, DATA, "sensor", 0));
             break;
         case INTEREST:
             handleInterestPacket(ttmsg);
@@ -231,9 +234,8 @@ void Node::handleMessage(cMessage *msg) {
             deleteDataCacheEntries();
             saveToDataCache(ttmsg);
             numRcvd[ttmsg->getDataType()]++;
-            // Buffer is read every second and packets are sent from there
             saveToBuffer(ttmsg);
-            return;
+            break;
         case INTERVAL:
             generateNewInterval(ttmsg->getDataType(), INT);
             break;
@@ -245,13 +247,13 @@ void Node::handleMessage(cMessage *msg) {
             numOfUpdates = 0;
             matrix->addGlobalSs3Ds1(rolling_sum(acc));
             dcs->cycle();
-            scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
             if (buffer.count(ttmsg->getDataType()) > 0
                     && !buffer.at(ttmsg->getDataType()).empty()) {
                 Packet *dataMsg = buffer.at(ttmsg->getDataType()).get();
                 forwardDataPacket(dataMsg);
                 delete dataMsg;
             }
+            scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
             break;
         default:
             cRuntimeError("Invalid message type");

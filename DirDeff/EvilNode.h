@@ -12,9 +12,11 @@ class EvilNode : public NodeBase {
         void addToDataCache(Packet* ttmsg);
         int broadcastInterest(int i);
         int wait(int i);
+        int sendDataPacket(int i);
 
         RandomNumberGenerator generator;
         DataCache dataCache;
+        int gate;
 
     protected:
         virtual void initialize();

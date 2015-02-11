@@ -52,11 +52,11 @@ class DendricCell {
         /**
          * Concentration for semi-mature cytokines
          */
-        double semi;
+        double semi = 0;
         /**
          * Concentration for mature cytokines
          */
-        double mat;
+        double mat = 0;
 };
 
 #endif /* DENDRICCELL_H_ */
