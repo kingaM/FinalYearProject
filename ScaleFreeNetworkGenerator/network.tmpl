@@ -1,0 +1,30 @@
+import Channel;
+import Node;
+import SourceNode;
+import SinkNode;
+import EvilNode;
+
+//
+// Generated network with Barabasi-Albert topology ({{numNodes}} nodes, {{numLinks}} edges, seeds={{seeds}}).
+// Network stats: 
+//  sinks = {{stats.get('sinks')}}
+//  sources = {{stats.get('sources')}}
+//  attackers = {{stats.get('attackers')}}
+//  routes = {{stats.get('routes')}}
+//
+
+network {{targetName}} {{'{'}}
+    submodules:
+      {% for n in graph.get('nodes') -%}
+        node{{n.get('id')}} : 
+          {%- if n.get('id') in attackers %} EvilNode;
+          {%- elif n.get('id') in sources %} SourceNode;
+          {%- elif n.get('id') in sinks %} SinkNode;
+          {%- else %} Node;
+          {%- endif %}
+      {% endfor %}
+    connections:
+      {% for n in graph.get('links') -%}
+        node{{n.get('source')}}.gate++ <--> Channel <--> node{{n.get('target')}}.gate++;
+      {% endfor %}
+{{'}'}}
