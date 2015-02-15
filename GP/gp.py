@@ -76,10 +76,10 @@ def runOmnetpp(gpCode):
     d = {'gp': gpCode}
     path = "../DirDeff/"
     try:
-        os.remove(path + 'evilNode.cc')
+        os.remove(path + 'EvilNode.cc')
     except OSError:
         pass
-    evil = open(path + 'evilNode.cc', 'a')
+    evil = open(path + 'EvilNode.cc', 'a')
     src = Template(tmpl.read())
     evil.write(src.substitute(d))
     tmpl.close()
@@ -87,7 +87,7 @@ def runOmnetpp(gpCode):
     os.chdir(home + "FinalYearProject/DirDeff")
     subprocess.check_output("make")
     processes = []
-    for i in xrange(2, 4):
+    for i in xrange(2, 6):
         p = Process(target=runOmnetExe, args=(i, ))
         processes.append(p)
         p.start()
@@ -96,7 +96,7 @@ def runOmnetpp(gpCode):
 
 
 def runOmnetExe(i):
-    print subprocess.check_output(("./out/gcc-debug/DirDeff" +
+    subprocess.check_output(("./out/gcc-debug/DirDeff" +
                              " -u Cmdenv -f ../RandomNetworks/random.ini " +
                              "-c RandomNetwork" + str(i) + " -n ../RandomNetworks/").split())
 
@@ -108,7 +108,7 @@ def eval_func(chromosome):
     code_comp = chromosome.getCompiledCode()
     result = runOmnetpp(chromosome.getPreOrderExpression())
     results = getResults()
-    for i in xrange(0, 2):
+    for i in xrange(0, 5):
         evaluated = (results[i]['p'] + results[i]['r']) / 2
         target = 0
         rmse_accum += (target, evaluated)
@@ -129,7 +129,7 @@ def main_run():
     ga.setGenerations(30)
     ga.setCrossoverRate(0.9)
     ga.setMutationRate(0.25)
-    ga.setPopulationSize(50)
+    ga.setPopulationSize(60)
     # ga.setMultiProcessing(True)
 
     ga(freq_stats=10)
@@ -137,6 +137,6 @@ def main_run():
     print best
 
 if __name__ == "__main__":
-    print "Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 50, Sample: 2, 3"
+    print "Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5"
     print "Fitness Function: DC_p + DC_r / 2"
     main_run()

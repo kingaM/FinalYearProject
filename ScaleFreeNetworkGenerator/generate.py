@@ -255,7 +255,7 @@ network = {0}
     seeds = readCsv()
     for i in range(0, 10):
         network = "ScaleFreeNetwork" + str(i)
-        nodes = 2**6
+        nodes = 2**7
         net = NetworkGenerator(nodes, 2, seeds[i], i % 2)
         p = net.populateTemplate(network)
         try:

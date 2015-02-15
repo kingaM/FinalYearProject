@@ -59,6 +59,21 @@
          "name":"results_17",
          "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: p + r / 2",
          "code":"broadcastInterest(0)"
+      },
+      {
+         "name":"results_data_19",
+         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: rcvd",
+         "code":"wait(wait(wait(sendDataPacket(wait(sendDataPacket(sendDataPacket(sendDataPacket(wait(wait(broadcastInterest(wait(sendDataPacket(broadcastInterest(broadcastInterest(broadcastInterest(wait(sendDataPacket(broadcastInterest(broadcastInterest(sendDataPacket(wait(broadcastInterest(broadcastInterest(broadcastInterest(0)))))))))))))))))))))))))"
+      },
+      {
+         "name":"results_data_18",
+         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: DC_p + DC_r / 2",
+         "code":"wait(wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(sendDataPacket(0)))))))))"
+      },
+      {
+         "name":"results_data_20",
+         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: p",
+         "code":"broadcastInterest(0)"
       }
    ]
 }

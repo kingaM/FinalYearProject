@@ -5,12 +5,10 @@
  *      Author: kinga
  */
 
-#include <PacketFilter.h>
-
+#include "PacketFilter.h"
 #include <boost/circular_buffer.hpp>
 #include "ContentClassifier.h"
 #include "RandomNumberGenerator.h"
-#include <stdio.h>
 #include "debug.h"
 
 PacketFilter::PacketFilter() {

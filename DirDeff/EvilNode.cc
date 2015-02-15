@@ -17,7 +17,7 @@ void EvilNode::initialize() {
 }
 
 void EvilNode::forwardInterestPacket(Packet* ttmsg) {
-    broadcastInterest(0) ;
+    wait(wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(sendDataPacket(0))))))))) ;
 }
 
 int EvilNode::wait(int i) {
@@ -31,7 +31,7 @@ int EvilNode::broadcastInterest(int i) {
 
 int EvilNode::sendDataPacket(int i) {
     // A slight hack, the psConc value in the message is used to store the gate
-    // value, so that the node know where to send the data to.
+    // value, so that the node knows where to send the data to.
     scheduleAt(simTime() + i, generateMessage(0, SENSOR, "sensor", gate));
     return i;
 }
