@@ -76,8 +76,8 @@ local.properties
 *.class
 hs_err_pid*
 
-# Freemaker
-**/NetworkGenerator/freemarker-2.3.21/
+# Freemarker
+**/RandomNetworkGenerator/freemarker-2.3.21/
 
 # Python files
 __pycache__/
