@@ -5,6 +5,7 @@ from jinja2 import Template
 import matplotlib.pyplot as plt
 import pickle
 import os
+import csv
 
 
 class NetworkGenerator:
@@ -14,10 +15,13 @@ class NetworkGenerator:
     # @param edges The number of edges to attach from a new node to existing
     #   nodes
     # @param seeds A list of seeds for network generation
-    def __init__(self, nodes, edges, seeds):
+    # @param major Boolean indicating whether the attacker should be one of the
+    #   major nodes or minor nodes
+    def __init__(self, nodes, edges, seeds, major=True):
         self.nodes = nodes
         self.edges = edges
         self.seeds = seeds
+        self.major = major
         self.attackers = []
         self.sinks = []
         self.sources = []
@@ -104,13 +108,16 @@ class NetworkGenerator:
         self.attackers = []
         random.seed(self.seeds[1])
         i = 0
-        majorNodes = self.getMajorNodes()
-        if len(majorNodes) < number:
+        if self.major:
+            nodes = self.getMajorNodes()
+        else:
+            nodes = self.getMinorNodes()
+        if len(nodes) < number:
             raise Exception(
                 "The number of nodes requested is greater than the number of" +
-                " major nodes in the graph")
+                " major/minor nodes in the graph")
         while i < number:
-            a = majorNodes[random.randint(0, len(majorNodes) - 1)]
+            a = nodes[random.randint(0, len(nodes) - 1)]
             g = self.graph.copy()
             g.remove_node(a)
             # We have to make sure that the graph is still connected when the
@@ -171,7 +178,6 @@ class NetworkGenerator:
                  'sources': self.sources,
                  'sinks': self.sinks,
                  'routes': []}
-        print stats
         g = self.graph.copy()
         # Remove attackers from the graph to calculate metrics between the
         # sources and sinks, since the attacker will never be on the path in
@@ -219,9 +225,48 @@ class NetworkGenerator:
             'sources': self.sources,
             'sinks': self.sinks,
             'stats': self.getNodeStats(),
+            'major': self.major
         }
         return t.render(context)
 
+
+def readCsv():
+    f = open('scaleFreeNetworksSeeds.csv', 'rb')
+    seeds = csv.reader(f)
+    result = []
+    for r in seeds:
+        result.append(map(int, r))
+    f.close()
+    return result
+
+
+def generateTemplates():
+    iniTemplate = """
+[Config {0}]
+network = {0}
+    """
+    path = "../ScaleFreeNetworks/"
+    try:
+        os.remove(path + 'scalefree.ini')
+    except OSError:
+        pass
+    ini = open(path + 'scalefree.ini', 'a')
+    ini.write('[General]\nsim-time-limit = 1000s\nrecord-eventlog = false\n')
+    seeds = readCsv()
+    for i in range(0, 10):
+        network = "ScaleFreeNetwork" + str(i)
+        nodes = 2**6
+        net = NetworkGenerator(nodes, 2, seeds[i], i % 2)
+        p = net.populateTemplate(network)
+        try:
+            os.remove(path + network + '.ned')
+        except OSError:
+            pass
+        file = open(path + network + '.ned', 'a')
+        file.write(p)
+        file.close()
+        ini.write(iniTemplate.format(network))
+    ini.close()
+
 if __name__ == "__main__":
-    net = NetworkGenerator(10, 5, [1, 2, 3, 4])
-    print net.populateTemplate('xyz')
+    generateTemplates()
