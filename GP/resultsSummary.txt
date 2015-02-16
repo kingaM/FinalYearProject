@@ -74,6 +74,11 @@
          "name":"results_data_20",
          "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: p",
          "code":"broadcastInterest(0)"
+      },
+      {
+         "name":"results_scalefree_21",
+         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25,  Population Size: 60, Sample: ScaleFree 0, 1, 2, 3\nFitness Function: rcvd",
+         "code":"broadcastInterest(wait(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(broadcastInterest(0))))))))))))))"
       }
    ]
 }

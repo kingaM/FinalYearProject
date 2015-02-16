@@ -2,7 +2,6 @@ from pyevolve import Util
 from pyevolve import GTree
 from pyevolve import GSimpleGA
 from pyevolve import Consts
-import math
 from string import Template
 import subprocess
 import os
@@ -12,10 +11,12 @@ import fnmatch
 rmse_accum = Util.ErrorAccumulator()
 
 home = "/home/kinga/Documents/GitHub/"
+dirName = "ScaleFreeNetwork"
+
 
 def getResults():
-    os.chdir(home + 
-        "FinalYearProject/RandomNetworks/results")
+    os.chdir(home +
+             "FinalYearProject/" + dirName + "s/results")
     files = getAllScaFiles()
     results = []
     for file in files:
@@ -33,9 +34,11 @@ def getAllScaFiles():
     return files
 
 
-'''
+"""
 @param type - "" for DC and "Filter" for packet filter
-'''
+"""
+
+
 def getValuesFromSca(f, type):
     tpf = 0
     tnf = 0
@@ -67,8 +70,10 @@ def getValuesFromSca(f, type):
     rcvd = float(rec) / gen
     return {'p': p, 'r': r, 'rcvd': rcvd}
 
+
 def getNumFromLineInSca(line):
     return int(line.split("\t")[2].split("\n")[0])
+
 
 def runOmnetpp(gpCode):
     os.chdir(home + "FinalYearProject/GP")
@@ -87,7 +92,7 @@ def runOmnetpp(gpCode):
     os.chdir(home + "FinalYearProject/DirDeff")
     subprocess.check_output("make")
     processes = []
-    for i in xrange(2, 6):
+    for i in xrange(0, 3):
         p = Process(target=runOmnetExe, args=(i, ))
         processes.append(p)
         p.start()
@@ -97,19 +102,19 @@ def runOmnetpp(gpCode):
 
 def runOmnetExe(i):
     subprocess.check_output(("./out/gcc-debug/DirDeff" +
-                             " -u Cmdenv -f ../RandomNetworks/random.ini " +
-                             "-c RandomNetwork" + str(i) + " -n ../RandomNetworks/").split())
+                             " -u Cmdenv -f ../" + dirName + "s/random.ini " +
+                             "-c " + dirName + str(i) + " -n ../" + dirName +
+                             "s/").split())
 
 
 def eval_func(chromosome):
     global rmse_accum
     rmse_accum.reset()
     print chromosome.getPreOrderExpression()
-    code_comp = chromosome.getCompiledCode()
-    result = runOmnetpp(chromosome.getPreOrderExpression())
+    runOmnetpp(chromosome.getPreOrderExpression())
     results = getResults()
     for i in xrange(0, 5):
-        evaluated = (results[i]['p'] + results[i]['r']) / 2
+        evaluated = results[i]['rcvd']
         target = 0
         rmse_accum += (target, evaluated)
     print rmse_accum.getRMSE()
@@ -123,20 +128,22 @@ def main_run():
 
     ga = GSimpleGA.GSimpleGA(genome)
     ga.setParams(gp_terminals=['0'],
-                 gp_function_set={"wait": 1, "broadcastInterest": 1})
+                 gp_function_set={"wait": 1,
+                                  "broadcastInterest": 1,
+                                  "sendDataPacket": 1})
 
     ga.setMinimax(Consts.minimaxType["minimize"])
     ga.setGenerations(30)
     ga.setCrossoverRate(0.9)
     ga.setMutationRate(0.25)
     ga.setPopulationSize(60)
-    # ga.setMultiProcessing(True)
 
     ga(freq_stats=10)
     best = ga.bestIndividual()
     print best
 
 if __name__ == "__main__":
-    print "Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5"
-    print "Fitness Function: DC_p + DC_r / 2"
+    print "Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, ",
+    print "Population Size: 60, Sample: ScaleFree 0, 1, 2"
+    print "Fitness Function: rcvd"
     main_run()

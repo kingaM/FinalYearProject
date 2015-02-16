@@ -3,6 +3,9 @@ require(plyr)
 require(parallel)
 
 directory <- "~/Documents/GitHub/FinalYearProject/RandomNetworks/"
+networkName <- "RandomNetwork.*-0"
+# directory <- "~/Documents/GitHub/FinalYearProject/ScaleFreeNetworks/"
+# networkName <- "ScaleFreeNetwork.*-0"
 
 loadVector <- function(name) {
   vec <- loadDataset(name)
@@ -124,7 +127,7 @@ recall <- function() {
 
 rcvPktsName <- function(name) {
   setwd(paste(directory, name, sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.sca")
+  files = list.files(pattern = paste(networkName, "sca", sep="."))
   all <- mclapply(files, getPkts)
   return(changeListToDf(name, all, files))
 }
@@ -134,11 +137,19 @@ changeListToDf <- function(name, list, files) {
   df <- data.frame(y = unlist(list), 
                    grp = rep(files[1:length(list)],
                              times = sapply(list,length)))
-#  show(df)
-  df$grp = sub('(_[0-9])*-[0-9]\\.(sca|vec)', '', df$grp)
+  if (networkName == "RandomNetwork.*-0") {
+    df$grp = sub('(_[0-9])*-[0-9]\\.(sca|vec)', '', df$grp) 
+  } else {
+    df$grp = sub('(_[0-9])*-[0-9]\\.(sca|vec)', '', df$grp)
+    df$grp = sub('ScaleFreeNetwork', '', df$grp)
+    df$grp = strtoi(df$grp)
+    show(df)
+    df$grp = df$grp %% 2
+    df$grp[df$grp == 1] <- "major"
+    df$grp[df$grp == 0] <- "minor"
+  }
   df <- summarySE(df, measurevar="y", groupvars="grp")
   df$net = name
-#   show(df)
   return(df)
 }
 
@@ -158,7 +169,7 @@ plotOne <- function(dirName, fileName) {
 
 precisionName <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
   all <- lapply(files, FUN)
   tmp = lapply(all, FUN = function(x) { sum(as.numeric(x$precision))/nrow(x) })
   show(all)
@@ -167,7 +178,7 @@ precisionName <- function(name, FUN) {
 
 precisionNameAll <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
   all <- lapply(files, FUN)
   show(all)
   return(changeListToDf2(name, all, files, "precision"))
@@ -175,7 +186,7 @@ precisionNameAll <- function(name, FUN) {
 
 recallNameAll <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
   all <- lapply(files, FUN)
   show(all)
   return(changeListToDf2(name, all, files, "recall"))
@@ -183,7 +194,7 @@ recallNameAll <- function(name, FUN) {
 
 rcvPktVecAll <- function(name) {
   setwd(paste(directory, name, sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
   all <- lapply(files, rcvdPktVec)
   show(all)
   return(changeListToDf2(name, all, files, "ratio"))
@@ -231,7 +242,7 @@ recallNameDcTime <- function(name) {
 
 recallName <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
   all <- lapply(files, FUN)
   tmp = lapply(all, FUN = function(x) { sum(as.numeric(x$recall))/nrow(x) })
   return(changeListToDf(name, tmp, files))
@@ -239,7 +250,7 @@ recallName <- function(name, FUN) {
 
 rcvPkts <- function() {
   setwd(paste(directory, "results", sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.sca")
+  files = list.files(pattern = paste(networkName, "sca", sep="."))
   all <- lapply(files, getPkts)
   return(unlist(all))
 }
@@ -251,6 +262,7 @@ plotAll <- function(FUN, name) {
   setwd(directory)
   files = list.files(pattern="results_.*")
   list <- mclapply(files, FUN)
+  show(list)
   df <- ldply(list, data.frame)
   df$Index <- ave( 1:nrow(df), factor( df$net), FUN=function(x) 1:length(x) )
   show(df)
@@ -274,12 +286,12 @@ plotAllTime <- function(FUN, name) {
   df <- ldply(list, data.frame)
   df$Index <- ave( 1:nrow(df), factor( df$net), FUN=function(x) 1:length(x) )
   show(df)
-  pd <- position_dodge(10)
+  pd <- position_dodge(20)
   p <- ggplot(df, aes(x = Group.1, y = y, group = net, color = net, ymin=y-se, ymax=y+se), position = pd) + 
     geom_line(position = pd) +
     geom_point(position = pd, size = 3) + 
     ggtitle(name) + ylim(0,1) +
-    geom_errorbar(width=10, position = pd)
+    geom_errorbar(width=30, position = pd)
   ggsave(paste(paste("Time", name, sep=" "), ".png", sep=""), width = 10)
   return(p)
 }
@@ -308,7 +320,7 @@ plotAverageErrorBars <- function(dirName) {
   library(reshape)
   library(ggplot2)
   setwd(paste(directory, dirName, sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
   f <- lapply(files, filter)
   fm <- merge_all(f)
   d <- lapply(files, dc)
@@ -345,7 +357,7 @@ plotAllTimeBased <- function(FUN, name) {
   library(reshape)
   library(ggplot2)
   setwd(paste(directory, dirName, sep=""))
-  files = list.files(pattern = "RandomNetwork.*-0.vec")
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
   f <- lapply(files, FUN)
   fm <- merge_all(f)
   precisionF <- summarySE(fm, measurevar="precision", groupvars="Group.1")
@@ -412,7 +424,3 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
   
   return(datac)
 }
-
-# precision()
-# recall()
-# rcvPkts()
