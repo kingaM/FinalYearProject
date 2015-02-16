@@ -1,0 +1,63 @@
+/*
+ * DendricCell.cc
+ *
+ *  Created on: Jan 1, 2015
+ *      Author: kinga
+ */
+
+#include <DendricCell.h>
+#include <SignalMatrix.h>
+#include <cmath>
+
+#define ALPHA 0.7
+
+using namespace std;
+
+DendricCell::DendricCell() {{
+
+}}
+
+DendricCell::DendricCell(SignalMatrix* signalMatrix, string type) {{
+    this->signalMatrix = signalMatrix;
+    this->type = type;
+}}
+
+void DendricCell::cycle() {{
+    signals.push_back(MatrixEntry(signalMatrix->getEntry(type)));
+    MatrixEntry recent = signals.back();
+    double semiTmp = ({0} * recent.getPs().getConcentration()
+            + {1} * recent.getDs1().getConcentration()
+            + {2} * recent.getDs1().getConcentration()
+            + {3} * recent.getSs1().getConcentration()
+            + {4} * recent.getSs2().getConcentration()
+            + {5} * recent.getSs3().getConcentration()) / 
+            (abs({0}) + abs({1}) + abs({2}) + abs({3}) + abs({4}) + abs({5}));
+    double matTmp = ({6} * recent.getPs().getConcentration()
+            + {7} * recent.getDs1().getConcentration()
+            + {8} * recent.getDs1().getConcentration()
+            + {9} * recent.getSs1().getConcentration()
+            + {10} * recent.getSs2().getConcentration()
+            + {11} * recent.getSs3().getConcentration()) / 
+            (abs({5}) + abs({7}) + abs({8}) + abs({9}) + abs({10}) + abs({11}));
+    semi = ALPHA * semiTmp + (1 - ALPHA) * semi;
+    mat = ALPHA * matTmp + (1 - ALPHA) * mat;
+}}
+
+Maturity DendricCell::mature() {{
+    if (mat > semi) {{
+        return Maturity::MAT;
+    }} else {{
+        return Maturity::SEMI;
+    }}
+}}
+
+string DendricCell::maturity(Maturity mat) {{
+    switch (mat) {{
+        case Maturity::MAT:
+            return "MAT";
+        case Maturity::SEMI:
+            return "SEMI";
+    }}
+    // Will never happen
+    return "NONE";
+}}
