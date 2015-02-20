@@ -27,14 +27,14 @@ void DendricCell::cycle() {{
     MatrixEntry recent = signals.back();
     double semiTmp = ({0} * recent.getPs().getConcentration()
             + {1} * recent.getDs1().getConcentration()
-            + {2} * recent.getDs1().getConcentration()
+            + {2} * recent.getDs2().getConcentration()
             + {3} * recent.getSs1().getConcentration()
             + {4} * recent.getSs2().getConcentration()
             + {5} * recent.getSs3().getConcentration()) / 
             (abs({0}) + abs({1}) + abs({2}) + abs({3}) + abs({4}) + abs({5}));
     double matTmp = ({6} * recent.getPs().getConcentration()
             + {7} * recent.getDs1().getConcentration()
-            + {8} * recent.getDs1().getConcentration()
+            + {8} * recent.getDs2().getConcentration()
             + {9} * recent.getSs1().getConcentration()
             + {10} * recent.getSs2().getConcentration()
             + {11} * recent.getSs3().getConcentration()) / 

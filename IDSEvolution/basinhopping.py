@@ -1,7 +1,6 @@
 from scipy.optimize import basinhopping
 from pyevolve import Util
 import os
-from string import Template
 import subprocess
 from multiprocessing import Process
 import fnmatch
@@ -128,5 +127,5 @@ def eval_func(x):
     # accept_test=None, callback=None, interval=50, disp=False, niter_success=None)
 
 print basinhopping(eval_func, [0, 0, 0, 2, 2, 2, 6, 4, 4, -1, -1, -1], disp=True, niter=200,
-    minimizer_kwargs = {"method": "L-BFGS-B", "bounds": [(-100, 100)] * 12})
+    minimizer_kwargs={"method": "L-BFGS-B", "bounds": [(-100, 100)] * 12})
 # runOmnetpp()
