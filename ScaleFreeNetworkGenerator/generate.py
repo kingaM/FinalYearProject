@@ -53,11 +53,24 @@ class NetworkGenerator:
 
     ##
     # Plots the graph
-    def plotGraph(self):
+    def plotGraph(self, path):
         if self.graph is None:
             raise Exception("The graph has not been generated")
-        nx.draw(self.graph)
-        plt.show()
+        values = [self.colorScheme(n) for n in self.graph.nodes()]
+        nx.draw_spring(self.graph, cmap='jet', node_color=values,
+                       node_size=100)
+        plt.savefig(path)
+        plt.close()
+
+    def colorScheme(self, x):
+        if x in self.attackers:
+            return 1
+        elif x in self.sources:
+            return 0.25
+        elif x in self.sinks:
+            return 0
+        else:
+            return 0.5
 
     ##
     # Saves graph to a file. Overwrites previous version of the file, if
@@ -71,6 +84,14 @@ class NetworkGenerator:
         f = open(path, 'a')
         pickle.dump(self, f)
         f.close()
+
+    ##
+    # Saves the degree of the nodes to the specified file in CSV format
+    # @param path The path to the file
+    def writeDegreesToCsv(self, path):
+        f = open(path, 'a')
+        w = csv.writer(f)
+        w.writerow(nx.degree(self.graph).values())
 
     ##
     # Retrieves an object from a file
@@ -248,6 +269,7 @@ network = {0}
     path = "../ScaleFreeNetworks/"
     try:
         os.remove(path + 'scalefree.ini')
+        os.remove("degrees.csv")
     except OSError:
         pass
     ini = open(path + 'scalefree.ini', 'a')
@@ -263,6 +285,8 @@ network = {0}
         except OSError:
             pass
         file = open(path + network + '.ned', 'a')
+        net.plotGraph(network + ".png")
+        net.writeDegreesToCsv("degrees.csv")
         file.write(p)
         file.close()
         ini.write(iniTemplate.format(network))
