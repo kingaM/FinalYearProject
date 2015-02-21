@@ -1,19 +1,11 @@
 network GoodNetwork
 {
-    types:
-        channel Channel extends ned.DelayChannel
-        {
-            delay = 100ms;
-        }
     submodules:
-        node[7]: Node;
-        evil[1]: EvilNode;
+        node[2]: Node;
+        sink : SinkNode;
+        source : SourceNode;
     connections:
         node[0].gate++ <--> Channel <--> node[1].gate++;
-        node[1].gate++ <--> Channel <--> node[2].gate++;
-        node[1].gate++ <--> Channel <--> node[4].gate++;
-        node[3].gate++ <--> Channel <--> node[2].gate++;
-        node[4].gate++ <--> Channel <--> node[5].gate++;
-        node[6].gate++ <--> Channel <--> node[5].gate++;
-        node[6].gate++ <--> Channel <--> node[4].gate++;
+        node[0].gate++ <--> Channel <--> source.gate++;
+        node[1].gate++ <--> Channel <--> sink.gate++;
 }

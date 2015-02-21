@@ -63,7 +63,14 @@ simple SinkNode
         inout gate[];
 }
 
-channel Channel extends ned.DelayChannel
+channel ErrorChannel 
+{
+    parameters:
+        double delay @unit(s);
+        bool disabled = default(false);
+}
+
+channel Channel extends ErrorChannel
 {
     delay = 100ms;
 }
