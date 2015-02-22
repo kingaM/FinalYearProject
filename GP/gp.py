@@ -11,7 +11,8 @@ import fnmatch
 rmse_accum = Util.ErrorAccumulator()
 
 home = "/home/kinga/Documents/GitHub/"
-dirName = "ScaleFreeNetwork"
+dirName = "GPTrainingNetworks"
+networkName = "RandomNetwork"
 
 
 def getResults():
@@ -29,7 +30,7 @@ def getResults():
 def getAllScaFiles():
     files = []
     for file in os.listdir("."):
-        if fnmatch.fnmatch(file, "*.sca"):
+        if fnmatch.fnmatch(file, networkName + "*.sca"):
             files.append(open(file))
     return files
 
@@ -102,9 +103,9 @@ def runOmnetpp(gpCode):
 
 def runOmnetExe(i):
     subprocess.check_output(("./out/gcc-debug/DirDeff" +
-                             " -u Cmdenv -f ../" + dirName + "s/random.ini " +
-                             "-c " + dirName + str(i) + " -n ../" + dirName +
-                             "s/").split())
+                             " -u Cmdenv -f ../" + dirName + "/random.ini " +
+                             "-c " + networkName + str(i) + " -n ../" + dirName +
+                             "/").split())
 
 
 def eval_func(chromosome):
