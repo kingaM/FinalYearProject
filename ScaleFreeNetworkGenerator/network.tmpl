@@ -14,18 +14,25 @@ import EvilNode;
 //  routes = {{stats.get('routes')}}
 //
 
+{% set count = numNodes %}
+
 network {{targetName}} {{'{'}}
     submodules:
       {% for n in graph.get('nodes') -%}
         node{{n.get('id')}} : 
-          {%- if n.get('id') in attackers %} EvilNode;
-          {%- elif n.get('id') in sources %} SourceNode;
-          {%- elif n.get('id') in sinks %} SinkNode;
-          {%- else %} Node;
-          {%- endif %}
+          {%- if n.get('id') in attackers %} EvilNode
+          {%- elif n.get('id') in sources %} SourceNode
+          {%- elif n.get('id') in sinks %} SinkNode
+          {%- else %} Node
+          {%- endif %} {
+          id = {{n.get('id')}};
+      }
       {% endfor %}
     connections:
       {% for n in graph.get('links') -%}
-        node{{n.get('source')}}.gate++ <--> Channel <--> node{{n.get('target')}}.gate++;
+        node{{n.get('source')}}.gate++ <--> Channel {
+            id = {{count}};
+            {%- set count = count + 1 %}
+      } <--> node{{n.get('target')}}.gate++;
       {% endfor %}
 {{'}'}}

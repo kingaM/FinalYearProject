@@ -20,7 +20,11 @@
  */
 class PacketFilter {
     public:
-        PacketFilter();
+        /**
+         * @param row The row to read the seed from
+         * @param column The column to read the seed from
+         */
+        PacketFilter(int row, int column);
         void addPacket(PacketInfo p);
         /**
          * Filters packet based on how many packets of this class were

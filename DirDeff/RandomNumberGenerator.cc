@@ -18,9 +18,8 @@ RandomNumberGenerator::RandomNumberGenerator() {
     // Should not be used - just making the compiler happy
 }
 
-RandomNumberGenerator::RandomNumberGenerator(string filename, int row) {
-    // This will use a new seed for each node, thus each row needs to be substantial
-    generator.seed(getSeed(filename, row));
+RandomNumberGenerator::RandomNumberGenerator(string filename, int row, int column) {
+    generator.seed(getSeed(filename, row, column));
 }
 
 int RandomNumberGenerator::getNumber(int start, int end) {
@@ -33,9 +32,7 @@ bool RandomNumberGenerator::boolWithProbability(double p) {
     return distribution(generator);
 }
 
-int RandomNumberGenerator::getSeed(string filename, int row) {
-    static int column = -1;
-    column++;
+int RandomNumberGenerator::getSeed(string filename, int row, int column) {
     string line, csvItem;
     ifstream myfile(filename);
     int lineNumber = 0;

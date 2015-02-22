@@ -55,7 +55,6 @@ class Cache {
     private:
         boost::circular_buffer<Entry> entries;
         DendricCells* dcs;
-        PacketFilter filter;
 };
 
 #endif /* CACHE_H_ */

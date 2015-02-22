@@ -35,3 +35,8 @@ Packet *NodeBase::generateMessage(int type, string dataType) {
     return msg;
 }
 
+void NodeBase::setParameters() {
+    id = par("id");
+    numOfNodes = par("numOfNodes");
+    run = par("run");
+}

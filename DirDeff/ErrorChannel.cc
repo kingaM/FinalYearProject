@@ -34,3 +34,10 @@ void ErrorChannel::processMessage(cMessage* msg, simtime_t t,
     }
     cDelayChannel::processMessage(msg, t, result);
 }
+
+void ErrorChannel::initialize() {
+    run = par("run");
+    id = par("id");
+    generator = RandomNumberGenerator("seeds.csv", run, id);
+    cDelayChannel::initialize();
+}

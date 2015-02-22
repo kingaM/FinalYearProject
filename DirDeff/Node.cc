@@ -25,7 +25,10 @@ typedef accumulator_set<int, stats<tag::rolling_sum>> SumAcc;
 Define_Module(Node);
 
 Node::Node() :
-        acc(SumAcc(tag::rolling_window::window_size = 10)) {
+        acc(SumAcc(tag::rolling_window::window_size = 10)),
+        // Cannot be initialized yet, as the simulation is not up. Will be
+        // overwritten in the "initialize" method.
+        classifier(0, 0){
 }
 
 Node::~Node() {
@@ -41,15 +44,16 @@ void Node::generateSensor() {
 }
 
 void Node::initialize() {
-    generator = RandomNumberGenerator("seeds.csv", 0);
+    setParameters();
+    generator = RandomNumberGenerator("seeds.csv", run, id);
     lastSent = simTime() - 20;
     acc = SumAcc(tag::rolling_window::window_size = 10);
     scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     matrix = new SignalMatrix();
-    filter = new PacketFilter();
+    filter = new PacketFilter(run, numOfNodes + id);
     dcs = new DendricCells(matrix, filter, this);
     cache.setDcs(dcs);
-    classifier = ContentClassifier();
+    classifier = ContentClassifier(run, numOfNodes * 2 + id);
     packetsSentSignal = registerSignal("pktSent");
     generatedDataSignal = registerSignal("genData");
     receievedPacketsSignal = registerSignal("rcvdPkt");
@@ -87,6 +91,7 @@ void Node::saveToDataCache(Packet* ttmsg) {
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
     // TODO: reinforced path?
+
     matrix->getEntry(ttmsg->getDataType()).setSs1();
 }
 
@@ -94,6 +99,7 @@ void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
     dcs->addCell(
             PacketInfo(ttmsg->getDataType(), classification,
                     ttmsg->getMalicious()));
+    EV << "MALICIOUS " << ttmsg->getMalicious() << endl;
     forwardMessage(ttmsg);
     addToCache(ttmsg);
     saveToDataCache(ttmsg);

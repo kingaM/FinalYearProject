@@ -56,7 +56,11 @@ class NodeBase : public cSimpleModule {
          * @return A pointer to the generated packet.
          */
         Packet* generateMessage(int type, std::string dataType);
+        virtual void setParameters();
         bool malicious = false;
+        int id;
+        int numOfNodes;
+        int run;
     public:
         NodeBase();
         virtual ~NodeBase();

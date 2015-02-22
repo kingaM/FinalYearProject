@@ -22,7 +22,11 @@ enum class Class {
  */
 class ContentClassifier {
     public:
-        ContentClassifier();
+        /**
+         * @param row The row to read the seed from
+         * @param column The column to read the seed from
+         */
+        ContentClassifier(int row, int column);
         Class classify(Packet* p);
     private:
         RandomNumberGenerator generator;

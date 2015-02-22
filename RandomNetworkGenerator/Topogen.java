@@ -29,12 +29,11 @@ public class Topogen {
     private List<Integer> sources = new ArrayList<Integer>();
     Random rng = new Random(100);
 
-    public Topogen(int edges, int nodes, long seed) {
+    public Topogen(int nodes, long seed) {
         this.rng = new Random(seed);
         int max = nodes*(nodes-1)/2;
         int min = nodes-1;
-        edges = rng.nextInt(max - min + 1) + min;
-        this.edges = edges;
+        this.edges = rng.nextInt(max - min + 1) + min;
         this.nodes = nodes;
         this.seed = seed;
     }
@@ -271,14 +270,14 @@ public class Topogen {
 
     public static void main(String[] args) throws IOException, TemplateException {
         int nodes = args.length>=1 ? Integer.parseInt(args[0]) : 10;
-        // int edges = args.length>=2 ? Integer.parseInt(args[1]) : 2*nodes;
-        long seed = args.length>=3 ? Long.parseLong(args[2]) : System.currentTimeMillis();
-        String networkName = args.length>=4 ? args[3] : "RandomNetwork";
+        long seed = args.length>=2 ? Long.parseLong(args[1]) : System.currentTimeMillis();
+        String networkName = args.length>=3 ? args[2] : "RandomNetwork";
         Configuration cfg = new Configuration();
         cfg.setObjectWrapper(new DefaultObjectWrapper());
         cfg.setDirectoryForTemplateLoading(new File("."));
+        cfg.setNumberFormat("0.######");
         Map<String, Object> model = new HashMap<String, Object>();
-        Topogen topo = new Topogen(0, nodes, seed);
+        Topogen topo = new Topogen(nodes, seed);
         model.put("numNodes", topo.getNodes());
         model.put("numLinks", topo.getEdges());
         model.put("seed", seed);
@@ -287,5 +286,6 @@ public class Topogen {
         Template template = cfg.getTemplate("network.ned.ftl");
         template.process(model, 
         new OutputStreamWriter(System.out));
+        System.out.println(topo.getEdges() + "");
     }
 }

@@ -24,7 +24,7 @@ class RandomNumberGenerator {
          * The class keeps count of how many times it was already initialised and
          * chooses the next column in the csv file each time.
          */
-        RandomNumberGenerator(std::string filename, int row);
+        RandomNumberGenerator(std::string filename, int row, int column);
         /**
          * Returns a random number within the specified range. Numbers generated
          * follow uniform distribution.
@@ -37,7 +37,7 @@ class RandomNumberGenerator {
         bool boolWithProbability(double p);
     private:
         std::default_random_engine generator;
-        int getSeed(std::string filename, int row);
+        int getSeed(std::string filename, int row, int column);
 };
 
 #endif /* RANDOMNUMBERGENERATOR_H_ */

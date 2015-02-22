@@ -265,6 +265,8 @@ def generateTemplates():
     iniTemplate = """
 [Config {0}]
 network = {0}
+**.numOfNodes = {1}
+**.run = {2}
     """
     path = "../ScaleFreeNetworks/"
     try:
@@ -275,13 +277,14 @@ network = {0}
     ini = open(path + 'scalefree.ini', 'a')
     ini.write('[General]\nsim-time-limit = 1000s\nrecord-eventlog = false\n')
     seeds = readCsv()
-    for i in range(0, 10):
+    for i in range(0, 50):
         network = "ScaleFreeNetwork" + str(i)
         nodes = 2**7
         net = NetworkGenerator(nodes, 2, seeds[i], i % 2)
         p = net.populateTemplate(network)
         try:
             os.remove(path + network + '.ned')
+            pass
         except OSError:
             pass
         file = open(path + network + '.ned', 'a')
@@ -289,7 +292,9 @@ network = {0}
         net.writeDegreesToCsv("degrees.csv")
         file.write(p)
         file.close()
-        ini.write(iniTemplate.format(network))
+        ini.write(iniTemplate.format(network, 
+                                     nodes + nx.number_of_edges(net.graph),
+                                     i))
     ini.close()
 
 if __name__ == "__main__":

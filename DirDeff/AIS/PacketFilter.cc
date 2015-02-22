@@ -11,8 +11,8 @@
 #include "RandomNumberGenerator.h"
 #include "debug.h"
 
-PacketFilter::PacketFilter() {
-    generator = RandomNumberGenerator("seeds.csv", 0);
+PacketFilter::PacketFilter(int row, int column) {
+    generator = RandomNumberGenerator("seeds.csv", row, column);
     benign.set_capacity(10);
     malicious.set_capacity(10);
 }
