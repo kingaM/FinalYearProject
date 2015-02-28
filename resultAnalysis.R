@@ -4,10 +4,31 @@ require(parallel)
 
 directory <- "~/Documents/GitHub/FinalYearProject/RandomNetworks/"
 networkName <- "RandomNetwork.*-0"
-# directory <- "~/Documents/GitHub/FinalYearProject/ScaleFreeNetworks/"
+# directory <- "~/Documents/ScaleFreeNetworks/"
 # networkName <- "ScaleFreeNetwork.*-0"
 
+glob.vectors <- list()
+currFolder <- ""
+
 loadVector <- function(name) {
+  return(glob.vectors[[currFolder]][[name]])
+}
+
+loadVectorsAllFolders <- function() {
+  setwd(directory)
+  files = list.files(pattern="results_.*")
+  list <- sapply(files, loadVectorsAllFiles, simplify = FALSE,USE.NAMES = TRUE)
+  return (list)
+}
+
+loadVectorsAllFiles <- function(folder) {
+  setwd(paste(directory, folder, sep=""))
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
+  all <- sapply(files, loadSingleVector, simplify = FALSE,USE.NAMES = TRUE)
+  return (all)
+}
+
+loadSingleVector <- function(name) {
   vec <- loadDataset(name)
   val <- loadVectors(vec, NULL)
   return(val)
@@ -143,7 +164,6 @@ changeListToDf <- function(name, list, files) {
     df$grp = sub('(_[0-9])*-[0-9]\\.(sca|vec)', '', df$grp)
     df$grp = sub('ScaleFreeNetwork', '', df$grp)
     df$grp = strtoi(df$grp)
-    show(df)
     df$grp = df$grp %% 2
     df$grp[df$grp == 1] <- "major"
     df$grp[df$grp == 0] <- "minor"
@@ -155,10 +175,10 @@ changeListToDf <- function(name, list, files) {
 
 plotOne <- function(dirName, fileName) {
   setwd(paste(directory, dirName, sep=""))
+  currFolder <<- dirName
   files = list.files(pattern = fileName)
-  f <- lapply(files, filter)
-  d <- lapply(files, dc)
-  show(f)
+  f <- mclapply(files, filter)
+  d <- mclapply(files, dc)
   ggplot() +
     geom_line(data = f[[1]], aes(x = Group.1, y = precision, color = "Precision Filter")) + 
     geom_line(data = f[[1]], aes(x = Group.1, y = recall, color = "Recall Filter")) +
@@ -169,39 +189,42 @@ plotOne <- function(dirName, fileName) {
 
 precisionName <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
+  currFolder <<- name
   files = list.files(pattern = paste(networkName, "vec", sep="."))
-  all <- lapply(files, FUN)
+  all <- mclapply(files, FUN)
   tmp = lapply(all, FUN = function(x) { sum(as.numeric(x$precision))/nrow(x) })
   show(all)
-  return(return(changeListToDf(name, tmp, files)))
+  return(changeListToDf(name, tmp, files))
 }
 
 precisionNameAll <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
+  currFolder <<- name
   files = list.files(pattern = paste(networkName, "vec", sep="."))
-  all <- lapply(files, FUN)
+  all <- mclapply(files, FUN)
   show(all)
   return(changeListToDf2(name, all, files, "precision"))
 }
 
 recallNameAll <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
+  currFolder <<- name
   files = list.files(pattern = paste(networkName, "vec", sep="."))
-  all <- lapply(files, FUN)
+  all <- mclapply(files, FUN)
   show(all)
   return(changeListToDf2(name, all, files, "recall"))
 }
 
 rcvPktVecAll <- function(name) {
   setwd(paste(directory, name, sep=""))
+  currFolder <<- name
   files = list.files(pattern = paste(networkName, "vec", sep="."))
-  all <- lapply(files, rcvdPktVec)
+  all <- mclapply(files, rcvdPktVec)
   show(all)
   return(changeListToDf2(name, all, files, "ratio"))
 }
 
 changeListToDf2 <- function(name, list, files, measurevar) {
-  show(ldply(list, data.frame))
   df <- summarySE(ldply(list, data.frame), measurevar=measurevar, groupvars="Group.1")
   colnames(df)[3] <- "y"
   df$net = name
@@ -242,8 +265,9 @@ recallNameDcTime <- function(name) {
 
 recallName <- function(name, FUN) {
   setwd(paste(directory, name, sep=""))
+  currFolder <<- name
   files = list.files(pattern = paste(networkName, "vec", sep="."))
-  all <- lapply(files, FUN)
+  all <- mclapply(files, FUN)
   tmp = lapply(all, FUN = function(x) { sum(as.numeric(x$recall))/nrow(x) })
   return(changeListToDf(name, tmp, files))
 }
@@ -261,7 +285,7 @@ plotAll <- function(FUN, name) {
   library(reshape2)
   setwd(directory)
   files = list.files(pattern="results_.*")
-  list <- mclapply(files, FUN)
+  list <- lapply(files, FUN)
   show(list)
   df <- ldply(list, data.frame)
   df$Index <- ave( 1:nrow(df), factor( df$net), FUN=function(x) 1:length(x) )
@@ -272,7 +296,7 @@ plotAll <- function(FUN, name) {
     geom_point(position = pd, size = 3) + 
     ggtitle(name) + ylim(0,1) +
     geom_errorbar(width=0.2, position = pd)
-  ggsave(paste(name, ".png", sep=""), width = 10)
+  ggsave(paste(name, ".png", sep=""), width = 10, height=7)
   return(p)
 }
 
@@ -282,7 +306,7 @@ plotAllTime <- function(FUN, name) {
   library(reshape2)
   setwd(directory)
   files = list.files(pattern="results_.*")
-  list <- mclapply(files, FUN)
+  list <- lapply(files, FUN)
   df <- ldply(list, data.frame)
   df$Index <- ave( 1:nrow(df), factor( df$net), FUN=function(x) 1:length(x) )
   show(df)
@@ -292,7 +316,7 @@ plotAllTime <- function(FUN, name) {
     geom_point(position = pd, size = 3) + 
     ggtitle(name) + ylim(0,1) +
     geom_errorbar(width=30, position = pd)
-  ggsave(paste(paste("Time", name, sep=" "), ".png", sep=""), width = 10)
+  ggsave(paste(paste("Time", name, sep=" "), ".png", sep=""), width = 10, height=7)
   return(p)
 }
 
@@ -303,7 +327,9 @@ plotEverything <- function() {
   p3 <- plotAll(recallNameFilter, "Recall - Filter")
   p4 <- plotAll(precisionNameDc, "Precision - DC")
   p5 <- plotAll(recallNameDc, "Recall - DC")
+  png("All.png", width=1375, height=876)
   grid.arrange(p1, p2, p3, p4, p5)
+  dev.off()
 }
 
 plotEverythingTime <- function() {
@@ -424,3 +450,5 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
   
   return(datac)
 }
+
+plotEverythingTime()
