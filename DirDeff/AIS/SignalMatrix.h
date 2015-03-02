@@ -21,8 +21,8 @@ class SignalMatrix {
     public:
         SignalMatrix();
         void addEntry(std::string type);
-        MatrixEntry getEntry(std::string type);
-        MatrixEntry getEntry();
+        MatrixEntry& getEntry(std::string type);
+        MatrixEntry& getEntry();
         /**
          * Most signals are stored per MatrixEntry, however SS3 and DS1 signals
          * are global, thus need to be added to all entries in the matrix.

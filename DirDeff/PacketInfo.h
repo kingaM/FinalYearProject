@@ -19,8 +19,10 @@
 class PacketInfo {
     public:
         PacketInfo();
-        PacketInfo(std::string type, Class classifiction, Maturity decision);
-        PacketInfo(std::string type, Class classifiction, bool malicious);
+        PacketInfo(std::string type, Class classifiction, int source,
+                Maturity decision);
+        PacketInfo(std::string type, Class classifiction, int source,
+                bool malicious);
         /**
          * The type of the packet. This is based on data type in the packet.
          */
@@ -42,6 +44,10 @@ class PacketInfo {
          * for evaluation only and is not used to classify the packet.
          */
         bool malicious;
+        /**
+         * The source of the packet.
+         */
+        int source;
         friend bool operator==(const PacketInfo& a, const PacketInfo& b);
         friend bool operator<(const PacketInfo& a, const PacketInfo& b);
 };

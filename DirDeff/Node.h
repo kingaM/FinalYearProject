@@ -13,6 +13,7 @@
 #include "AIS/ContentClassifier.h"
 #include "AIS/PacketFilter.h"
 #include "AIS/SignalMatrix.h"
+#include "AIS/InterestCacheFilter.h"
 #include "NodeBase.h"
 
 typedef boost::accumulators::accumulator_set<int,
@@ -51,6 +52,7 @@ class Node : public NodeBase {
         DendricCells* dcs = NULL;
         ContentClassifier classifier;
         PacketFilter* filter;
+        InterestCacheFilter* icf;
         simsignal_t packetsSentSignal;
         simsignal_t generatedDataSignal;
         simsignal_t receievedPacketsSignal;

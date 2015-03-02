@@ -15,6 +15,7 @@ class ErrorChannel : public cDelayChannel {
         double pBad = 0.6;
         int id;
         int run;
+        bool disabled;
         RandomNumberGenerator generator;
 
         void discardMessage(const simtime_t& t, result_t& result,

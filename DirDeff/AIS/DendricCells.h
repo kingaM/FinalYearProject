@@ -12,6 +12,7 @@
 #include "SignalMatrix.h"
 #include "PacketInfo.h"
 #include "PacketFilter.h"
+#include "InterestCacheFilter.h"
 #include <omnetpp.h>
 #include <map>
 
@@ -24,7 +25,7 @@ class DendricCells {
     public:
         DendricCells();
         DendricCells(SignalMatrix* matrix, PacketFilter* filter,
-                cSimpleModule* node);
+                InterestCacheFilter* icf, cSimpleModule* node);
         Maturity mature(std::string type);
         void cycle();
         void addCell(PacketInfo type);
@@ -34,6 +35,7 @@ class DendricCells {
         std::map<std::string, PacketInfo> info;
         SignalMatrix* matrix = NULL;
         PacketFilter* filter = NULL;
+        InterestCacheFilter* icf = NULL;
         cSimpleModule* node = NULL;
         simsignal_t fpSignal;
         simsignal_t fnSignal;

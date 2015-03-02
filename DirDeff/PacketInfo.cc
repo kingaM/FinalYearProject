@@ -15,16 +15,20 @@ PacketInfo::PacketInfo() {
     // TODO Auto-generated constructor stub
 }
 
-PacketInfo::PacketInfo(string type, Class classifiction, Maturity decision) {
+PacketInfo::PacketInfo(string type, Class classifiction, int source,
+        Maturity decision) {
     this->type = type;
     this->classification = classifiction;
     this->decision = decision;
+    this->source = source;
 }
 
-PacketInfo::PacketInfo(string type, Class classifiction, bool malicious) {
+PacketInfo::PacketInfo(string type, Class classifiction, int source,
+        bool malicious) {
     this->type = type;
     this->classification = classifiction;
     this->malicious = malicious;
+    this->source = source;
 }
 
 bool operator==(const PacketInfo& a, const PacketInfo& b) {

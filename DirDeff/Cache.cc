@@ -13,6 +13,7 @@
 #include <utility>
 #include <stdio.h>
 #include "AIS/DendricCells.h"
+#include "AIS/InterestCacheFilter.h"
 #include "debug.h"
 
 using namespace std;
@@ -25,9 +26,21 @@ void Cache::setDcs(DendricCells* dcs) {
     this->dcs = dcs;
 }
 
-Gradient* Cache::addEntry(string type, long timestamp, int dataRate,
+boost::circular_buffer<Entry>::iterator Cache::getLeastTrustworthy() {
+    double min = 1;
+    boost::circular_buffer<Entry>::iterator pos = entries.end() - 1;
+    for (auto it = entries.begin(); it != entries.end(); it++) {
+        if (filter->getTrustworthiness(it->getSource()) < min) {
+            min = filter->getTrustworthiness(it->getSource());
+            pos = it;
+        }
+    }
+    return pos;
+}
+
+Gradient* Cache::addEntry(string type, long timestamp, int source, int dataRate,
         long expiresAt, int neighbour) {
-    Entry e = Entry(type, timestamp, dataRate, expiresAt, neighbour);
+    Entry e = Entry(type, timestamp, source, dataRate, expiresAt, neighbour);
     boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
             entries.end(), e);
     // add only when it's better
@@ -39,7 +52,10 @@ Gradient* Cache::addEntry(string type, long timestamp, int dataRate,
         if (entries.full()) {
             Maturity m = dcs->mature(type);
             DEBUG_MSG(
-                    "A MATURITY: " << DendricCell::maturity(m) << " type " << type);
+                    "MATURITY: " << DendricCell::maturity(m) << " type " <<
+                    type);
+            boost::circular_buffer<Entry>::iterator pos = getLeastTrustworthy();
+            entries.erase(pos);
         }
         e.addGradient(dataRate, expiresAt, neighbour, timestamp);
         entries.push_back(e);
@@ -48,7 +64,7 @@ Gradient* Cache::addEntry(string type, long timestamp, int dataRate,
 }
 
 vector<int> Cache::getPaths(string type, long currTime) {
-    Entry wrapper = Entry(type, -1, -1, -1, -1);
+    Entry wrapper = Entry(type, -1, -1, -1, -1, -1);
     boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
             entries.end(), wrapper);
     if (entry == entries.end()) {
@@ -60,14 +76,15 @@ vector<int> Cache::getPaths(string type, long currTime) {
         DEBUG_MSG("Deleting entry");
         Maturity m = dcs->mature(entry->getType());
         DEBUG_MSG(
-                "D MATURITY: " << DendricCell::maturity(m) << " type " << entry->getType());
+                "D MATURITY: " << DendricCell::maturity(m) << " type " <<
+                entry->getType());
         entries.erase(entry);
     }
     return paths;
 }
 
 int Cache::getMinInterval(string type) {
-    Entry wrapper = Entry(type, -1, -1, -1, -1);
+    Entry wrapper = Entry(type, -1, -1, -1, -1, -1);
     boost::circular_buffer<Entry>::iterator entry = find(entries.begin(),
             entries.end(), wrapper);
     if (entry == entries.end()) {
@@ -80,8 +97,7 @@ int Cache::getMinInterval(string type) {
 string Cache::toString() {
     stringstream ss;
     ss << "Cache [entries: ";
-    for (boost::circular_buffer<Entry>::iterator it = entries.begin();
-            it != entries.end(); ++it) {
+    for (auto it = entries.begin(); it != entries.end(); ++it) {
         ss << it->toString() << "\n";
     }
     ss << "]";
@@ -96,4 +112,8 @@ void Cache::setInactive(set<pair<string, int>> inactive, long currTime) {
             }
         }
     }
+}
+
+void Cache::setFilter(InterestCacheFilter* filter) {
+    this->filter = filter;
 }

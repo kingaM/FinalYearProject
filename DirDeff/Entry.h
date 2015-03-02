@@ -21,7 +21,7 @@
  */
 class Entry {
     public:
-        Entry(std::string type, long timestamp, int dataRate, long duration,
+        Entry(std::string type, long timestamp, int source, int dataRate, long duration,
                 int neighbour);
         long getTimestamp() const;
         const std::string getType() const;
@@ -41,10 +41,12 @@ class Entry {
         std::string toString();
         friend bool operator==(const Entry& a, const Entry& b);
         int getMinInterval();
+        int getSource() const;
     private:
         std::string type;
         long timestamp;
         std::set<Gradient> gradients;
+        int source;
         int cmp(const Entry& a, const Entry& b);
 };
 

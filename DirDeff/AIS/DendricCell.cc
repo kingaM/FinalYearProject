@@ -5,8 +5,10 @@
  *      Author: kinga
  */
 
-#include <DendricCell.h>
-#include <SignalMatrix.h>
+#include "AIS/DendricCell.h"
+#include "AIS/SignalMatrix.h"
+#include <cmath>
+#include "debug.h"
 
 #define ALPHA 0.7
 
@@ -24,15 +26,20 @@ DendricCell::DendricCell(SignalMatrix* signalMatrix, string type) {
 void DendricCell::cycle() {
     signals.push_back(MatrixEntry(signalMatrix->getEntry(type)));
     MatrixEntry recent = signals.back();
-    double semiTmp = (2 * recent.getSs1().getConcentration()
+    double semiTmp = (0 * recent.getPs().getConcentration()
+            + 0 * recent.getDs1().getConcentration()
+            + 0 * recent.getDs2().getConcentration()
+            + 2 * recent.getSs1().getConcentration()
             + 2 * recent.getSs2().getConcentration()
-            + 2 * recent.getSs3().getConcentration()) / 2 + 2 + 2;
+            + 2 * recent.getSs3().getConcentration()) /
+            (abs(0) + abs(0) + abs(0) + abs(2) + abs(2) + abs(2));
     double matTmp = (6 * recent.getPs().getConcentration()
             + 4 * recent.getDs1().getConcentration()
-            + 4 * recent.getDs1().getConcentration()
+            + 4 * recent.getDs2().getConcentration()
             + -1 * recent.getSs1().getConcentration()
             + -1 * recent.getSs2().getConcentration()
-            + -1 * recent.getSs3().getConcentration()) / 6 + 4 + 4 + 1 + 1 + 1;
+            + -1 * recent.getSs3().getConcentration()) /
+            (abs(6) + abs(4) + abs(4) + abs(-1) + abs(-1) + abs(-1));
     semi = ALPHA * semiTmp + (1 - ALPHA) * semi;
     mat = ALPHA * matTmp + (1 - ALPHA) * mat;
 }

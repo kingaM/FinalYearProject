@@ -24,6 +24,7 @@ Packet *NodeBase::generateMessage(int interval, int type, string dataType,
     msg->setDataType(dataType.c_str());
     msg->setPsConc(psConc);
     msg->setMalicious(malicious);
+    msg->setSource(id);
     return msg;
 }
 
@@ -32,6 +33,7 @@ Packet *NodeBase::generateMessage(int type, string dataType) {
     msg->setMsgId(msg->getId());
     msg->setType(type);
     msg->setDataType(dataType.c_str());
+    msg->setSource(id);
     return msg;
 }
 

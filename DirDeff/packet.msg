@@ -4,17 +4,7 @@ message Packet
     long msgId;
     // The interval at which data should be sent - used in interest packets
     int interval;
-    // The type of the packet. Can be
-    // SENSOR 0 - self message indicating that the sensor got triggered
-    // INTEREST 1 - interest message
-    // DATA 2 - data message
-    // INTERVAL 3 - self message indicating that a new interest should be sent
-    // DATA_RETRY 4 - self message indicating that it is time to retry sending
-    //	a data message again
-    // TIC 5 - self message sent every second, "waking up" the node to do 
-    // 	certain tasks
-    // EXP_INT 6 - self message indicating that an exploratory interest should
-    //  be sent
+    // The type of the packet.
     int type;
     // Timestamp of when the entry should expire
     long expiresAt;
@@ -26,5 +16,7 @@ message Packet
     // Flag indicating whether the packet is malicious. This is used just for
     // evaluating the performance of the system. 
     bool malicious = false;
+    // The node that sent that packet
+    int source;
 }
 

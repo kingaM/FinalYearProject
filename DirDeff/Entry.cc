@@ -17,10 +17,11 @@
 
 using namespace std;
 
-Entry::Entry(string type, long timestamp, int dataRate, long duration,
-        int neighbour) {
+Entry::Entry(string type, long timestamp, int source, int dataRate,
+        long duration, int neighbour) {
     this->type = type;
     this->timestamp = timestamp;
+    this->source = source;
     this->addGradient(dataRate, duration, neighbour, timestamp);
 }
 
@@ -92,4 +93,8 @@ int cmp(const Entry &a, const Entry &b) {
 
 bool operator==(const Entry& a, const Entry& b) {
     return cmp(a, b) == 1;
+}
+
+int Entry::getSource() const {
+    return source;
 }

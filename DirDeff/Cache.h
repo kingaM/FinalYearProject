@@ -17,6 +17,7 @@
 #include <utility>
 #include "AIS/DendricCells.h"
 #include "AIS/PacketFilter.h"
+#include "AIS/InterestCacheFilter.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ class Cache {
          * @return Previous gradient with the same specification (type and
          *  neighbour) or NULL if no such gradient exists
          */
-        Gradient* addEntry(string type, long timestamp, int dataRate,
+        Gradient* addEntry(string type, long timestamp, int source, int dataRate,
                 long duration, int neighbour);
         string toString();
         /**
@@ -51,10 +52,14 @@ class Cache {
          */
         void setInactive(std::set<pair<string, int>> inactive, long currTime);
         void setDcs(DendricCells* dcs);
+        void setFilter(InterestCacheFilter* filter);
         const static int SIZE = 4;
     private:
         boost::circular_buffer<Entry> entries;
         DendricCells* dcs;
+        InterestCacheFilter* filter;
+
+        boost::circular_buffer<Entry>::iterator getLeastTrustworthy();
 };
 
 #endif /* CACHE_H_ */

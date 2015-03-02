@@ -15,6 +15,7 @@
 #include "AIS/ContentClassifier.h"
 #include "AIS/PacketFilter.h"
 #include "AIS/SignalMatrix.h"
+#include "AIS/InterestCacheFilter.h"
 #include "Node.h"
 
 using namespace std;
@@ -28,7 +29,7 @@ Node::Node() :
         acc(SumAcc(tag::rolling_window::window_size = 10)),
         // Cannot be initialized yet, as the simulation is not up. Will be
         // overwritten in the "initialize" method.
-        classifier(0, 0){
+        classifier(0, 0) {
 }
 
 Node::~Node() {
@@ -51,8 +52,10 @@ void Node::initialize() {
     scheduleAt(simTime() + 1, generateMessage(TIC, "sensor"));
     matrix = new SignalMatrix();
     filter = new PacketFilter(run, numOfNodes + id);
-    dcs = new DendricCells(matrix, filter, this);
+    icf = new InterestCacheFilter();
+    dcs = new DendricCells(matrix, filter, icf, this);
     cache.setDcs(dcs);
+    cache.setFilter(icf);
     classifier = ContentClassifier(run, numOfNodes * 2 + id);
     packetsSentSignal = registerSignal("pktSent");
     generatedDataSignal = registerSignal("genData");
@@ -71,8 +74,8 @@ void Node::addToCache(Packet* ttmsg) {
         prevHop = ttmsg->getArrivalGate()->getIndex();
     }
     Gradient* prev = cache.addEntry(string(ttmsg->getDataType()),
-            simTime().raw(), ttmsg->getInterval(), ttmsg->getExpiresAt(),
-            prevHop);
+            simTime().raw(), ttmsg->getSource(), ttmsg->getInterval(),
+            ttmsg->getExpiresAt(), prevHop);
     EV << cache.toString() << endl;
     if (prev != NULL) {
         matrix->getEntry(ttmsg->getDataType()).setSs2();
@@ -97,7 +100,7 @@ void Node::saveToDataCache(Packet* ttmsg) {
 
 void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
     dcs->addCell(
-            PacketInfo(ttmsg->getDataType(), classification,
+            PacketInfo(ttmsg->getDataType(), classification, ttmsg->getSource(),
                     ttmsg->getMalicious()));
     EV << "MALICIOUS " << ttmsg->getMalicious() << endl;
     forwardMessage(ttmsg);
@@ -192,7 +195,7 @@ void Node::handleInterestPacket(Packet *ttmsg) {
     Class classification = classifier.classify(ttmsg);
 
     if (filter->filterPacket(
-            PacketInfo(ttmsg->getDataType(), classification,
+            PacketInfo(ttmsg->getDataType(), classification, ttmsg->getSource(),
                     ttmsg->getMalicious()))) {
         // AIS deemed this packet unsafe, so drop
         EV << "Packet " << ttmsg->getDataType() << " dropped by AIS" << endl;
