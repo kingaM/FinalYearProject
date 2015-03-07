@@ -17,7 +17,7 @@
 using namespace std;
 
 DataEntry::DataEntry(long int id, int prevHop, int msgType, string dataType,
-        int time) {
+        long time) {
     this->id = id;
     this->prevHop = prevHop;
     this->msgType = msgType;
@@ -45,6 +45,6 @@ const string& DataEntry::getDataType() const {
     return dataType;
 }
 
-int DataEntry::getTime() const {
+long DataEntry::getTime() const {
     return time;
 }

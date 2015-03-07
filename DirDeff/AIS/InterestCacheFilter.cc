@@ -14,14 +14,14 @@ void InterestCacheFilter::addPacket(PacketInfo p) {
     if (classification.count(p.source) == 0) {
         classification[p.source] = boost::circular_buffer<PacketInfo>(10);
     }
-    classification.at(p.source).push_back(p);
+    classification.at(p.source).push_back(PacketInfo(p));
 }
 
-bool InterestCacheFilter::getTrustworthiness(int source) {
+double InterestCacheFilter::getTrustworthiness(int source) {
     if (classification.count(source) == 0) {
         return 1;
     }
-    return getDropRate(classification.at(source));
+    return 1 - getDropRate(classification.at(source));
 }
 
 double InterestCacheFilter::getDropRate(

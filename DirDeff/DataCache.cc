@@ -20,7 +20,7 @@ bool DataCache::isInCache(long int id) {
 }
 
 void DataCache::add(long int id, int prevHop, int msgType, string dataType,
-        int time) {
+        long time) {
     DataEntry e = DataEntry(id, prevHop, msgType, dataType, time);
     entries.push_back(e);
 }
@@ -32,7 +32,7 @@ string DataCache::toString() {
             ++it) {
         ss << "[id: " << it->getId() << " prevHop: " << it->getPrevHop()
                 << " type: " << it->getMsgType() << " data type: "
-                << it->getDataType() << "]\n";
+                << it->getDataType() << " timestamp: " << it->getTime() << "]\n";
     }
     ss << "]";
     return ss.str();
@@ -40,20 +40,24 @@ string DataCache::toString() {
 
 set<int> DataCache::findBestNeighbour(string dataType) {
     set<int> neighbours;
-    for (vector<DataEntry>::iterator it = entries.begin(); it != entries.end();
-            ++it) {
-        if (it->getMsgType() != 1 && it->getDataType() == dataType) {
+    for (auto it = entries.begin(); it != entries.end(); ++it) {
+        if (it->getMsgType() != 1 && it->getDataType().compare(dataType) == 0) {
             neighbours.insert(it->getPrevHop());
         }
     }
     return neighbours;
 }
 
-set<pair<string, int>> DataCache::getInactive(int currTime) {
+set<pair<string, int>> DataCache::getInactive(long currTime) {
     set<pair<string, int>> inactive;
-    for (vector<DataEntry>::iterator it = entries.begin(); it != entries.end();
-            ) {
-        if (currTime - it->getTime() > 30 * 100000000000
+    set<pair<string, int>> active;
+    for (auto it = entries.begin(); it != entries.end();) {
+        if (currTime - it->getTime() <= 30 * 100000000000
+                && it->getMsgType() == 2) {
+            active.insert(
+                    pair<string, int>(it->getDataType(), it->getPrevHop()));
+            it++;
+        } else if (currTime - it->getTime() > 30 * 100000000000
                 && it->getMsgType() == 2 && it->getPrevHop() != -1) {
             inactive.insert(
                     pair<string, int>(it->getDataType(), it->getPrevHop()));
@@ -63,6 +67,20 @@ set<pair<string, int>> DataCache::getInactive(int currTime) {
         } else {
             it++;
         }
+    }
+    bool found = false;
+    for (auto it = inactive.begin(); it != inactive.end();) {
+        for (auto act = active.begin(); act != active.end(); act++) {
+            if (act->first == it->first) {
+                it = inactive.erase(it);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            it++;
+        }
+        found = false;
     }
     return inactive;
 }

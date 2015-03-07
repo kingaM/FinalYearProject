@@ -339,7 +339,9 @@ plotEverythingTime <- function() {
   p3 <- plotAllTime(recallNameFilterTime, "Recall - Filter")
   p4 <- plotAllTime(precisionNameDcTime, "Precision - DC")
   p5 <- plotAllTime(recallNameDcTime, "Recall - DC")
+  png("All Time.png", width=1375, height=876)
   grid.arrange(p1, p2, p3, p4, p5)
+  dev.off()
 }
 
 plotAverageErrorBars <- function(dirName) {
@@ -451,4 +453,5 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
   return(datac)
 }
 
-plotEverythingTime()
+# glob.vectors <<- loadVectorsAllFolders()
+# plotEverythingTime()

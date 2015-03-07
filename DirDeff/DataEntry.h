@@ -16,20 +16,20 @@
 class DataEntry {
     public:
         DataEntry(long int id, int prevHop, int msgType, std::string dataType,
-                int time);
+                long time);
         friend bool operator==(const DataEntry& a, const DataEntry& b);
         long int getId() const;
         int getPrevHop() const;
         int getMsgType() const;
         const std::string& getDataType() const;
-        int getTime() const;
+        long getTime() const;
 
     private:
         long int id;
         int prevHop;
         int msgType;
         std::string dataType;
-        int time;
+        long time;
 };
 
 #endif /* DATAENTRY_H_ */

@@ -11,8 +11,6 @@
 #include <string>
 #include <set>
 #include "Entry.h"
-#include <vector>
-#include <array>
 #include <boost/circular_buffer.hpp>
 #include <utility>
 #include "AIS/DendricCells.h"

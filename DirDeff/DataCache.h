@@ -21,7 +21,7 @@ class DataCache {
     public:
         bool isInCache(long int id);
         void add(long int id, int prevHop, int msgType, std::string dataType,
-                int time);
+                long time);
         std::string toString();
         /**
          * Finds best neighbours to forward the reinforced interest to, based on
@@ -37,7 +37,7 @@ class DataCache {
          *  long currTime)
          * @return Set of type, gate pairs that are inactive.
          */
-        std::set<std::pair<std::string, int>> getInactive(int currTime);
+        std::set<std::pair<std::string, int>> getInactive(long currTime);
     private:
         std::vector<DataEntry> entries;
 };

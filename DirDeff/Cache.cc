@@ -73,7 +73,6 @@ vector<int> Cache::getPaths(string type, long currTime) {
     }
     vector<int> paths = entry->getPaths(currTime);
     if (paths.empty()) {
-        DEBUG_MSG("Deleting entry");
         Maturity m = dcs->mature(entry->getType());
         DEBUG_MSG(
                 "D MATURITY: " << DendricCell::maturity(m) << " type " <<
