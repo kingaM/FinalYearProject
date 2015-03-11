@@ -26,7 +26,7 @@ class NetworkGenerator:
         self.sinks = []
         self.sources = []
         self.graph = None
-        self.percentage = 0.2
+        self.percentage = 0.08
         self.generateNetwork()
         self.generateSinks(1)
         self.generateSources(1)
@@ -292,7 +292,7 @@ network = {0}
         net.writeDegreesToCsv("degrees.csv")
         file.write(p)
         file.close()
-        ini.write(iniTemplate.format(network, 
+        ini.write(iniTemplate.format(network,
                                      nodes + nx.number_of_edges(net.graph),
                                      i))
     ini.close()

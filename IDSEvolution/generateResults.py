@@ -8,6 +8,28 @@ import fnmatch
 home = "/home/kinga/Documents/GitHub/"
 
 
+def populateAttacker(network):
+    os.chdir(home + "FinalYearProject/GP")
+    results = open('resultsSummary.txt')
+    data = json.load(results)['results']
+    for result in data:
+        if result['name'] == networks:
+            gpCode = result["code"]
+    results.close()
+    tmpl = open('evilNode.tmpl')
+    d = {'gp': gpCode}
+    path = "../DirDeff/"
+    try:
+        os.remove(path + 'EvilNode.cc')
+    except OSError:
+        pass
+    evil = open(path + 'EvilNode.cc', 'a')
+    src = Template(tmpl.read())
+    evil.write(src.substitute(d))
+    tmpl.close()
+    evil.close()
+
+
 def runOmnetpp(x):
     os.chdir(home + "FinalYearProject/IDSEvolution")
     tmpl = open('dc.tmpl')
@@ -22,10 +44,11 @@ def runOmnetpp(x):
     evil.write(t)
     tmpl.close()
     evil.close()
+    populateAttacker("results_16")
     os.chdir(home + "FinalYearProject/DirDeff")
-    subprocess.check_output("make")
+    print subprocess.check_output("make")
     processes = []
-    for i in xrange(2, 4):
+    for i in xrange(start, end):
         p = Process(target=run, args=(i, ))
         processes.append(p)
         p.start()
@@ -76,10 +99,9 @@ def getAllResults(networks=None):
     results.close()
 
 if __name__ == "__main__":
-    # networks = ["results_orig", "results_data_14", "results_data_15",
-    #             "results_16", "results_scalefree_21"]
-    networks = ["results_orig_w", "results_ids_1"]
-    network = "Random"
+    # networks = ["results_orig_w", "results_ids_1"]
+    networks = None
+    network = "ScaleFree"
     if network == "Random":
         networkDir = "RandomNetworks"
         start = 2
@@ -88,7 +110,7 @@ if __name__ == "__main__":
     elif network == "ScaleFree":
         networkDir = "ScaleFreeNetworks"
         start = 0
-        end = 10
+        end = 50
         run = runOmnetExeScaleFree
     else:
         Exception("Undefined network type")

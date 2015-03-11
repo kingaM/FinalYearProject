@@ -26,7 +26,7 @@ def runOmnetpp(gpCode):
     subprocess.check_output("make")
     processes = []
     for i in xrange(start, end):
-        p = Process(target=runOmnetExeScaleFree, args=(i, ))
+        p = Process(target=run, args=(i, ))
         processes.append(p)
         p.start()
     for p in processes:
@@ -34,7 +34,7 @@ def runOmnetpp(gpCode):
 
 
 def runOmnetExeRandom(i):
-    for j in xrange(0, 3):
+    for j in xrange(0, 5):
         subprocess.check_output(("./out/gcc-debug/DirDeff" +
                                  " -u Cmdenv -f ../RandomNetworks/random.ini" +
                                  " -c RandomNetwork" + str(i) + "_" + str(j) +
@@ -42,11 +42,10 @@ def runOmnetExeRandom(i):
 
 
 def runOmnetExeScaleFree(i):
-    for j in xrange(0, 3):
-        subprocess.check_output(("./out/gcc-debug/DirDeff -u Cmdenv" +
-                                 " -f ../RandomNetworks/scalefree.ini" +
-                                 " -c RandomNetwork" + str(i) + "_" + str(j) +
-                                 " -n ../RandomNetworks/").split())
+    subprocess.check_output(("./out/gcc-debug/DirDeff -u Cmdenv" +
+                             " -f ../ScaleFreeNetworks/scalefree.ini" +
+                             " -c ScaleFreeNetwork" + str(i) +
+                             " -n ../ScaleFreeNetworks/").split())
 
 
 def getResults(gpResult):
@@ -78,17 +77,17 @@ def getAllResults(networks=None):
 
 if __name__ == "__main__":
     networks = ["results_orig", "results_data_14", "results_data_15",
-                "results_16", "results_17", "results_data_18"]
-    network = "ScaleFree"
+                "results_16", "results_scalefree_21"]
+    network = "Random"
     if network == "Random":
         networkDir = "RandomNetworks"
         start = 2
-        end = 7
+        end = 8
         run = runOmnetExeRandom
     elif network == "ScaleFree":
         networkDir = "ScaleFreeNetworks"
         start = 0
-        end = 10
+        end = 50
         run = runOmnetExeScaleFree
     else:
         Exception("Undefined network type")
