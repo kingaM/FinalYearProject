@@ -21,7 +21,7 @@ double InterestCacheFilter::getTrustworthiness(int source) {
     if (classification.count(source) == 0) {
         return 1;
     }
-    return 1 - getDropRate(classification.at(source));
+    return 1.0 - getDropRate(classification.at(source));
 }
 
 double InterestCacheFilter::getDropRate(
@@ -32,5 +32,5 @@ double InterestCacheFilter::getDropRate(
             count++;
         }
     }
-    return (double) count / (double) 10;
+    return (double) count / (double) list.size();
 }

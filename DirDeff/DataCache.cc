@@ -71,7 +71,8 @@ set<pair<string, int>> DataCache::getInactive(long currTime) {
     bool found = false;
     for (auto it = inactive.begin(); it != inactive.end();) {
         for (auto act = active.begin(); act != active.end(); act++) {
-            if (act->first == it->first) {
+            if (act->first.compare(it->first) == 0
+                    && act->second == it->second) {
                 it = inactive.erase(it);
                 found = true;
                 break;

@@ -26,6 +26,11 @@ int RandomNumberGenerator::getNumber(int start, int end) {
     return distribution(generator);
 }
 
+double RandomNumberGenerator::getDouble(double start, double end) {
+    uniform_real_distribution<double> distribution(start, end);
+    return distribution(generator);
+}
+
 bool RandomNumberGenerator::boolWithProbability(double p) {
     std::bernoulli_distribution distribution(p);
     return distribution(generator);

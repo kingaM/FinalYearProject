@@ -9,7 +9,9 @@
 #define MULTILEVELFEEDBACKQUEUE_H_
 
 #include "packet_m.h"
-#include <queue>
+#include "AIS/InterestCacheFilter.h"
+#include "RandomNumberGenerator.h"
+#include <boost/circular_buffer.hpp>
 
 /**
  * Enum representing the priority in the queue.
@@ -26,15 +28,22 @@ enum class Priority {
  */
 class MultiLevelFeedbackQueue {
     public:
+        MultiLevelFeedbackQueue();
+        MultiLevelFeedbackQueue(int row, int column);
         void insert(Packet *packet, Priority priority);
+        void setInterestCacheFilter(InterestCacheFilter* icf);
         Packet* get();
         bool empty();
     private:
         int lastSwitch = 0;
-        std::queue<Packet*> high;
-        std::queue<Packet*> low;
+        boost::circular_buffer<Packet*> high;
+        boost::circular_buffer<Packet*> low;
+        InterestCacheFilter *icf = NULL;
         int const switchLength = 10;
+        RandomNumberGenerator generator;
 
+        void addEntry(Packet* packet, boost::circular_buffer<Packet *>& buffer);
+        Packet* getEntry(boost::circular_buffer<Packet *>& buffer);
 };
 
 #endif /* MULTILEVELFEEDBACKQUEUE_H_ */

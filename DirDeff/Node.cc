@@ -94,7 +94,7 @@ void Node::saveToDataCache(Packet* ttmsg) {
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
     // TODO: reinforced path?
-
+    EV << dataCache.toString() << endl;
     matrix->getEntry(ttmsg->getDataType()).setSs1();
 }
 
@@ -110,7 +110,10 @@ void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
 
 void Node::saveToBuffer(Packet* ttmsg) {
     if (buffer.count(ttmsg->getDataType()) == 0) {
-        buffer[ttmsg->getDataType()];
+        buffer.insert(
+                make_pair(ttmsg->getDataType(),
+                        MultiLevelFeedbackQueue(run, numOfNodes * 3 + id)));
+        buffer[ttmsg->getDataType()].setInterestCacheFilter(icf);
     }
     if (ttmsg->isSelfMessage()) {
         buffer.at(ttmsg->getDataType()).insert(ttmsg->dup(), Priority::HIGH);
@@ -132,10 +135,6 @@ void Node::forwardDataPacket(Packet* ttmsg) {
         EV << paths.size() << endl;
         for (auto it = paths.begin(); it != paths.end(); ++it) {
             if (*it == -1) {
-                if (!ttmsg->getMalicious()) {
-                    emit(receievedPacketsSignal, 1);
-                }
-                EV << "at the sink... YAAY!!";
                 // TODO: find a better way to do this, if not, add types
                 if (first) {
                     scheduleAt(simTime() + 1,
@@ -152,10 +151,26 @@ void Node::forwardDataPacket(Packet* ttmsg) {
     }
 }
 
+void Node::sinkDataPackets(Packet* ttmsg) {
+    EV << cache.toString() << endl;
+    vector<int> paths = cache.getPaths(ttmsg->getDataType(), simTime().raw());
+    if (paths.empty()) {
+        return;
+    }
+    EV << paths.size() << endl;
+    for (auto it = paths.begin(); it != paths.end(); ++it) {
+        if (*it == -1) {
+            if (!ttmsg->getMalicious()) {
+                emit(receievedPacketsSignal, 1);
+            }
+        }
+    }
+}
+
 void Node::generateNewInterval(string dataType, int interval) {
     Packet* msg = NULL;
     if (dataCache.findBestNeighbour(dataType).size()
-            > 0&& interval != EXPLORATORY_INT) {
+            > 0 && interval != EXPLORATORY_INT) {
         double psConc = 0;
         if (numExp.count(dataType)) {
             matrix->getEntry(dataType).setPs(numRcvd[dataType],
@@ -239,11 +254,12 @@ void Node::handleMessage(cMessage *msg) {
             handleInterestPacket(ttmsg);
             break;
         case DATA:
-            EV << "Sending data..." << endl;
+            EV << "Sending data MAL " << ttmsg->getMalicious() << endl;
             deleteDataCacheEntries();
             saveToDataCache(ttmsg);
             numRcvd[ttmsg->getDataType()]++;
             saveToBuffer(ttmsg);
+            sinkDataPackets(ttmsg);
             break;
         case INTERVAL:
             generateNewInterval(ttmsg->getDataType(), INT);

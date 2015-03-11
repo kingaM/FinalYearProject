@@ -38,6 +38,7 @@ class Node : public NodeBase {
         void deleteDataCacheEntries();
         void saveToBuffer(Packet* ttmsg);
         void handleInterestPacket(Packet *ttmsg);
+        void sinkDataPackets(Packet* ttmsg);
 
         Cache cache;
         DataCache dataCache;

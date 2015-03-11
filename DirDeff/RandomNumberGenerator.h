@@ -26,10 +26,15 @@ class RandomNumberGenerator {
          */
         RandomNumberGenerator(std::string filename, int row, int column);
         /**
-         * Returns a random number within the specified range. Numbers generated
+         * Returns a random integer within the specified range. Numbers generated
          * follow uniform distribution.
          */
         int getNumber(int start, int end);
+        /**
+         * Returns a random double within the specified range. Numbers generated
+         * follow uniform distribution.
+         */
+        double getDouble(double start, double end);
         /**
          * Returns true/false with the specified probability. The values are
          * generated using bernoulli distribution.
