@@ -25,7 +25,7 @@ class InterestCacheFilter {
         /**
          * Filters packet based on how many packets of this class were
          * classified as dangerous.
-         * @return A value between 0 and 1 indicating how trustworhty the packet
+         * @return A value between 0 and 1 indicating how trustworthy the packet
          *  is. The higher the number the more trustworthy it is.
          */
         double getTrustworthiness(int source);

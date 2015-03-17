@@ -6,6 +6,8 @@
  */
 
 #include <boost/circular_buffer.hpp>
+#include <sstream>
+#include <string>
 #include "MultiLevelFeedbackQueue.h"
 #include "packet_m.h"
 #include "debug.h"
@@ -90,4 +92,19 @@ Packet* MultiLevelFeedbackQueue::getEntry(
     Packet* entry = *pos;
     buffer.erase(pos);
     return entry;
+}
+
+string MultiLevelFeedbackQueue::toString() {
+    stringstream ss;
+    ss << "HIGH [ " << toString(high) << "]\n";
+    ss << "LOW [" << toString(low) << "]\n";
+    return ss.str();
+}
+
+string MultiLevelFeedbackQueue::toString(boost::circular_buffer<Packet*>& buffer) {
+    stringstream ss;
+    for (Packet* p : buffer) {
+        ss << "ID: " << p->getMsgId() << " SOURCE: " << p->getSource() << ", ";
+    }
+    return ss.str();
 }

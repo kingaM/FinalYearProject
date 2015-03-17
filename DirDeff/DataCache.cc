@@ -52,17 +52,17 @@ set<pair<string, int>> DataCache::getInactive(long currTime) {
     set<pair<string, int>> inactive;
     set<pair<string, int>> active;
     for (auto it = entries.begin(); it != entries.end();) {
-        if (currTime - it->getTime() <= 30 * 100000000000
+        if ((currTime - it->getTime()) <= (30 * 1000000000000)
                 && it->getMsgType() == 2) {
             active.insert(
                     pair<string, int>(it->getDataType(), it->getPrevHop()));
             it++;
-        } else if (currTime - it->getTime() > 30 * 100000000000
+        } else if ((currTime - it->getTime()) > (30 * 1000000000000)
                 && it->getMsgType() == 2 && it->getPrevHop() != -1) {
             inactive.insert(
                     pair<string, int>(it->getDataType(), it->getPrevHop()));
             it = entries.erase(it);
-        } else if (currTime - it->getTime() > 30 * 100000000000) {
+        } else if ((currTime - it->getTime()) > (30 * 100000000000)) {
             it = entries.erase(it);
         } else {
             it++;

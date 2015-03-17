@@ -44,5 +44,5 @@ double PacketFilter::getDropRate(boost::circular_buffer<PacketInfo> list) {
             count++;
         }
     }
-    return (double) count / (double) list.size();
+    return (double) count / (double) 10;
 }

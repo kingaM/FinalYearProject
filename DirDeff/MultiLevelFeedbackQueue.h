@@ -34,6 +34,7 @@ class MultiLevelFeedbackQueue {
         void setInterestCacheFilter(InterestCacheFilter* icf);
         Packet* get();
         bool empty();
+        std::string toString();
     private:
         int lastSwitch = 0;
         boost::circular_buffer<Packet*> high;
@@ -44,6 +45,7 @@ class MultiLevelFeedbackQueue {
 
         void addEntry(Packet* packet, boost::circular_buffer<Packet *>& buffer);
         Packet* getEntry(boost::circular_buffer<Packet *>& buffer);
+        std::string toString(boost::circular_buffer<Packet*>& buffer);
 };
 
 #endif /* MULTILEVELFEEDBACKQUEUE_H_ */
