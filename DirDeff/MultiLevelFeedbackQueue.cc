@@ -17,8 +17,8 @@ using namespace std;
 using namespace boost;
 
 MultiLevelFeedbackQueue::MultiLevelFeedbackQueue() {
-    high.set_capacity(30);
-    low.set_capacity(30);
+    high.set_capacity(10);
+    low.set_capacity(10);
     generator = RandomNumberGenerator("seeds.csv", 0, 0);
 }
 
@@ -81,7 +81,7 @@ Packet* MultiLevelFeedbackQueue::getEntry(
     for (auto it = buffer.begin(); it != buffer.end(); it++) {
         sum += icf->getTrustworthiness((*it)->getSource());
     }
-    int choice = generator.getDouble(0, sum);
+    double choice = generator.getDouble(0, sum);
     for (auto it = buffer.begin(); it != buffer.end(); it++) {
         if (choice < icf->getTrustworthiness((*it)->getSource())) {
             pos = it;
@@ -104,7 +104,8 @@ string MultiLevelFeedbackQueue::toString() {
 string MultiLevelFeedbackQueue::toString(boost::circular_buffer<Packet*>& buffer) {
     stringstream ss;
     for (Packet* p : buffer) {
-        ss << "ID: " << p->getMsgId() << " SOURCE: " << p->getSource() << ", ";
+        ss << "ID: " << p->getMsgId() << " SOURCE: " << p->getSource() <<
+                "TRUST: " << icf->getTrustworthiness(p->getSource()) << ", ";
     }
     return ss.str();
 }

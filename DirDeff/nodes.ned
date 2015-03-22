@@ -12,9 +12,12 @@ simple Node
         @statistic[truePositiveFilter](source=tpf; record=count,vector);
         @statistic[totalMalicious](source=totalm; record=count,vector);
         @statistic[totalBenign](source=totalb; record=count,vector);
+        @statistic[packetsSent](source=pktSent; record=count,vector);
         int id = default(-1);
         int numOfNodes = default(1);
         int run = default(0);
+        bool interestCacheFilter = default(true);
+        bool dataFilter = default(true);
     gates:
         inout gate[];
 }
@@ -34,7 +37,6 @@ simple SourceNode extends Node
 {
     parameters:
         @display("i=block/source,grey75");
-        @statistic[packetsSent](source=pktSent; record=count,vector);
         @statistic[dataGenerated](source=genData; record=count,vector);
         @class(SourceNode);
 }

@@ -37,8 +37,8 @@ Node::~Node() {
 }
 
 void Node::generateSensor() {
+    EV << "Generated data message " << endl;
     emit(generatedDataSignal, 1);
-    EV << "GENERATE DATA" << endl;
     Packet* msg = generateMessage(SENSOR, "sensor");
     int r = generator.getNumber(2, 5);
     scheduleAt(simTime() + r, msg);
@@ -46,6 +46,8 @@ void Node::generateSensor() {
 
 void Node::initialize() {
     setParameters();
+    bool icfEnabled = par("interestCacheFilter");
+    dataFilteringEnabled = par("dataFilter");
     generator = RandomNumberGenerator("seeds.csv", run, id);
     lastSent = simTime() - 20;
     acc = SumAcc(tag::rolling_window::window_size = 10);
@@ -55,7 +57,9 @@ void Node::initialize() {
     icf = new InterestCacheFilter();
     dcs = new DendricCells(matrix, filter, icf, this);
     cache.setDcs(dcs);
-    cache.setFilter(icf);
+    if (icfEnabled) {
+        cache.setFilter(icf);
+    }
     classifier = ContentClassifier(run, numOfNodes * 2 + id);
     packetsSentSignal = registerSignal("pktSent");
     generatedDataSignal = registerSignal("genData");
@@ -76,7 +80,6 @@ void Node::addToCache(Packet* ttmsg) {
     Gradient* prev = cache.addEntry(string(ttmsg->getDataType()),
             simTime().raw(), ttmsg->getSource(), ttmsg->getInterval(),
             ttmsg->getExpiresAt(), prevHop);
-    EV << cache.toString() << endl;
     if (prev != NULL) {
         matrix->getEntry(ttmsg->getDataType()).setSs2();
         numOfUpdates++;
@@ -94,7 +97,6 @@ void Node::saveToDataCache(Packet* ttmsg) {
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
     // TODO: reinforced path?
-    EV << dataCache.toString() << endl;
     matrix->getEntry(ttmsg->getDataType()).setSs1();
 }
 
@@ -102,7 +104,6 @@ void Node::forwardInterestPacket(Packet* ttmsg, Class classification) {
     dcs->addCell(
             PacketInfo(ttmsg->getDataType(), classification, ttmsg->getSource(),
                     ttmsg->getMalicious()));
-    EV << "MALICIOUS " << ttmsg->getMalicious() << endl;
     forwardMessage(ttmsg);
     addToCache(ttmsg);
     saveToDataCache(ttmsg);
@@ -113,7 +114,9 @@ void Node::saveToBuffer(Packet* ttmsg) {
         buffer.insert(
                 make_pair(ttmsg->getDataType(),
                         MultiLevelFeedbackQueue(run, numOfNodes * 3 + id)));
-        buffer[ttmsg->getDataType()].setInterestCacheFilter(icf);
+        if (dataFilteringEnabled) {
+            buffer[ttmsg->getDataType()].setInterestCacheFilter(icf);
+        }
     }
     if (ttmsg->isSelfMessage()) {
         buffer.at(ttmsg->getDataType()).insert(ttmsg->dup(), Priority::HIGH);
@@ -123,7 +126,7 @@ void Node::saveToBuffer(Packet* ttmsg) {
 }
 
 void Node::forwardDataPacket(Packet* ttmsg) {
-    EV << cache.toString() << endl;
+    EV << "Forward data packet interest cache: " << cache.toString() << endl;
     if (lastSent + cache.getMinInterval(ttmsg->getDataType()) < simTime()) {
         vector<int> paths = cache.getPaths(ttmsg->getDataType(),
                 simTime().raw());
@@ -135,6 +138,10 @@ void Node::forwardDataPacket(Packet* ttmsg) {
         EV << paths.size() << endl;
         for (auto it = paths.begin(); it != paths.end(); ++it) {
             if (*it == -1) {
+                if (!ttmsg->getMalicious()) {
+                    emit(receievedPacketsSignal, 1);
+                }
+                EV << "at the sink... YAAY!!" << endl;
                 // TODO: find a better way to do this, if not, add types
                 if (first) {
                     scheduleAt(simTime() + 1,
@@ -146,22 +153,6 @@ void Node::forwardDataPacket(Packet* ttmsg) {
                 send(dup, "gate$o", *it);
                 EV << "Forwarding message " << ttmsg << " on gate[" << *it
                         << "]\n";
-            }
-        }
-    }
-}
-
-void Node::sinkDataPackets(Packet* ttmsg) {
-    EV << cache.toString() << endl;
-    vector<int> paths = cache.getPaths(ttmsg->getDataType(), simTime().raw());
-    if (paths.empty()) {
-        return;
-    }
-    EV << paths.size() << endl;
-    for (auto it = paths.begin(); it != paths.end(); ++it) {
-        if (*it == -1) {
-            if (!ttmsg->getMalicious()) {
-                emit(receievedPacketsSignal, 1);
             }
         }
     }
@@ -194,9 +185,11 @@ void Node::generateNewInterval(string dataType, int interval) {
 
 void Node::deleteDataCacheEntries() {
     set<pair<string, int>> inactive = dataCache.getInactive(simTime().raw());
+    EV << "Deleting " << inactive.size() << endl;
     cache.setInactive(inactive, simTime().raw());
     for (pair<string, int> p : inactive) {
         Packet *msg = generateMessage(EXPLORATORY_INT, INTEREST, p.first, -1);
+        saveToDataCache(msg);
         send(msg, "gate$o", p.second);
     }
 }
@@ -259,7 +252,6 @@ void Node::handleMessage(cMessage *msg) {
             saveToDataCache(ttmsg);
             numRcvd[ttmsg->getDataType()]++;
             saveToBuffer(ttmsg);
-            sinkDataPackets(ttmsg);
             break;
         case INTERVAL:
             generateNewInterval(ttmsg->getDataType(), INT);
@@ -273,7 +265,9 @@ void Node::handleMessage(cMessage *msg) {
             matrix->addGlobalSs3Ds1(rolling_sum(acc));
             dcs->cycle();
             if (buffer.count(ttmsg->getDataType()) > 0
-                    && !buffer.at(ttmsg->getDataType()).empty()) {
+                    && !buffer.at(ttmsg->getDataType()).empty()
+                    && lastSent + cache.getMinInterval(ttmsg->getDataType())
+                            < simTime()) {
                 Packet *dataMsg = buffer.at(ttmsg->getDataType()).get();
                 forwardDataPacket(dataMsg);
                 delete dataMsg;

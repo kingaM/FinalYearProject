@@ -55,7 +55,7 @@ class Cache {
     private:
         boost::circular_buffer<Entry> entries;
         DendricCells* dcs;
-        InterestCacheFilter* filter;
+        InterestCacheFilter* filter = NULL;
 
         boost::circular_buffer<Entry>::iterator getLeastTrustworthy();
 };

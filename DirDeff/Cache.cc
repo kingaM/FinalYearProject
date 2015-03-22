@@ -49,14 +49,14 @@ Gradient* Cache::addEntry(string type, long timestamp, int source, int dataRate,
     } else if (entry != entries.end()) {
         return NULL;
     } else {
-        if (entries.full()) {
-            Maturity m = dcs->mature(type);
-            DEBUG_MSG(
-                    "MATURITY: " << DendricCell::maturity(m) << " type " <<
-                    type);
+        if (filter != NULL && entries.full()) {
             boost::circular_buffer<Entry>::iterator pos = getLeastTrustworthy();
             entries.erase(pos);
         }
+        Maturity m = dcs->mature(type);
+        DEBUG_MSG(
+                "MATURITY: " << DendricCell::maturity(m) << " type " <<
+                type);
         e.addGradient(dataRate, expiresAt, neighbour, timestamp);
         entries.push_back(e);
         return NULL;

@@ -38,7 +38,6 @@ class Node : public NodeBase {
         void deleteDataCacheEntries();
         void saveToBuffer(Packet* ttmsg);
         void handleInterestPacket(Packet *ttmsg);
-        void sinkDataPackets(Packet* ttmsg);
 
         Cache cache;
         DataCache dataCache;
@@ -64,4 +63,5 @@ class Node : public NodeBase {
         simsignal_t totalMalSignal;
         simsignal_t totalBenSignal;
         bool first = true;
+        bool dataFilteringEnabled = false;
 };

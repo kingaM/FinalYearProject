@@ -20,16 +20,23 @@ network = {0}
 **.numOfNodes = {1}
 **.run = {2}
 """
+iniGeneral = """
+[General]
+sim-time-limit = 1000s
+record-eventlog = false
+**.interestCacheFilter = true
+**.dataFilter = true
+"""
 path = "../RandomNetworks/"
 try:
     os.remove(path + 'random.ini')
 except OSError:
     pass
 ini = open(path + 'random.ini', 'a')
-ini.write('[General]\nsim-time-limit = 1000s\nrecord-eventlog = false\n')
+ini.write(iniGeneral)
 seeds = readCsv()
 for i in range(2, 8):
-    for j in range(0, 5):
+    for j in range(0, 50):
         network = "RandomNetwork" + str(i) + "_" + str(j)
         nodes = 2**i
         seed = seeds[(8 * j + i - 2)][0]
@@ -47,5 +54,5 @@ for i in range(2, 8):
         file.write(p[0])
         file.close()
         ini.write(iniTemplate.format(network, nodes + int(p[1]),
-                  (8 * j + i - 2)))
+                  j))
 ini.close()
