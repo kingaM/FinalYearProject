@@ -134,7 +134,6 @@ rcvPktsName <- function(name) {
 }
 
 changeListToDf <- function(name, list, files) {
-  show(list)
   df <- data.frame(y = unlist(list),
                    grp = rep(files[1:length(list)],
                              times = sapply(list,length)))
@@ -174,7 +173,6 @@ precisionName <- function(name, FUN) {
   files = list.files(pattern = paste(networkName, "vec", sep="."))
   all <- lapply(files, FUN)
   tmp = lapply(all, FUN = function(x) { sum(as.numeric(x$precision))/nrow(x) })
-  show(all)
   return(changeListToDf(name, tmp, files))
 }
 
@@ -183,7 +181,6 @@ precisionNameAll <- function(name, FUN) {
   currFolder <<- name
   files = list.files(pattern = paste(networkName, "vec", sep="."))
   all <- lapply(files, FUN)
-  show(all)
   return(changeListToDf2(name, all, files, "precision"))
 }
 
@@ -192,7 +189,6 @@ recallNameAll <- function(name, FUN) {
   currFolder <<- name
   files = list.files(pattern = paste(networkName, "vec", sep="."))
   all <- lapply(files, FUN)
-  show(all)
   return(changeListToDf2(name, all, files, "recall"))
 }
 
@@ -335,6 +331,45 @@ plotEverythingTime <- function() {
   dev.off()
 }
 
+plotAverageErrorBars <- function(dirName) {
+  library(reshape)
+  library(ggplot2)
+  setwd(paste(directory, dirName, sep=""))
+  currFolder <<- dirName
+  files = list.files(pattern = paste(networkName, "vec", sep="."))
+  show(files)
+  prec <- precisionName(dirName, filter)[[1]]
+  prec$Index <- ave( 1:nrow(prec), factor( prec$net), FUN=function(x) (1:length(x))+1 )
+  show(prec)
+  rec <- recallName(dirName, filter)[[1]]
+  show(rec)
+  rec$Index <- ave( 1:nrow(rec), factor( rec$net), FUN=function(x) (1:length(x))+1 )
+  rcvd <- rcvPktsName(dirName)[[1]]
+  show(rcvd)
+  rcvd$Index <- ave( 1:nrow(rcvd), factor( rcvd$net), FUN=function(x) (1:length(x))+1 )
+  pd <- position_dodge(.1)
+  ggplot() + 
+    geom_line(data=prec, aes(x=Index, y=y, color="Precision"), position = pd) +
+    geom_point(data=prec, aes(x=Index, y=y, color="Precision"), position = pd) +
+    geom_errorbar(data=prec, 
+                  mapping=aes(ymin=y-se, ymax=y+se, x=Index, y=y, color="Precision"), 
+                  width=0.2, position = pd) +
+    geom_line(data=rec, aes(x=Index+0.1, y=y+0.01, color="Recall"), position = pd) +
+    geom_point(data=rec, aes(x=Index+0.1, y=y+0.01, color="Recall"), position = pd) +
+    geom_errorbar(data=rec, 
+                  mapping=aes(ymin=y-se+0.01, ymax=y+se+0.01, x=Index+0.1, y=y+0.01, color="Recall"), 
+                  width=0.2, position = pd) +
+    geom_line(data=rcvd, aes(x=Index, y=y, color="Packets Received"), position = pd) +
+    geom_point(data=rcvd, aes(x=Index, y=y, color="Packets Received"),position = pd) +
+    geom_errorbar(data=rcvd, 
+                  mapping=aes(ymin=y-se, ymax=y+se, x=Index, y=y, color="Packets Received"), 
+                  width=0.2, position = pd) +
+    theme(legend.title=element_blank()) +
+    ylab("") + xlab("Number of Nodes (2^x)") +
+    ylim(0,1)
+  ggsave(paste(dirName, "_plot.png", sep=""), width = 6, height=3)
+}
+
 # Taken from: http://www.cookbook-r.com/Manipulating_data/Summarizing_data/
 summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
                       conf.interval=.95, .drop=TRUE) {
@@ -375,7 +410,4 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 load("./RandomNetworks/results_scalefree_21/vectors.csv")
 glob.vectors <<- list
 plotEverything()
-#plotEverythingTime()
-
-                  
-
+plotEverythingTime()

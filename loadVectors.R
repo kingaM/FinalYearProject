@@ -1,3 +1,8 @@
+require(omnetpp)
+
+directory <- "~/FinalYearProject/RandomNetworks/"
+networkName <- "RandomNetwork.*-0"
+
 loadVectorsAllFolders <- function() {
   setwd(directory)
   files = list.files(pattern="results_.*")
