@@ -45,7 +45,7 @@ simple SinkNode extends Node
 {
     parameters:
         @display("i=block/sink,grey90");
-        @statistic[recievedPackets](source=rcvdPkt; record=count,vector);
+        @statistic[receivedPackets](source=rcvdPkt; record=count,vector);
         @class(SinkNode);
 }
 

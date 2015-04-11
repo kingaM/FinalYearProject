@@ -35,12 +35,10 @@ def getAllScaFiles():
     return files
 
 
-"""
-@param type - "" for DC and "Filter" for packet filter
-"""
-
-
 def getValuesFromSca(f, type):
+    """
+    @param type - "" for DC and "Filter" for packet filter
+    """
     tpf = 0
     tnf = 0
     fpf = 0
@@ -56,7 +54,7 @@ def getValuesFromSca(f, type):
             fpf += getNumFromLineInSca(line)
         elif "falseNegative" + type + ":count" in line:
             fnf += getNumFromLineInSca(line)
-        elif "recievedPackets:count" in line:
+        elif "receivedPackets:count" in line:
             rec += getNumFromLineInSca(line)
         elif "dataGenerated:count" in line:
             gen += getNumFromLineInSca(line)

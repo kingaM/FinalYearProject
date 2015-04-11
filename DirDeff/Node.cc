@@ -63,7 +63,7 @@ void Node::initialize() {
     classifier = ContentClassifier(run, numOfNodes * 2 + id);
     packetsSentSignal = registerSignal("pktSent");
     generatedDataSignal = registerSignal("genData");
-    receievedPacketsSignal = registerSignal("rcvdPkt");
+    receivedPacketsSignal = registerSignal("rcvdPkt");
     fnfSignal = registerSignal("fnf");
     fpfSignal = registerSignal("fpf");
     tpfSignal = registerSignal("tpf");
@@ -96,7 +96,6 @@ void Node::saveToDataCache(Packet* ttmsg) {
     }
     dataCache.add(ttmsg->getMsgId(), prevHop, ttmsg->getType(),
             ttmsg->getDataType(), simTime().raw());
-    // TODO: reinforced path?
     matrix->getEntry(ttmsg->getDataType()).setSs1();
 }
 
@@ -139,10 +138,10 @@ void Node::forwardDataPacket(Packet* ttmsg) {
         for (auto it = paths.begin(); it != paths.end(); ++it) {
             if (*it == -1) {
                 if (!ttmsg->getMalicious()) {
-                    emit(receievedPacketsSignal, 1);
+                    emit(receivedPacketsSignal, 1);
                 }
                 EV << "at the sink... YAAY!!" << endl;
-                // TODO: find a better way to do this, if not, add types
+                // TODO: Add types
                 if (first) {
                     scheduleAt(simTime() + 1,
                             generateMessage(INTERVAL, ttmsg->getDataType()));
@@ -175,7 +174,6 @@ void Node::generateNewInterval(string dataType, int interval) {
         scheduleAt(simTime() + 10, generateMessage(INTERVAL, dataType));
     } else {
         EV << "Sending exploratory packet" << endl;
-        // TODO: PS conc?
         msg = generateMessage(EXPLORATORY_INT, INTEREST, dataType, 0);
         forwardInterestPacket(msg, classifier.classify(msg));
         scheduleAt(simTime() + 20, generateMessage(EXP_INT, dataType));
@@ -185,7 +183,6 @@ void Node::generateNewInterval(string dataType, int interval) {
 
 void Node::deleteDataCacheEntries() {
     set<pair<string, int>> inactive = dataCache.getInactive(simTime().raw());
-    EV << "Deleting " << inactive.size() << endl;
     cache.setInactive(inactive, simTime().raw());
     for (pair<string, int> p : inactive) {
         Packet *msg = generateMessage(EXPLORATORY_INT, INTEREST, p.first, -1);
@@ -219,7 +216,12 @@ void Node::handleInterestPacket(Packet *ttmsg) {
         } else if (!ttmsg->getMalicious()) {
             emit(tnfSignal, 1);
         }
-        forwardInterestPacket(ttmsg, classification);
+        dcs->addCell(
+                PacketInfo(ttmsg->getDataType(), classification, ttmsg->getSource(),
+                        ttmsg->getMalicious()));
+        forwardMessage(ttmsg);
+        addToCache(ttmsg);
+        saveToDataCache(ttmsg);
         if (ttmsg->getPsConc() > 0) {
             matrix->getEntry(ttmsg->getDataType()).setPs(ttmsg->getPsConc());
         }
@@ -247,7 +249,6 @@ void Node::handleMessage(cMessage *msg) {
             handleInterestPacket(ttmsg);
             break;
         case DATA:
-            EV << "Sending data MAL " << ttmsg->getMalicious() << endl;
             deleteDataCacheEntries();
             saveToDataCache(ttmsg);
             numRcvd[ttmsg->getDataType()]++;

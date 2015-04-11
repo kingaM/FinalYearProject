@@ -17,7 +17,7 @@ loadVector <- function(name) {
 getPkts <- function(name) {
   sca <- loadDataset(name)
   gen <- subset(sca$scalars, name %in% c('dataGenerated:count'))$value
-  rcvd <- subset(sca$scalars, name %in% c('recievedPackets:count'))$value
+  rcvd <- subset(sca$scalars, name %in% c('receivedPackets:count'))$value
   return(rcvd/gen)
 }
 
@@ -86,7 +86,7 @@ filterClassification <- function(name) {
 }
 
 rcvdPktVec <- function(name) {
-  rcv = all(name, "recievedPackets:vector")[,c("Group.1", "y")]
+  rcv = all(name, "receivedPackets:vector")[,c("Group.1", "y")]
   rcv = rename(rcv, c("y"="rcv"))
   gen = all(name, "dataGenerated:vector")[,c("Group.1", "y")]
   gen = rename(gen, c("y"="gen"))
