@@ -1,7 +1,7 @@
 {
    "results":[
        {
-         "name":"results_orig",
+         "name":"results_Original",
          "description":"Manual",
          "code":"broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(0))))"
       },
@@ -79,6 +79,26 @@
          "name":"results_scalefree_21",
          "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25,  Population Size: 60, Sample: ScaleFree 0, 1, 2, 3\nFitness Function: rcvd",
          "code":"broadcastInterest(wait(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(broadcastInterest(0))))))))))))))"
+      }, 
+      {
+         "name":"results_Suppressive",
+         "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: Random 2-6\nFitness Function: rcvd",
+         "code":"wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(wait(wait(0)))))))))))))))))"
+      },
+      {
+         "name":"results_SuppressiveWithData",
+         "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: Random 2-6\nFitness Function: rcvd With Data",
+         "code":"sendDataPacket(broadcastInterest(wait(wait(broadcastInterest(wait(wait(sendDataPacket(sendDataPacket(sendDataPacket(wait(wait(sendDataPacket(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(sendDataPacket(broadcastInterest(broadcastInterest(wait(broadcastInterest(sendDataPacket(broadcastInterest(sendDataPacket(broadcastInterest(wait(sendDataPacket(wait(sendDataPacket(0))))))))))))))))))))))))))))))"
+      },
+      {
+         "name":"results_Stealthy",
+         "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: Random 2-6\nFitness Function: rcvd With Data",
+         "code":"broadcastInterest(0)"
+      },
+      {
+         "name":"results_StealthyWithData",
+         "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: Random 2-6\nFitness Function: rcvd With Data",
+         "code":"broadcastInterest(0)"
       }
    ]
 }
