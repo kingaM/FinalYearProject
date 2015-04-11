@@ -45,7 +45,7 @@ void DendricCell::cycle() {
 }
 
 Maturity DendricCell::mature() {
-    if (mat > semi) {
+    if (mat >= semi) {
         return Maturity::MAT;
     } else {
         return Maturity::SEMI;
@@ -54,10 +54,10 @@ Maturity DendricCell::mature() {
 
 string DendricCell::maturity(Maturity mat) {
     switch (mat) {
-        case Maturity::MAT:
-            return "MAT";
         case Maturity::SEMI:
             return "SEMI";
+        case Maturity::MAT:
+            return "MAT";
     }
     // Will never happen
     return "NONE";

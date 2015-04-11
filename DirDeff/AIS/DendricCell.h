@@ -16,8 +16,8 @@
  * Defines the possible stages of the cell.
  */
 enum class Maturity {
-    SEMI, /*!< A semi-mature cell is considered dangerous */
-    MAT /*!< A mature cell is considered benign */
+    MAT, /*!< A mature cell is considered dangerous */
+    SEMI /*!< A semi-mature cell is considered benign */
 };
 
 /**

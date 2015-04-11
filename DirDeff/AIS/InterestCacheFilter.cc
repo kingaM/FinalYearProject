@@ -28,7 +28,7 @@ double InterestCacheFilter::getDropRate(
         boost::circular_buffer<PacketInfo> list) {
     int count = 0;
     for (auto it = list.begin(); it != list.end(); it++) {
-        if (it->decision == Maturity::SEMI) {
+        if (it->decision == Maturity::MAT) {
             count++;
         }
     }

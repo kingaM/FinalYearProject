@@ -35,13 +35,13 @@ Maturity DendricCells::mature(string type) {
     p.decision = mat;
     DEBUG_MSG(
             "MALICIOUS " << p.malicious << "DECISION " << DendricCell::maturity(mat));
-    if (mat == Maturity::SEMI && !p.malicious) {
+    if (mat == Maturity::MAT && !p.malicious) {
         node->emit(fpSignal, 1);
-    } else if (mat == Maturity::MAT && p.malicious) {
-        node->emit(fnSignal, 1);
-    } else if (mat == Maturity::MAT && !p.malicious) {
-        node->emit(tnSignal, 1);
     } else if (mat == Maturity::SEMI && p.malicious) {
+        node->emit(fnSignal, 1);
+    } else if (mat == Maturity::SEMI && !p.malicious) {
+        node->emit(tnSignal, 1);
+    } else if (mat == Maturity::MAT && p.malicious) {
         node->emit(tpSignal, 1);
     }
     filter->addPacket(p);
