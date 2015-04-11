@@ -11,13 +11,16 @@ using namespace std;
 Define_Module(EvilNode);
 
 void EvilNode::initialize() {
-    generator = RandomNumberGenerator("seeds.csv", 0);
+    setParameters();
+    generator = RandomNumberGenerator("seeds.csv", run, id);
     dataCache = DataCache();
     malicious = true;
 }
 
 void EvilNode::forwardInterestPacket(Packet* ttmsg) {
-    wait(wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(sendDataPacket(0))))))))) ;
+    // The original burst interest cache poisoning attack
+    broadcastInterest(
+            broadcastInterest(broadcastInterest(broadcastInterest(0))));
 }
 
 int EvilNode::wait(int i) {
@@ -67,8 +70,8 @@ void EvilNode::sendBogusInterests() {
     int n = gateSize("gate");
     for (int i = 0; i < n; i++) {
         Packet *dup = msg->dup();
-        send(dup, "gate$o", i);
         addToDataCache(dup);
+        send(dup, "gate$o", i);
         EV << "Forwarding message " << msg << " on gate[" << i << "]\n";
     }
     delete msg;

@@ -5,14 +5,6 @@
 
 using namespace std;
 
-NodeBase::NodeBase() {
-
-}
-
-NodeBase::~NodeBase() {
-
-}
-
 Packet *NodeBase::generateMessage(int interval, int type, string dataType,
         double psConc) {
     Packet *msg = new Packet();

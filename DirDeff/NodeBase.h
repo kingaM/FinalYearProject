@@ -27,7 +27,8 @@ class NodeBase : public cSimpleModule {
          * Generates a packet with the given specification.
          * @param interval The rate at which data should be sent. Used only for
          *  interest packets
-         * @param type The type of the packet. Can be one of INTEREST 1,
+         * @param type The type of the packet. Can be one of
+         *  INTEREST 1,
          *  DATA 2
          *  SENSOR 0
          *  INTERVAL 3
@@ -56,14 +57,14 @@ class NodeBase : public cSimpleModule {
          * @return A pointer to the generated packet.
          */
         Packet* generateMessage(int type, std::string dataType);
+        /**
+         * Sets id, numOfNodes and run to values defined in the ini file.
+         */
         virtual void setParameters();
         bool malicious = false;
         int id;
         int numOfNodes;
         int run;
-    public:
-        NodeBase();
-        virtual ~NodeBase();
 };
 
 #endif /* NODEBASE_H_ */
