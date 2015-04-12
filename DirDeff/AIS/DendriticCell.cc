@@ -5,7 +5,7 @@
  *      Author: kinga
  */
 
-#include "AIS/DendricCell.h"
+#include "AIS/DendriticCell.h"
 #include "AIS/SignalMatrix.h"
 #include <cmath>
 #include "debug.h"
@@ -14,16 +14,16 @@
 
 using namespace std;
 
-DendricCell::DendricCell() {
+DendriticCell::DendriticCell() {
 
 }
 
-DendricCell::DendricCell(SignalMatrix* signalMatrix, string type) {
+DendriticCell::DendriticCell(SignalMatrix* signalMatrix, string type) {
     this->signalMatrix = signalMatrix;
     this->type = type;
 }
 
-void DendricCell::cycle() {
+void DendriticCell::cycle() {
     signals.push_back(MatrixEntry(signalMatrix->getEntry(type)));
     MatrixEntry recent = signals.back();
     double semiTmp = (0 * recent.getPs().getConcentration()
@@ -44,7 +44,7 @@ void DendricCell::cycle() {
     mat = ALPHA * matTmp + (1 - ALPHA) * mat;
 }
 
-Maturity DendricCell::mature() {
+Maturity DendriticCell::mature() {
     if (mat >= semi) {
         return Maturity::MAT;
     } else {
@@ -52,7 +52,7 @@ Maturity DendricCell::mature() {
     }
 }
 
-string DendricCell::maturity(Maturity mat) {
+string DendriticCell::maturity(Maturity mat) {
     switch (mat) {
         case Maturity::SEMI:
             return "SEMI";

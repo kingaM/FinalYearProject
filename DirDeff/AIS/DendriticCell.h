@@ -1,12 +1,12 @@
 /*
- * DendricCell.h
+ * DendriticCell.h
  *
  *  Created on: Jan 1, 2015
  *      Author: kinga
  */
 
-#ifndef DENDRICCELL_H_
-#define DENDRICCELL_H_
+#ifndef DENDRITICCELL_H_
+#define DENDRITICCELL_H_
 
 #include "SignalMatrix.h"
 #include <string>
@@ -24,15 +24,15 @@ enum class Maturity {
  * A class representing a dendric cell used in the Artificial Immune System
  * algorithm.
  */
-class DendricCell {
+class DendriticCell {
     public:
         /**
          * Converts the Maturity enum into a string
          * @see Maturity
          */
         static std::string maturity(Maturity mat);
-        DendricCell();
-        DendricCell(SignalMatrix* signalMatrix, std::string type);
+        DendriticCell();
+        DendriticCell(SignalMatrix* signalMatrix, std::string type);
         /**
          * Simulates one cycle of the cell. Retrieves the latest signals from
          * the signal matrix and updates the cytokines accordingly.
@@ -59,4 +59,4 @@ class DendricCell {
         double mat = 0;
 };
 
-#endif /* DENDRICCELL_H_ */
+#endif /* DENDRITICCELL_H_ */

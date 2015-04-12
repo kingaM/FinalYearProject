@@ -9,7 +9,7 @@
 #define PACKETINFO_H_
 
 #include "AIS/ContentClassifier.h"
-#include "AIS/DendricCell.h"
+#include "AIS/DendriticCell.h"
 
 /**
  * Class representing information about a packet needed for intrusion detection
@@ -36,7 +36,7 @@ class PacketInfo {
         /**
          * The maturity of the packet.
          * @see Maturity
-         * @see DendricCell
+         * @see DendriticCell
          */
         Maturity decision;
         /**

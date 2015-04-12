@@ -9,7 +9,7 @@
 #include "DataCache.h"
 #include "RandomNumberGenerator.h"
 #include "MultiLevelFeedbackQueue.h"
-#include "DendricCells.h"
+#include "AIS/DendriticCells.h"
 #include "AIS/ContentClassifier.h"
 #include "AIS/PacketFilter.h"
 #include "AIS/SignalMatrix.h"
@@ -109,7 +109,7 @@ class Node : public NodeBase {
         std::map<std::string, int> numRcvd;
         std::map<std::string, int> numExp;
         //@}
-        DendricCells* dcs = NULL;
+        DendriticCells* dcs = NULL;
         ContentClassifier classifier;
         PacketFilter* filter;
         InterestCacheFilter* icf;

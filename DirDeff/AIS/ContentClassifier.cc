@@ -7,7 +7,6 @@
 
 #include "ContentClassifier.h"
 #include "packet_m.h"
-#include <stdio.h>
 
 ContentClassifier::ContentClassifier(int row, int column) {
     generator = RandomNumberGenerator("seeds.csv", row, column);

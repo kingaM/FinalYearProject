@@ -11,7 +11,7 @@
 #include "DataCache.h"
 #include "RandomNumberGenerator.h"
 #include "MultiLevelFeedbackQueue.h"
-#include "AIS/DendricCells.h"
+#include "AIS/DendriticCells.h"
 #include "AIS/ContentClassifier.h"
 #include "AIS/PacketFilter.h"
 #include "AIS/SignalMatrix.h"
@@ -55,7 +55,7 @@ void Node::initialize() {
     matrix = new SignalMatrix();
     filter = new PacketFilter(run, numOfNodes + id);
     icf = new InterestCacheFilter();
-    dcs = new DendricCells(matrix, filter, icf, this);
+    dcs = new DendriticCells(matrix, filter, icf, this);
     cache.setDcs(dcs);
     if (icfEnabled) {
         cache.setFilter(icf);

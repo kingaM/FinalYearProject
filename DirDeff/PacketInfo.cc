@@ -7,7 +7,7 @@
 
 #include "PacketInfo.h"
 #include "AIS/ContentClassifier.h"
-#include "AIS/DendricCell.h"
+#include "AIS/DendriticCell.h"
 
 using namespace std;
 

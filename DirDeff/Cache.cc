@@ -12,7 +12,7 @@
 #include <boost/circular_buffer.hpp>
 #include <utility>
 #include <stdio.h>
-#include "AIS/DendricCells.h"
+#include "AIS/DendriticCells.h"
 #include "AIS/InterestCacheFilter.h"
 #include "debug.h"
 
@@ -22,7 +22,7 @@ Cache::Cache() {
     entries.set_capacity(SIZE);
 }
 
-void Cache::setDcs(DendricCells* dcs) {
+void Cache::setDcs(DendriticCells* dcs) {
     this->dcs = dcs;
 }
 
@@ -55,7 +55,7 @@ Gradient* Cache::addEntry(string type, long timestamp, int source, int dataRate,
         }
         Maturity m = dcs->mature(type);
         DEBUG_MSG(
-                "MATURITY: " << DendricCell::maturity(m) << " type " <<
+                "MATURITY: " << DendriticCell::maturity(m) << " type " <<
                 type);
         e.addGradient(dataRate, expiresAt, neighbour, timestamp);
         entries.push_back(e);
@@ -75,7 +75,7 @@ vector<int> Cache::getPaths(string type, long currTime) {
     if (paths.empty()) {
         Maturity m = dcs->mature(entry->getType());
         DEBUG_MSG(
-                "D MATURITY: " << DendricCell::maturity(m) << " type " <<
+                "D MATURITY: " << DendriticCell::maturity(m) << " type " <<
                 entry->getType());
         entries.erase(entry);
     }

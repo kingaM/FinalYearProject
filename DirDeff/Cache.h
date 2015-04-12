@@ -13,7 +13,7 @@
 #include "Entry.h"
 #include <boost/circular_buffer.hpp>
 #include <utility>
-#include "AIS/DendricCells.h"
+#include "AIS/DendriticCells.h"
 #include "AIS/PacketFilter.h"
 #include "AIS/InterestCacheFilter.h"
 
@@ -49,12 +49,12 @@ class Cache {
          * @param currTime The current time
          */
         void setInactive(std::set<pair<string, int>> inactive, long currTime);
-        void setDcs(DendricCells* dcs);
+        void setDcs(DendriticCells* dcs);
         void setFilter(InterestCacheFilter* filter);
         const static int SIZE = 4;
     private:
         boost::circular_buffer<Entry> entries;
-        DendricCells* dcs;
+        DendriticCells* dcs;
         InterestCacheFilter* filter = NULL;
 
         boost::circular_buffer<Entry>::iterator getLeastTrustworthy();
