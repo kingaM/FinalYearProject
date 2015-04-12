@@ -1,9 +1,11 @@
+# Python script to generate seeds form similation and network generation
+
 import random
 import csv
 
 
 def generateSeeds(rows, columns, step):
-    maxint = 2**32
+    maxint = 2**16
     random.seed(0)
     seeds = []
     allseeds = set()
@@ -37,6 +39,6 @@ def readFromCsv(path):
     f.close()
 
 
-saveToCsv(generateSeeds(30, 4, 1000), "scaleFreeNetworksSeeds.csv")
-saveToCsv(generateSeeds(30, 1, 1000), "randomNetworksSeeds.csv")
-saveToCsv(generateSeeds(200, 1000, 20000), "simulationSeeds.csv")
+saveToCsv(generateSeeds(100, 4, 1000), "scaleFreeNetworksSeeds.csv")
+saveToCsv(generateSeeds(500, 1, 1000), "randomNetworksSeeds.csv")
+saveToCsv(generateSeeds(50, 20000, 50000), "simulationSeeds.csv")

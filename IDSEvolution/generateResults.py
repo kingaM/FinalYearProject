@@ -1,3 +1,5 @@
+# Python script to generate omnet++ results from IDS evolution results
+
 from string import Template
 import subprocess
 import os
@@ -13,7 +15,7 @@ def populateAttacker(network):
     results = open('resultsSummary.txt')
     data = json.load(results)['results']
     for result in data:
-        if result['name'] == networks:
+        if result['name'] == network:
             gpCode = result["code"]
     results.close()
     tmpl = open('evilNode.tmpl')
@@ -99,8 +101,6 @@ def getAllResults(networks=None):
     results.close()
 
 if __name__ == "__main__":
-    # networks = ["results_orig_w", "results_ids_1"]
-    networks = None
     network = "ScaleFree"
     if network == "Random":
         networkDir = "RandomNetworks"
@@ -114,4 +114,4 @@ if __name__ == "__main__":
         run = runOmnetExeScaleFree
     else:
         Exception("Undefined network type")
-    getAllResults(networks)
+    getAllResults()

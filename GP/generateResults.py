@@ -1,3 +1,5 @@
+# Python script to generate omnet++ results from different GP results
+
 from string import Template
 import subprocess
 import os
@@ -34,7 +36,7 @@ def runOmnetpp(gpCode):
 
 
 def runOmnetExeRandom(i):
-    for j in xrange(0, 5):
+    for j in xrange(0, 50):
         subprocess.check_output(("./out/gcc-debug/DirDeff" +
                                  " -u Cmdenv -f ../RandomNetworks/random.ini" +
                                  " -c RandomNetwork" + str(i) + "_" + str(j) +
@@ -76,8 +78,6 @@ def getAllResults(networks=None):
     results.close()
 
 if __name__ == "__main__":
-    networks = ["results_orig", "results_data_14", "results_data_15",
-                "results_16", "results_scalefree_21"]
     network = "Random"
     if network == "Random":
         networkDir = "RandomNetworks"
@@ -91,4 +91,4 @@ if __name__ == "__main__":
         run = runOmnetExeScaleFree
     else:
         Exception("Undefined network type")
-    getAllResults(networks)
+    getAllResults()

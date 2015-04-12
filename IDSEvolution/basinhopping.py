@@ -1,3 +1,5 @@
+# Script used to evolve weights in SNAIS implementation using basin-hopping
+
 from scipy.optimize import basinhopping
 from pyevolve import Util
 import os
@@ -33,12 +35,10 @@ def getAllScaFiles():
     return files
 
 
-"""
-@param type - "" for DC and "Filter" for packet filter
-"""
-
-
 def getValuesFromSca(f, type):
+    """
+    @param type - "" for DC and "Filter" for packet filter
+    """
     tpf = 0
     tnf = 0
     fpf = 0
@@ -77,7 +77,6 @@ def getNumFromLineInSca(line):
 def runOmnetpp(x):
     os.chdir(home + "FinalYearProject/IDSEvolution")
     tmpl = open('dc.tmpl')
-    # d = dict(enumerate(x))
     path = "../DirDeff/AIS/"
     try:
         os.remove(path + 'DendricCell.cc')
@@ -86,7 +85,6 @@ def runOmnetpp(x):
     evil = open(path + 'DendricCell.cc', 'a')
     src = tmpl.read()
     t = src.format(*x)
-    # print t
     evil.write(t)
     tmpl.close()
     evil.close()
@@ -104,8 +102,8 @@ def runOmnetpp(x):
 def runOmnetExe(i):
     subprocess.check_output(("./out/gcc-debug/DirDeff" +
                              " -u Cmdenv -f ../" + dirName + "s/" + iniName +
-                             " -c " + dirName + str(i) + "_0 -n ../" + dirName +
-                             "s/").split())
+                             " -c " + dirName + str(i) + "_0 -n ../" +
+                             dirName + "s/").split())
 
 
 def eval_func(x):
@@ -123,9 +121,7 @@ def eval_func(x):
     return rmse_accum.getRMSE()
 
 
-# basinhopping(func, x0, niter=100, T=1.0, stepsize=0.5, minimizer_kwargs=None, take_step=None, 
-    # accept_test=None, callback=None, interval=50, disp=False, niter_success=None)
-
-print basinhopping(eval_func, [0, 0, 0, 2, 2, 2, 6, 4, 4, -1, -1, -1], disp=True, niter=200,
-    minimizer_kwargs={"method": "L-BFGS-B", "bounds": [(-100, 100)] * 12})
-# runOmnetpp()
+print basinhopping(eval_func, [0, 0, 0, 2, 2, 2, 6, 4, 4, -1, -1, -1],
+                   disp=True, niter=200,
+                   minimizer_kwargs={"method": "L-BFGS-B",
+                                     "bounds": [(-100, 100)] * 12})

@@ -102,8 +102,8 @@ def runOmnetpp(gpCode):
 def runOmnetExe(i):
     subprocess.check_output(("./out/gcc-debug/DirDeff" +
                              " -u Cmdenv -f ../" + dirName + "/random.ini " +
-                             "-c " + networkName + str(i) + " -n ../" + dirName +
-                             "/").split())
+                             "-c " + networkName + str(i) + " -n ../" +
+                             dirName + "/").split())
 
 
 def eval_func(chromosome):
