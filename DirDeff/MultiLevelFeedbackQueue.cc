@@ -17,8 +17,8 @@ using namespace std;
 using namespace boost;
 
 MultiLevelFeedbackQueue::MultiLevelFeedbackQueue() {
-    high.set_capacity(10);
-    low.set_capacity(10);
+    high.set_capacity(30);
+    low.set_capacity(30);
     generator = RandomNumberGenerator("seeds.csv", 0, 0);
 }
 
