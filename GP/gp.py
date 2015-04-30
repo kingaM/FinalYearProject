@@ -10,18 +10,18 @@ import fnmatch
 
 rmse_accum = Util.ErrorAccumulator()
 
-home = "/home/kinga/Documents/GitHub/"
-dirName = "GPTrainingNetworks"
+home = "/home/azureuser/"
+dirName = "RandomNetworks"
 networkName = "RandomNetwork"
 
 
 def getResults():
     os.chdir(home +
-             "FinalYearProject/" + dirName + "s/results")
+             "FinalYearProject/" + dirName + "/results")
     files = getAllScaFiles()
     results = []
     for file in files:
-        results.append(getValuesFromSca(file, ""))
+        results.append(getValuesFromSca(file, "Filter"))
         file.close()
     print results
     return results
@@ -35,10 +35,12 @@ def getAllScaFiles():
     return files
 
 
+"""
+@param type - "" for DC and "Filter" for packet filter
+"""
+
+
 def getValuesFromSca(f, type):
-    """
-    @param type - "" for DC and "Filter" for packet filter
-    """
     tpf = 0
     tnf = 0
     fpf = 0
@@ -54,7 +56,7 @@ def getValuesFromSca(f, type):
             fpf += getNumFromLineInSca(line)
         elif "falseNegative" + type + ":count" in line:
             fnf += getNumFromLineInSca(line)
-        elif "receivedPackets:count" in line:
+        elif "recievedPackets:count" in line:
             rec += getNumFromLineInSca(line)
         elif "dataGenerated:count" in line:
             gen += getNumFromLineInSca(line)
@@ -91,7 +93,7 @@ def runOmnetpp(gpCode):
     os.chdir(home + "FinalYearProject/DirDeff")
     subprocess.check_output("make")
     processes = []
-    for i in xrange(0, 3):
+    for i in xrange(2, 7):
         p = Process(target=runOmnetExe, args=(i, ))
         processes.append(p)
         p.start()
@@ -102,7 +104,7 @@ def runOmnetpp(gpCode):
 def runOmnetExe(i):
     subprocess.check_output(("./out/gcc-debug/DirDeff" +
                              " -u Cmdenv -f ../" + dirName + "/random.ini " +
-                             "-c " + networkName + str(i) + " -n ../" +
+                             "-c " + networkName + str(i) + "_0 -n ../" +
                              dirName + "/").split())
 
 
@@ -113,7 +115,7 @@ def eval_func(chromosome):
     runOmnetpp(chromosome.getPreOrderExpression())
     results = getResults()
     for i in xrange(0, 5):
-        evaluated = results[i]['rcvd']
+        evaluated = (results[i]['r'] + results[i]['r'])/2
         target = 0
         rmse_accum += (target, evaluated)
     print rmse_accum.getRMSE()
@@ -122,27 +124,28 @@ def eval_func(chromosome):
 
 def main_run():
     genome = GTree.GTreeGP()
-    genome.setParams(max_depth=25, method="ramped")
+    genome.setParams(max_depth=30, method="ramped")
     genome.evaluator += eval_func
 
     ga = GSimpleGA.GSimpleGA(genome)
     ga.setParams(gp_terminals=['0'],
                  gp_function_set={"wait": 1,
                                   "broadcastInterest": 1,
-                                  "sendDataPacket": 1})
+                                  "sendDataPacket": 1
+                                  })
 
     ga.setMinimax(Consts.minimaxType["minimize"])
-    ga.setGenerations(30)
-    ga.setCrossoverRate(0.9)
+    ga.setGenerations(50)
+    ga.setCrossoverRate(0.7)
     ga.setMutationRate(0.25)
-    ga.setPopulationSize(60)
+    ga.setPopulationSize(100)
 
-    ga(freq_stats=10)
+    ga(freq_stats=5)
     best = ga.bestIndividual()
     print best
 
 if __name__ == "__main__":
-    print "Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, ",
-    print "Population Size: 60, Sample: ScaleFree 0, 1, 2"
-    print "Fitness Function: rcvd"
+    print "Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25, ",
+    print "Population Size: 100, Depth: 30, Sample: Random 2-6"
+    print "Fitness Function: rcvd, With data"
     main_run()

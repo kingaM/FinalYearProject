@@ -6,11 +6,11 @@
          "weights": [0, 0, 0, 2, 2, 2, 
 		     6, 4, 4, -1, -1, -1]
       },
-      {
-         "name":"results_ids_1",
-         "description":"basinhopping step 200: f 0.481851 trial_f 0.481851 accepted 1  lowest_f 0.481851\nnfev: 2613\nminimization_failures: 0\nfun: 0.481851096465474",
-         "weights":[3.56345837, -1.34151894, 8.47284094, 6.04858989, 1.45574441, 12.59100752, 
-		    2.76281438, 2.45880537, 11.01077422, 0.6194299, -2.25690835, -1.16281857]
+       {
+         "name":"results_test",
+         "description":"Manual 2",
+         "weights": [6, 4, 4, -1, -1, -1, 
+		     0, 0, 0, 2, 2, 2]
       }
    ]
 }

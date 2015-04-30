@@ -277,7 +277,7 @@ network = {0}
     ini = open(path + 'scalefree.ini', 'a')
     ini.write('[General]\nsim-time-limit = 1000s\nrecord-eventlog = false\n')
     seeds = readCsv()
-    for i in range(0, 50):
+    for i in range(0, 100):
         network = "ScaleFreeNetwork" + str(i)
         nodes = 2**7
         net = NetworkGenerator(nodes, 2, seeds[i], i % 2)

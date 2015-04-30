@@ -6,81 +6,6 @@
          "code":"broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(0))))"
       },
       {
-         "name":"results_6",
-         "description":"Generation: 40, Crossover Rate: 1.0, Mutation Rate: 0.25, Population Size: 50, Sample: 2, 3\nFitness Function: (p + r + 3 * rcvd) / 5",
-         "code":"wait(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(wait(wait(broadcastInterest(0)))))))))))))))"
-      },
-      {
-         "name":"results_7",
-         "description":"Generation: 40, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 50, Sample: 2, 3\nFitness Function: (p + r + 2 * rcvd) / 4",
-         "code":"wait(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(wait(wait(wait(wait(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(0)))))))))))))))))))))))))"
-      },
-      {
-         "name":"results_8",
-         "description":"Generation: 35, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 45, Sample: 3, 4, 5\nFitness Function: (p + r) / 2",
-         "code":"broadcastInterest(wait(0))"
-      },
-      {
-         "name":"results_11",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 3, 4\nFitness Function: DC_p + DC_r / 2",
-         "code":"wait(wait(broadcastInterest(broadcastInterest(wait(wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(0))))))))))))))))))))))"
-      },
-      {
-         "name":"results_12",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 3, 4\nFitness Function: r",
-         "code":"wait(wait(wait(broadcastInterest(wait(wait(wait(wait(wait(0)))))))))"
-      },
-      {
-         "name":"results_13",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 3, 4\nFitness Function: p",
-         "code":"broadcastInterest(wait(wait(wait(wait(wait(wait(wait(0))))))))"
-      },
-      {
-         "name":"results_9",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 100, Sample: 3, 4, 5\nFitness Function: rcvd",
-         "code":"wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(wait(wait(broadcastInterest(wait(wait(wait(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(0)))))))))))))))))))))))))"
-      },
-      {
-         "name":"results_data_14",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: p + r / 2",
-         "code":"broadcastInterest(0)"
-      },
-      {
-         "name":"results_data_15",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: rcvd",
-         "code":"wait(sendDataPacket(sendDataPacket(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(sendDataPacket(sendDataPacket(broadcastInterest(sendDataPacket(broadcastInterest(broadcastInterest(sendDataPacket(broadcastInterest(sendDataPacket(broadcastInterest(broadcastInterest(sendDataPacket(broadcastInterest(wait(broadcastInterest(broadcastInterest(wait(0)))))))))))))))))))))))))"
-      },
-      {
-         "name":"results_16",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: rcvd",
-         "code":"broadcastInterest(broadcastInterest(wait(wait(broadcastInterest(wait(broadcastInterest(wait(wait(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(wait(wait(broadcastInterest(broadcastInterest(0)))))))))))))))))))))))))"
-      },
-      {
-         "name":"results_17",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: p + r / 2",
-         "code":"broadcastInterest(0)"
-      },
-      {
-         "name":"results_data_19",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: rcvd",
-         "code":"wait(wait(wait(sendDataPacket(wait(sendDataPacket(sendDataPacket(sendDataPacket(wait(wait(broadcastInterest(wait(sendDataPacket(broadcastInterest(broadcastInterest(broadcastInterest(wait(sendDataPacket(broadcastInterest(broadcastInterest(sendDataPacket(wait(broadcastInterest(broadcastInterest(broadcastInterest(0)))))))))))))))))))))))))"
-      },
-      {
-         "name":"results_data_18",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: DC_p + DC_r / 2",
-         "code":"wait(wait(broadcastInterest(broadcastInterest(wait(broadcastInterest(broadcastInterest(broadcastInterest(sendDataPacket(0)))))))))"
-      },
-      {
-         "name":"results_data_20",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25, Population Size: 60, Sample: 2, 3, 4, 5\nFitness Function: p",
-         "code":"broadcastInterest(0)"
-      },
-      {
-         "name":"results_scalefree_21",
-         "description":"Generation: 30, Crossover Rate: 0.9, Mutation Rate: 0.25,  Population Size: 60, Sample: ScaleFree 0, 1, 2, 3\nFitness Function: rcvd",
-         "code":"broadcastInterest(wait(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(sendDataPacket(broadcastInterest(0))))))))))))))"
-      }, 
-      {
          "name":"results_Suppressive",
          "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: Random 2-6\nFitness Function: rcvd",
          "code":"wait(broadcastInterest(broadcastInterest(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(wait(broadcastInterest(broadcastInterest(wait(wait(0)))))))))))))))))"
@@ -99,6 +24,26 @@
          "name":"results_StealthyWithData",
          "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: Random 2-6\nFitness Function: rcvd With Data",
          "code":"broadcastInterest(0)"
+      }, 
+      {
+         "name":"results_SF_Suppressive",
+         "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: ScaleFree 0-4\nFitness Function: rcvd",
+         "code":"broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(wait(wait(wait(wait(wait(wait(wait(wait(wait(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(broadcastInterest(0))))))))))))))))))"
+      },
+      {
+         "name":"results_SF_SuppressiveWithData",
+         "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: ScaleFree 0-4\nFitness Function: rcvd With Data",
+         "code":"sendDataPacket(wait(sendDataPacket(sendDataPacket(wait(sendDataPacket(sendDataPacket(wait(wait(sendDataPacket(sendDataPacket(sendDataPacket(wait(sendDataPacket(sendDataPacket(wait(broadcastInterest(wait(sendDataPacket(broadcastInterest(wait(broadcastInterest(broadcastInterest(sendDataPacket(broadcastInterest(sendDataPacket(wait(sendDataPacket(broadcastInterest(wait(0))))))))))))))))))))))))))))))"
+      },
+      {
+         "name":"results_SF_Stealthy",
+         "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: ScaleFree 0-4\nFitness Function: p+r/2",
+         "code":"broadcastInterest(wait(wait(wait(wait(wait(0))))))"
+      }, 
+      {
+         "name":"results_SF_StealthyWithData",
+         "description":"Generation: 50, Crossover Rate: 0.7, Mutation Rate: 0.25\nPopulation Size: 100, Depth: 30, Sample: ScaleFree 0-4\nFitness Function: p+r/2 With Data",
+         "code":"broadcastInterest(wait(wait(wait(wait(wait(0))))))"
       }
    ]
 }
