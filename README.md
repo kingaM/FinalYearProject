@@ -16,3 +16,6 @@ The project consists of the following components:
    scale-free network topologies
  * Other files in the main folder are used to analyse the results and 
    set-up the environment 
+
+# Contact
+kinga.mrugala.11@ucl.ac.uk
